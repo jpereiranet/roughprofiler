@@ -14,26 +14,29 @@ class params:
                    }
 
         self.ArgyllResolutions = {
-                            "Low": "-q l",
-                            "Medium": "-q m",
-                            "High": "-q h",
-                            "Ultra": "-q u"
+                            "Low": "l",
+                            "Medium": "m",
+                            "High": "h",
+                            "Ultra": "u"
                             }
 
         self.ArgyllAlgoritms = {
-                            "Lab cLUT": "-a l",
-                            "XYZ cLUT": "-a x",
-                            "Gamma+matrix": "-a g",
-                            "Shaper+matrix": "-a s",
-                            "Matrix only": "-a m",
-                            "Single gamma+matrix": "-a G",
-                            "Single shaper+matrix": "-a S"
+                            "Lab cLUT": "l",
+                            "XYZ cLUT": "x",
+                            "Gamma+matrix": "g",
+                            "Shaper+matrix": "s",
+                            "Matrix only": "m",
+                            "Single gamma+matrix": "G",
+                            "Single shaper+matrix": "S"
                             }
 
         self.ArgyllUparam = {
+            "clip cLUT values": "-uc",
             "Auto scale WP": "-u",
             "Force Absolute": "-ua",
-            "clip cLUT values": "-uc"
+            "None": "",
+            "Custom": ""
+
         }
 
 
