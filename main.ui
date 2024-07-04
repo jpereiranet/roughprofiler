@@ -188,8 +188,15 @@
      <height>351</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true">QTabWidget::pane {
+  border: 1px solid lightgray;
+  top:5px; 
+  background: rgb(240, 240, 240);
+} </string>
+   </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="ArgyllCM">
     <attribute name="title">
@@ -428,7 +435,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
+       <y>40</y>
        <width>61</width>
        <height>16</height>
       </rect>
@@ -449,10 +456,36 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>40</y>
+       <y>60</y>
        <width>191</width>
        <height>26</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="DcamprofICC">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>10</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ICC</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="DcamprofDCP">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>10</y>
+       <width>61</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>DCP</string>
      </property>
     </widget>
    </widget>
@@ -643,12 +676,12 @@
     <rect>
      <x>600</x>
      <y>60</y>
-     <width>131</width>
+     <width>211</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>Argyll Workflow</string>
+    <string>Argyll Workflow (ICC)</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="radioButton_2">
@@ -656,12 +689,12 @@
     <rect>
      <x>600</x>
      <y>90</y>
-     <width>151</width>
+     <width>211</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>Dcamprof Workflow</string>
+    <string>Dcamprof Workflow (DCP/ICC)</string>
    </property>
   </widget>
   <widget class="QTabWidget" name="tabWidget_2">
@@ -677,7 +710,12 @@
     <bool>false</bool>
    </property>
    <property name="styleSheet">
-    <string notr="true"/>
+    <string notr="true">QTabWidget::pane {
+  border: 1px solid lightgray;
+  top:5px; 
+  background: rgb(240, 240, 240);
+} 
+</string>
    </property>
    <property name="currentIndex">
     <number>0</number>
@@ -689,10 +727,10 @@
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>0</x>
+       <x>10</x>
        <y>10</y>
-       <width>571</width>
-       <height>371</height>
+       <width>561</width>
+       <height>361</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout"/>
@@ -706,9 +744,9 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>0</y>
+       <y>10</y>
        <width>571</width>
-       <height>371</height>
+       <height>361</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -723,7 +761,7 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>551</width>
+       <width>561</width>
        <height>361</height>
       </rect>
      </property>

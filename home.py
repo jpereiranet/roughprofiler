@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QProgressBar, QSplashScreen
 from PyQt5.QtGui import QPixmap
 from main import Ui_RoughProfiler2
-
+from developraw import DevelopImages
 import math
 from params import params
 import os
@@ -27,9 +27,9 @@ class HomeUI(QtWidgets.QDialog):
         self.lay_h = 400
         self.pad_roi = 100
 
-        self.pathArgyllExecutables = "/Users/jpereira/Python/imageProfiler/programs/argyll"
-        self.pathDcamprofExecutables = "/Users/jpereira/Python/imageProfiler/programs/dcamprof/"
-        self.pathRepo = "/Users/jpereira/Python/imageProfiler/resources/"
+        self.pathArgyllExecutables = "/Users/jpereira/Python/roughprofiler2/programs/argyll"
+        self.pathDcamprofExecutables = "/Users/jpereira/Python/roughprofiler2/programs/dcamprof/"
+        self.pathRepo = "/Users/jpereira/Python/roughprofiler2/resources/"
         #self.dcrawExecutable = "/usr/local/Cellar/dcraw/9.28.0/bin/dcraw"
 
         self.par = params()
@@ -54,6 +54,10 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.LoadCGATS.clicked.connect( self.openCGATS )
         self.ui.radioButton.setChecked(True)
         self.ui.tabWidget.setTabEnabled(1, False)
+
+        self.ui.ExecuteReadImage.setEnabled(False)
+        self.ui.LoadCGATS.setEnabled(False)
+        self.ui.ExecuteTask.setEnabled(False)
 
         self.ui.ExecuteTask.clicked.connect(self.executeProcess)
         self.ui.radioButton.clicked.connect(self.showArgyllWorkflow)
@@ -91,38 +95,74 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.tabWidget.setCurrentIndex(0)
         self.ui.tabWidget.setTabEnabled(1,False)
         self.ui.tabWidget.setTabEnabled(0, True)
+        self.ui.radioButton.setChecked(True)
+        self.ui.radioButton_2.setChecked(False)
 
     def showDcamprofWorkflow(self):
         self.ui.tabWidget.setCurrentIndex(1)
         self.ui.tabWidget.setTabEnabled(0, False)
         self.ui.tabWidget.setTabEnabled(1, True)
+        self.ui.radioButton.setChecked(False)
+        self.ui.radioButton_2.setChecked(True)
 
 
     def openTestImage(self):
 
-        path = "/Users/jpereira/Python/imageProfiler/"
+        path = "/Users/jpereira/Python/roughprofiler2/test"
         qfd = QtWidgets.QFileDialog()
         paths = [str(file_n) for file_n in list(
             QtWidgets.QFileDialog.getOpenFileNames(qfd, "Select files", path,
-                                                   filter='Images (*.png *.tif *.tiff  *.jpg *.jpeg)'
+                                                   filter='Images (*.png *.tif *.tiff  *.jpg *.jpeg *.dng *.nef)'
                                                    )[0])]
         print(paths)
         self.inputImage = paths[0]
 
         if os.path.isfile(paths[0]):
+
+            self.isRaw = False
             self.ui.tabWidget_2.setTabEnabled(0, True)
             self.ui.tabWidget_2.setCurrentIndex(0)
+            self.ui.ExecuteReadImage.setEnabled(True)
+            self.ui.LoadCGATS.setEnabled(True)
             self.inputImage = paths[0]
-            os.path.splitext(os.path.basename(self.inputImage))[0]
-            self.ui.FileNameValue.setText(os.path.basename(self.inputImage))
+            self.filename = os.path.splitext(os.path.basename(self.inputImage))[0]
+            self.tempFolder = os.path.join(os.path.dirname(paths[0]), self.filename)
+            self.ui.FileNameValue.setText( os.path.basename(self.inputImage) )
+            self.ti3 = os.path.join(self.tempFolder, self.filename + ".ti3")
+            self.diag = os.path.join(self.tempFolder, self.filename + "_diag.tiff")
+            self.checkIfRawFile()
             self.loadImage()
+            self.checkTempFolderContents()
 
+    def checkIfRawFile(self):
+        rawExt = [".DNG",".dng", ".NEF", ".nef"]
+        if os.path.splitext(os.path.basename(self.inputImage))[1] in rawExt:
+            self.rawinputfile = self.inputImage
+            path = os.path.join(self.tempFolder, "thumb_" + self.filename + ".tiff")
+            if not os.path.isfile(path):
+                self.createTempFolder()
+                #rgbImage = DevelopImages.raw_get_thumbnail(self.inputImage)
+                rgbImage = DevelopImages.raw_gamma_develop(self.inputImage)
+                cv2.imwrite(path, rgbImage)
+                if os.path.isfile(path):
+                    self.inputImage = path
+                    self.isRaw = True
+
+    def checkTempFolderContents(self):
+
+        if os.path.isdir(self.tempFolder):
+            if os.path.isfile(self.ti3):
+                self.ui.ExecuteTask.setEnabled(True)
+
+            if os.path.isfile(self.diag):
+                self.loadDiag()
+                self.ui.tabWidget_2.setTabEnabled(1, True)
 
 
     def openCGATS(self):
 
         qfd = QtWidgets.QFileDialog()
-        path = "/Users/jpereira/Python/imageProfiler/"
+        path = "/Users/jpereira/Python/roughprofiler2/test"
 
         filter = "Images (*.txt *.cie)"
         title = "GET CGATS"
@@ -151,7 +191,7 @@ class HomeUI(QtWidgets.QDialog):
         model = self.ui.ModelText.text()
         description = self.ui.DestText.text()
         copyright = self.ui.CopyRightText.text()
-        outputfilename = self.ui.FileNameText.text()
+        outputfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text() )
         argyllAlgoritm = self.par.ArgyllAlgoritms[ list(self.par.ArgyllAlgoritms)[ self.ui.ArgyllAlgoritm.currentIndex()] ]
         argyllRes = self.par.ArgyllResolutions[list(self.par.ArgyllResolutions)[self.ui.ArgyllRes.currentIndex()]]
         argyllUParam = self.par.ArgyllUparam[list(self.par.ArgyllUparam)[self.ui.ArgyllUparam.currentIndex()]]
@@ -165,11 +205,36 @@ class HomeUI(QtWidgets.QDialog):
 
         executable = os.path.join(self.pathArgyllExecutables, "colprof")
 
-        cmd = [executable, "-v","-a", argyllAlgoritm,"-q",emphasis, argyllRes, argyllUParam ,"-O",outputfilename,"-A",manufacturer, "-M", model, "-D",description,"-C", copyright, "DSC_4453a"   ]
+        cmd = [executable, "-v","-a", argyllAlgoritm,"-q",argyllRes, emphasis, argyllUParam ,"-O",outputfilename,"-A",manufacturer, "-M", model, "-D",description,"-C", copyright, os.path.splitext(self.ti3)[0]   ]
         print(cmd)
         self.executeTool(cmd, "COLPROF")
 
+    def createTempFolder(self):
+
+        if not os.path.isdir(self.tempFolder):
+            os.mkdir(self.tempFolder)
+
     def readImage(self):
+
+        self.createTempFolder()
+        self.gamma = "-G2.2"
+
+        if self.isRaw:
+            path = os.path.join(self.tempFolder, "lineal_" + self.filename + ".tiff")
+            if not os.path.isfile(path):
+                self.ui.tabWidget_2.setCurrentIndex(2)
+                self.ui.tabWidget_2.setTabEnabled(2, True)
+                self.ui.textEdit.clear()
+                self.ui.textEdit.insertPlainText("Raw processing wait a moment\n")
+                QApplication.processEvents()
+                linealImage = DevelopImages.raw_lineal_develop(self.rawinputfile)
+                cv2.imwrite(path, linealImage)
+                if os.path.isfile(path):
+                    self.inputImage = path
+                    self.gamma = "-G1.0"
+            else:
+                self.inputImage = path
+
 
         targetKey = list(self.par.targets)[ self.ui.TargetType.currentIndex()]
         target = self.par.targets[targetKey]
@@ -186,13 +251,16 @@ class HomeUI(QtWidgets.QDialog):
              res.append( str(round(j,2)) )
         coor = ",".join(res)
 
-        cmd = [executable, "-v2", "-p","-dipn","-F", coor, self.inputImage, recogfile, reference ]
-
+        cmd = [executable, "-v2", "-p","-dipn", self.gamma, "-F", coor, "-O", self.ti3,  self.inputImage, recogfile, reference, self.diag ]
+        print(cmd)
         self.executeTool(cmd, "SCANIN")
 
-        self.loadDiag()
-        self.ui.tabWidget_2.setTabEnabled(1, True)
-        self.ui.tabWidget_2.setCurrentIndex(1)
+        if os.path.isfile(self.ti3):
+            self.ui.ExecuteTask.setEnabled(True)
+        if os.path.isfile(self.diag):
+            self.loadDiag()
+            self.ui.tabWidget_2.setTabEnabled(1, True)
+            self.ui.tabWidget_2.setCurrentIndex(1)
 
 
     def executeTool(self, cmd, toolName):
@@ -214,34 +282,40 @@ class HomeUI(QtWidgets.QDialog):
 
     def loadDiag(self):
 
-        #clean widgets before
-        for i in reversed(range(self.ui.verticalLayout_2.count())):
-            self.ui.verticalLayout_2.itemAt(i).widget().setParent(None)
+        if os.path.isfile( self.diag ):
 
-        graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
-        graphicsView.setObjectName("graphicsView")
-        v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
-        v2a.setMouseEnabled(x=False, y=False)
-        v2a.setLimits(xMin=0, xMax=self.lay_w)
-        v2a.setAspectLocked()
-        v2a.disableAutoRange('xy')
+            #clean widgets before
+            for i in reversed(range(self.ui.verticalLayout_2.count())):
+                self.ui.verticalLayout_2.itemAt(i).widget().setParent(None)
 
-        image_data = cv2.imread("diag.tif")
-        image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
-        image_data = image_data.astype(np.uint16)
+            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
+            graphicsView.setObjectName("graphicsView")
+            v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
+            v2a.setMouseEnabled(x=False, y=False)
+            v2a.setLimits(xMin=0, xMax=self.lay_w)
+            v2a.setAspectLocked()
+            v2a.disableAutoRange('xy')
 
-        image_data, self.factor = self.image_resize(image_data, width=self.lay_w, height=None, inter=cv2.INTER_AREA)
-        #image apear flip in viewBox ¿?
-        image_data = cv2.flip(image_data, 0)
-        imageitem = pg.ImageItem(image_data, axisOrder='row-major')
-        v2a.addItem(imageitem)
-        v2a.autoRange()
+            image_data = cv2.imread(self.diag)
+            image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
+            image_data = image_data.astype(np.uint16)
 
-        self.ui.verticalLayout_2.addWidget(graphicsView)
+            image_data, self.factor = self.image_resize(image_data, width=self.lay_w, height=None, inter=cv2.INTER_AREA)
+            #image apear flip in viewBox ¿?
+            image_data = cv2.flip(image_data, 0)
+            imageitem = pg.ImageItem(image_data, axisOrder='row-major')
+            v2a.addItem(imageitem)
+            v2a.autoRange()
+
+            self.ui.verticalLayout_2.addWidget(graphicsView)
 
 
 
     def loadImage(self ):
+
+        #clean widgets before
+        for i in reversed(range(self.ui.verticalLayout.count())):
+            self.ui.verticalLayout.itemAt(i).widget().setParent(None)
 
         graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
         graphicsView.setObjectName("graphicsView")
