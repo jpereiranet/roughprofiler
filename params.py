@@ -7,10 +7,10 @@ class params:
     def __init__(self):
 
         self.targets = {
-                   "Colorchecker Classic": ("ColorChecker.cie","ColorChecker.cht" ),
-                   "Colorchecker SG": ("ColorCheckerSG.cie", "ColorCheckerSG.cht"),
-                   "Colorchecker Passport": ("ColorCheckerPassport.cie", "ColorCheckerPassport.cht"),
-                   "Colorchecker SG": ("", "ColorCheckerDC.cht")
+                   "Colorchecker Classic": ("ColorChecker.cie","ColorChecker.cht", "cc24-layout.json" ),
+                   "Colorchecker SG": ("ColorCheckerSG.cie", "ColorCheckerSG.cht", "ccsg-layout.json"),
+                   "Colorchecker Passport": ("ColorCheckerPassport.cie", "ColorCheckerPassport.cht", ""),
+                   "Colorchecker SG": ("", "ColorCheckerDC.cht", "")
                    }
 
         self.ArgyllResolutions = {

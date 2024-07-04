@@ -55,6 +55,11 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.radioButton.setChecked(True)
         self.ui.tabWidget.setTabEnabled(1, False)
 
+        self.ui.DcamprofDCP.setChecked(True)
+        self.ui.DcamprofICC.setChecked(False)
+        self.ui.DcamprofDCP.clicked.connect(self.dcamprofDCPRadio)
+        self.ui.DcamprofICC.clicked.connect(self.dcamprofICCRadio)
+
         self.ui.ExecuteReadImage.setEnabled(False)
         self.ui.LoadCGATS.setEnabled(False)
         self.ui.ExecuteTask.setEnabled(False)
@@ -105,8 +110,21 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.radioButton.setChecked(False)
         self.ui.radioButton_2.setChecked(True)
 
+    def dcamprofICCRadio(self):
+        self.ui.DcamprofDCP.setChecked(False)
+        self.ui.DcamprofICC.setChecked(True)
+
+
+    def dcamprofDCPRadio(self):
+        self.ui.DcamprofDCP.setChecked(True)
+        self.ui.DcamprofICC.setChecked(False)
+
 
     def openTestImage(self):
+        '''
+        Open test image dialog
+        :return:
+        '''
 
         path = "/Users/jpereira/Python/roughprofiler2/test"
         qfd = QtWidgets.QFileDialog()
@@ -135,6 +153,10 @@ class HomeUI(QtWidgets.QDialog):
             self.checkTempFolderContents()
 
     def checkIfRawFile(self):
+        '''
+        if is a raw file create a thumbnail with rawpy
+        :return:
+        '''
         rawExt = [".DNG",".dng", ".NEF", ".nef"]
         if os.path.splitext(os.path.basename(self.inputImage))[1] in rawExt:
             self.rawinputfile = self.inputImage
@@ -143,12 +165,17 @@ class HomeUI(QtWidgets.QDialog):
                 self.createTempFolder()
                 #rgbImage = DevelopImages.raw_get_thumbnail(self.inputImage)
                 rgbImage = DevelopImages.raw_gamma_develop(self.inputImage)
+
                 cv2.imwrite(path, rgbImage)
-                if os.path.isfile(path):
-                    self.inputImage = path
-                    self.isRaw = True
+            if os.path.isfile(path):
+                self.inputImage = path
+                self.isRaw = True
 
     def checkTempFolderContents(self):
+        '''
+        if exist a temp folder with files, load it
+        :return:
+        '''
 
         if os.path.isdir(self.tempFolder):
             if os.path.isfile(self.ti3):
@@ -160,7 +187,10 @@ class HomeUI(QtWidgets.QDialog):
 
 
     def openCGATS(self):
-
+        '''
+        Open reference file in CEGATS format
+        :return:
+        '''
         qfd = QtWidgets.QFileDialog()
         path = "/Users/jpereira/Python/roughprofiler2/test"
 
@@ -173,19 +203,43 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.ReferenceNameValue.setText(os.path.basename(self.CEGATS_path))
 
     def executeProcess(self):
-
+        '''
+        Execute ArgyllCMS o Dcamprof workflows
+        :return:
+        '''
         if self.ui.radioButton.isChecked():
             self.runColprof()
 
         if self.ui.radioButton_2.isChecked():
-            self.runDcamprof()
+            if self.ui.DcamprofDCP.isChecked():
+                self.runDcamprof()
+            if self.ui.DcamprofICC.isChecked():
+                self.runDcamprofICC()
 
 
     def runDcamprof(self):
-        print("helooooooooooooo")
+
+        target = self.par.targets[list(self.par.targets)[self.ui.TargetType.currentIndex()]]
+        jsonInProfile = os.path.join(self.pathRepo,target[2] )
+        executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
+        jsonOutProfile = os.path.join( self.tempFolder, self.filename+".json" )
+        dcpFile = os.path.join( self.tempFolder, self.filename+".dcp" )
+
+        # make-profile -g cc24-layout.json rawfile.ti3 profile.json
+        cmd = [executables, "make-profile", "-g",jsonInProfile, self.ti3, jsonOutProfile  ]
+        print(cmd)
+        self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
+        cmd = [executables, "make-dcp", "-n", "Nikon", "-d", "mi profile", "-t", "acr",jsonOutProfile,  dcpFile]
+        print(cmd)
+        self.executeTool(cmd, "Dcamprof make-dcp", "dcamprof")
+        #dcamprof make-dcp -n "Camera manufacturer and model" -d "My Profile" -t acr profile.json profile.dcp
 
 
     def runColprof(self):
+        '''
+        run ArgyllCMS Colprof
+        :return:
+        '''
 
         manufacturer = self.ui.ManufacturerText.text()
         model = self.ui.ModelText.text()
@@ -207,63 +261,108 @@ class HomeUI(QtWidgets.QDialog):
 
         cmd = [executable, "-v","-a", argyllAlgoritm,"-q",argyllRes, emphasis, argyllUParam ,"-O",outputfilename,"-A",manufacturer, "-M", model, "-D",description,"-C", copyright, os.path.splitext(self.ti3)[0]   ]
         print(cmd)
-        self.executeTool(cmd, "COLPROF")
+        self.executeTool(cmd, "COLPROF", "argyll")
 
     def createTempFolder(self):
+        '''
+        Create de folder to store all temporary files .ti3, .icc, thumbs, etc
+        :return:
+        '''
 
         if not os.path.isdir(self.tempFolder):
             os.mkdir(self.tempFolder)
 
+    def checkCoordinatesInside(self):
+        '''
+        if coordinates is bigger than image infinite loop may apear in scanin
+        coordinates are (w,h) and cv2 shape are (h,w)
+        :return: bool
+        '''
+
+        for i in self.coodinates:
+            if i[1] > self.linealImageSize[0]:
+                return False
+            elif i[0] > self.linealImageSize[1]:
+                return False
+        return True
+
+    def createLinearImage(self):
+        '''
+        Create a linear RGB image with gamma 1 from raw file
+        :return:
+        '''
+
+        path = os.path.join(self.tempFolder, "lineal_" + self.filename + ".tiff")
+        if not os.path.isfile(path):
+            self.ui.tabWidget_2.setCurrentIndex(2)
+            self.ui.tabWidget_2.setTabEnabled(2, True)
+            self.ui.textEdit.clear()
+            self.ui.textEdit.insertPlainText("Raw processing wait a moment\n")
+            QApplication.processEvents()
+            linealImage = DevelopImages.raw_lineal_develop(self.rawinputfile)
+            cv2.imwrite(path, linealImage)
+
+        if os.path.isfile(path):
+            self.inputImage = path
+            self.linealImageSize = cv2.imread(path).shape
+            self.gamma = "-G1.0"
+            return True
+        else:
+            print("No linear image from raw was created")
+            return False
+
+
     def readImage(self):
+        '''
+        Read image with ArgyllCMS scanin
+        :return:
+        '''
 
         self.createTempFolder()
         self.gamma = "-G2.2"
 
         if self.isRaw:
-            path = os.path.join(self.tempFolder, "lineal_" + self.filename + ".tiff")
-            if not os.path.isfile(path):
-                self.ui.tabWidget_2.setCurrentIndex(2)
-                self.ui.tabWidget_2.setTabEnabled(2, True)
-                self.ui.textEdit.clear()
-                self.ui.textEdit.insertPlainText("Raw processing wait a moment\n")
-                QApplication.processEvents()
-                linealImage = DevelopImages.raw_lineal_develop(self.rawinputfile)
-                cv2.imwrite(path, linealImage)
-                if os.path.isfile(path):
-                    self.inputImage = path
-                    self.gamma = "-G1.0"
-            else:
-                self.inputImage = path
+            self.createLinearImage()
+
+        if self.checkCoordinatesInside():
+
+            targetKey = list(self.par.targets)[ self.ui.TargetType.currentIndex()]
+            target = self.par.targets[targetKey]
+            #scanin -v -p -dipn rawfile.tif ColorChecker.cht cc24_ref.cie
+            executable = os.path.join( self.pathArgyllExecutables, "scanin")
+            recogfile = os.path.join( self.pathRepo, target[1])
+            reference = os.path.join(self.pathRepo, target[0])
+
+            #coordinate to string
+            res = []
+            for i in self.coodinates:
+                for j in i:
+                 res.append( str(round(j,2)) )
+            coor = ",".join(res)
+
+            cmd = [executable, "-v2", "-p","-dipn", self.gamma, "-F", coor, "-O", self.ti3,  self.inputImage, recogfile, reference, self.diag ]
+            print(" ".join(cmd) )
+            self.executeTool(cmd, "SCANIN", "argyll")
+
+            if os.path.isfile(self.ti3):
+                #enable ICC/DCP buton
+                self.ui.ExecuteTask.setEnabled(True)
+            if os.path.isfile(self.diag):
+                #load diag image
+                self.loadDiag()
+                self.ui.tabWidget_2.setTabEnabled(1, True)
+                self.ui.tabWidget_2.setCurrentIndex(1)
+        else:
+            print("coordenadas mayores que imagen!")
 
 
-        targetKey = list(self.par.targets)[ self.ui.TargetType.currentIndex()]
-        target = self.par.targets[targetKey]
-        #scanin -v -p -dipn rawfile.tif ColorChecker.cht cc24_ref.cie
-        executable = os.path.join( self.pathArgyllExecutables, "scanin")
-        recogfile = os.path.join( self.pathRepo, target[1])
-        reference = os.path.join(self.pathRepo, target[0])
-
-        coordinates = self.coodinates
-        #coordinate to string
-        res = []
-        for i in coordinates:
-            for j in i:
-             res.append( str(round(j,2)) )
-        coor = ",".join(res)
-
-        cmd = [executable, "-v2", "-p","-dipn", self.gamma, "-F", coor, "-O", self.ti3,  self.inputImage, recogfile, reference, self.diag ]
-        print(cmd)
-        self.executeTool(cmd, "SCANIN")
-
-        if os.path.isfile(self.ti3):
-            self.ui.ExecuteTask.setEnabled(True)
-        if os.path.isfile(self.diag):
-            self.loadDiag()
-            self.ui.tabWidget_2.setTabEnabled(1, True)
-            self.ui.tabWidget_2.setCurrentIndex(1)
-
-
-    def executeTool(self, cmd, toolName):
+    def executeTool(self, cmd, toolName, workflow):
+        '''
+        Execute binary files
+        :param cmd: list of params
+        :param toolName: string with name of tool for informative log
+        :return:
+        '''
 
         self.ui.tabWidget_2.setCurrentIndex(2)
         self.ui.tabWidget_2.setTabEnabled(2, True)
@@ -272,8 +371,15 @@ class HomeUI(QtWidgets.QDialog):
         QApplication.processEvents()
 
         cmd =  list(filter(None, cmd))
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=1)
-        for line in iter(p.stdout.readline, b''):
+        p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE, bufsize=1)
+
+        if workflow == "dcamprof":
+            output = p.stderr.readline
+        elif workflow == "argyll":
+            output = p.stdout.readline
+
+        for line in iter(output, b''):
             self.ui.textEdit.insertPlainText(line.decode('utf-8'))
             self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
             QApplication.processEvents()
@@ -281,6 +387,10 @@ class HomeUI(QtWidgets.QDialog):
         p.wait()
 
     def loadDiag(self):
+        '''
+        Load the diag tiff files result from ArgyllCMS scanin
+        :return:
+        '''
 
         if os.path.isfile( self.diag ):
 
@@ -312,6 +422,10 @@ class HomeUI(QtWidgets.QDialog):
 
 
     def loadImage(self ):
+        '''
+        Load proof image on main layout, first tab
+        :return:
+        '''
 
         #clean widgets before
         for i in reversed(range(self.ui.verticalLayout.count())):
@@ -341,15 +455,9 @@ class HomeUI(QtWidgets.QDialog):
 
 
     def createROI(self):
-
         '''
-        polyline = GraphPolyLine(
-            [[0, 0], [0, 50], [50, 50], [50, 0]],
-            closed=True,
-            pen=pg.mkPen('b', width=5),
-            resizable=True,
-            maxBounds=QtCore.QRectF(0, 0, 300, 200)
-        )
+        Create Region Of Interest
+        :return:
         '''
 
         centro = [self.lay_w/2, self.lay_h/2]
@@ -390,7 +498,12 @@ class HomeUI(QtWidgets.QDialog):
     '''
 
     def rotate_via_numpy(self, xy, degrees):
-        """Use numpy to build a rotation matrix and take the dot product."""
+        '''
+        Rotate ROI after scale
+        :param xy:
+        :param degrees:
+        :return:
+        '''
         #https://gist.github.com/LyleScott/e36e08bfb23b1f87af68c9051f985302
 
         radians = math.radians(degrees)
@@ -402,6 +515,12 @@ class HomeUI(QtWidgets.QDialog):
         return float(m.T[0]), float(m.T[1])
 
     def createCoordinates(self, roi):
+        '''
+        Get coordinates from ROI
+        format (Width, Height)
+        :param roi:
+        :return:
+        '''
         state = roi.getState()
         x = state['pos'][0] * self.factor
         y = state['pos'][1] * self.factor
@@ -419,6 +538,14 @@ class HomeUI(QtWidgets.QDialog):
         #print(self.coodinates)
 
     def image_resize(self, image, width = None, height = None, inter = cv2.INTER_AREA):
+        '''
+        Resize image to fit inside layout
+        :param image:
+        :param width:
+        :param height:
+        :param inter:
+        :return:
+        '''
 
         dim = None
         (h, w) = image.shape[:2]

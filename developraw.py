@@ -21,7 +21,7 @@ class DevelopImages():
                               user_wb=[1, 1, 1, 1]  #RGBG  # -r
                               )
 
-        rgb = cv2.resize(rgb, (1024, 725), interpolation=cv2.INTER_AREA)
+        #rgb = cv2.resize(rgb, (1024, 725), interpolation=cv2.INTER_AREA)
         rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB)
         return rgb
 
