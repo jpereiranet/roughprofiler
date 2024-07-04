@@ -157,6 +157,14 @@
      <height>26</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(145, 145, 145);</string>
+   </property>
   </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
@@ -196,7 +204,7 @@
 } </string>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="ArgyllCM">
     <attribute name="title">
@@ -231,6 +239,14 @@
        <width>191</width>
        <height>26</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(145, 145, 145);</string>
      </property>
     </widget>
     <widget class="QLabel" name="ProfileTypeLabel">
@@ -284,6 +300,14 @@
        <height>26</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(145, 145, 145);</string>
+     </property>
     </widget>
     <widget class="QComboBox" name="ArgyllUparam">
      <property name="geometry">
@@ -293,6 +317,14 @@
        <width>191</width>
        <height>26</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(145, 145, 145);</string>
      </property>
     </widget>
     <widget class="QSlider" name="ARgyllUslicer">
@@ -461,6 +493,14 @@
        <height>26</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(145, 145, 145);</string>
+     </property>
     </widget>
     <widget class="QRadioButton" name="DcamprofICC">
      <property name="geometry">
@@ -470,6 +510,14 @@
        <width>51</width>
        <height>20</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(155, 155, 155);</string>
      </property>
      <property name="text">
       <string>ICC</string>
@@ -483,6 +531,14 @@
        <width>61</width>
        <height>20</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(155, 155, 155);</string>
      </property>
      <property name="text">
       <string>DCP</string>
@@ -512,6 +568,14 @@
      <height>21</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(145, 145, 145);</string>
+   </property>
   </widget>
   <widget class="QLineEdit" name="ModelText">
    <property name="geometry">
@@ -521,6 +585,14 @@
      <width>113</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(145, 145, 145);</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="DestText">
@@ -532,6 +604,11 @@
      <height>21</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
   </widget>
   <widget class="QLineEdit" name="CopyRightText">
    <property name="geometry">
@@ -542,6 +619,11 @@
      <height>21</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
   </widget>
   <widget class="QLineEdit" name="FileNameText">
    <property name="geometry">
@@ -551,6 +633,11 @@
      <width>151</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLabel" name="ManufacturerLabel">
@@ -680,6 +767,14 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(155, 155, 155);</string>
+   </property>
    <property name="text">
     <string>Argyll Workflow (ICC)</string>
    </property>
@@ -692,6 +787,14 @@
      <width>211</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(155, 155, 155);</string>
    </property>
    <property name="text">
     <string>Dcamprof Workflow (DCP/ICC)</string>

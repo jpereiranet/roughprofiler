@@ -15,6 +15,7 @@ from params import params
 import os
 import subprocess
 import sys
+import exifread
 
 
 
@@ -119,6 +120,11 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.DcamprofDCP.setChecked(True)
         self.ui.DcamprofICC.setChecked(False)
 
+    def getMetadata(self, img):
+        im = open(img, 'rb')
+        metadata = exifread.process_file(im)
+        self.ui.ManufacturerText.setText(str( metadata['Image Make'] ))
+        self.ui.ModelText.setText(str( metadata['Image Model'] ) )
 
     def openTestImage(self):
         '''
@@ -136,7 +142,7 @@ class HomeUI(QtWidgets.QDialog):
         self.inputImage = paths[0]
 
         if os.path.isfile(paths[0]):
-
+            self.getMetadata( paths[0] )
             self.isRaw = False
             self.ui.tabWidget_2.setTabEnabled(0, True)
             self.ui.tabWidget_2.setCurrentIndex(0)
@@ -233,6 +239,24 @@ class HomeUI(QtWidgets.QDialog):
         print(cmd)
         self.executeTool(cmd, "Dcamprof make-dcp", "dcamprof")
         #dcamprof make-dcp -n "Camera manufacturer and model" -d "My Profile" -t acr profile.json profile.dcp
+
+
+    def runDcamprofICC(self):
+
+        #dcamprof make-profile -g cc24-layout.json new-target.ti3 profile.json
+        #dcamprof make-icc -n "Camera manufacturer and model" -f target.tif -t acr profile.json profile.icc
+
+        target = self.par.targets[list(self.par.targets)[self.ui.TargetType.currentIndex()]]
+        jsonInProfile = os.path.join(self.pathRepo,target[2] )
+        executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
+        jsonOutProfile = os.path.join( self.tempFolder, self.filename+".json" )
+        iccFile = os.path.join( self.tempFolder, self.filename+".icc" )
+
+        cmd = [executables, "make-profile", "-g", jsonInProfile, self.ti3, jsonOutProfile  ]
+
+        cmd = [executables, "make-icc", "-n", "Nikon", "-d", "mi profile", "-t", "acr",jsonOutProfile,  iccFile]
+
+
 
 
     def runColprof(self):
