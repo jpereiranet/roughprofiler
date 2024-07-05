@@ -16,13 +16,19 @@ import os
 import subprocess
 import sys
 import exifread
-
-
+from app_paths import DefinePathsClass
+import configparser
 
 
 class HomeUI(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
+
+        #self.config = configparser.ConfigParser()
+        #path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
+        #if path.exists(path_conf_file):
+        #    self.config.read(path_conf_file)
+        #    self.sampling_size = int(self.config['SAMPLING']['SAMPLE_SIZE'])
 
         self.lay_w = 570
         self.lay_h = 400
@@ -39,6 +45,7 @@ class HomeUI(QtWidgets.QDialog):
         super(HomeUI, self).__init__(parent)
         self.ui = Ui_RoughProfiler2()
         self.ui.setupUi(self)
+
         #self.ui.verticalLayout.addWidget()
         self.ui.TargetType.addItems(self.par.targets.keys())
         self.ui.ArgyllRes.addItems(self.par.ArgyllResolutions.keys())
@@ -48,11 +55,32 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.tabWidget_2.setTabEnabled(1, False)
         self.ui.tabWidget_2.setTabEnabled(0, False)
         self.ui.tabWidget_2.setCurrentIndex(0)
-
+        #--- open imagen
         self.ui.ExecuteReadImage.clicked.connect( self.readImage )
         self.ui.textEdit.setReadOnly(True)
         self.ui.OpenImage.clicked.connect( self.openTestImage )
+        self.ui.OpenImage.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('picture_64px.png')))
+        self.ui.OpenImage.setIconSize(QtCore.QSize(30, 30))
+        # --- Load CGATS
+        self.ui.LoadCGATS.setEnabled(False)
         self.ui.LoadCGATS.clicked.connect( self.openCGATS )
+        self.ui.LoadCGATS.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('document_64px.png')))
+        self.ui.LoadCGATS.setIconSize(QtCore.QSize(45, 45))
+        # --- Scanin
+        self.ui.ExecuteReadImage.setEnabled(False)
+        self.ui.ExecuteReadImage.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('scaning_64px.png')))
+        self.ui.ExecuteReadImage.setIconSize(QtCore.QSize(45, 45))
+        # --- Execute task
+        self.ui.ExecuteTask.setEnabled(False)
+        self.ui.ExecuteTask.clicked.connect(self.executeProcess)
+        self.ui.ExecuteTask.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('execute_64px.png')))
+        self.ui.ExecuteTask.setIconSize(QtCore.QSize(45, 45))
+        # --- install profile
+        self.ui.InstallProfile.setEnabled(False)
+        self.ui.InstallProfile.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('execute_64px.png')))
+        self.ui.InstallProfile.setIconSize(QtCore.QSize(45, 45))
+
+
         self.ui.radioButton.setChecked(True)
         self.ui.tabWidget.setTabEnabled(1, False)
 
@@ -61,11 +89,7 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.DcamprofDCP.clicked.connect(self.dcamprofDCPRadio)
         self.ui.DcamprofICC.clicked.connect(self.dcamprofICCRadio)
 
-        self.ui.ExecuteReadImage.setEnabled(False)
-        self.ui.LoadCGATS.setEnabled(False)
-        self.ui.ExecuteTask.setEnabled(False)
 
-        self.ui.ExecuteTask.clicked.connect(self.executeProcess)
         self.ui.radioButton.clicked.connect(self.showArgyllWorkflow)
         self.ui.radioButton_2.clicked.connect(self.showDcamprofWorkflow)
 
@@ -76,6 +100,8 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.ArgyllEmphasisSlider.valueChanged[int].connect(self.updateSliderLabelEmphasis)
 
         self.ui.ArgyllUparam.currentTextChanged.connect(self.enableSlider)
+
+        self.ui.FileNameValue.setText("nada")
 
         #ArgyllEmphasisSlider
 
@@ -138,8 +164,9 @@ class HomeUI(QtWidgets.QDialog):
             QtWidgets.QFileDialog.getOpenFileNames(qfd, "Select files", path,
                                                    filter='Images (*.png *.tif *.tiff  *.jpg *.jpeg *.dng *.nef)'
                                                    )[0])]
-        print(paths)
+        #print(paths)
         self.inputImage = paths[0]
+        self.ui.FileNameValue.setText(os.path.basename(paths[0]))
 
         if os.path.isfile(paths[0]):
             self.getMetadata( paths[0] )
@@ -151,12 +178,12 @@ class HomeUI(QtWidgets.QDialog):
             self.inputImage = paths[0]
             self.filename = os.path.splitext(os.path.basename(self.inputImage))[0]
             self.tempFolder = os.path.join(os.path.dirname(paths[0]), self.filename)
-            self.ui.FileNameValue.setText( os.path.basename(self.inputImage) )
             self.ti3 = os.path.join(self.tempFolder, self.filename + ".ti3")
             self.diag = os.path.join(self.tempFolder, self.filename + "_diag.tiff")
             self.checkIfRawFile()
             self.loadImage()
             self.checkTempFolderContents()
+
 
     def checkIfRawFile(self):
         '''
