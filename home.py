@@ -11,35 +11,41 @@ from PyQt5.QtGui import QPixmap
 from main import Ui_RoughProfiler2
 from developraw import DevelopImages
 import math
-from params import params
 import os
 import subprocess
 import sys
 import exifread
 from app_paths import DefinePathsClass
 import configparser
-
+from proof_file import CreateProofImage
+import json
+import glob
 
 class HomeUI(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
 
-        #self.config = configparser.ConfigParser()
-        #path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
-        #if path.exists(path_conf_file):
-        #    self.config.read(path_conf_file)
-        #    self.sampling_size = int(self.config['SAMPLING']['SAMPLE_SIZE'])
+        self.config = configparser.ConfigParser()
+        path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
+        if os.path.exists(path_conf_file):
+            self.config.read(path_conf_file)
+            self.pathArgyllExecutables = self.config['APPS']['ARGYLL']
+            self.pathDcamprofExecutables = self.config['APPS']['DCAMPROF']
+            self.lay_w = int(self.config['LAYOUT']['LAY_W'])
+            self.lay_h = int(self.config['LAYOUT']['LAY_H'])
+            self.pad_roi = int(self.config['LAYOUT']['PAD_ROI'])
+            self.copyright = self.config['OTHERS']['COPYRIGHT']
 
-        self.lay_w = 570
-        self.lay_h = 400
-        self.pad_roi = 100
 
-        self.pathArgyllExecutables = "/Users/jpereira/Python/roughprofiler2/programs/argyll"
-        self.pathDcamprofExecutables = "/Users/jpereira/Python/roughprofiler2/programs/dcamprof/"
-        self.pathRepo = "/Users/jpereira/Python/roughprofiler2/resources/"
-        #self.dcrawExecutable = "/usr/local/Cellar/dcraw/9.28.0/bin/dcraw"
+            self.ArgyllRes = json.loads(self.config.get('PARAMS', 'ARGYLLRES'))
+            self.ArgyllAlgoritm = json.loads(self.config.get('PARAMS', 'ARGYLLALGORITM'))
+            self.ArgyllUParam = json.loads(self.config.get('PARAMS', 'ARGYLLUPARAM'))
+            self.Targets = json.loads(self.config.get('PARAMS', 'TARGETS'))
 
-        self.par = params()
+        else:
+            print("error load configuration")
+
+
         #self.inputImage = "DSC_4453a.TIF"
 
         super(HomeUI, self).__init__(parent)
@@ -47,10 +53,10 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.setupUi(self)
 
         #self.ui.verticalLayout.addWidget()
-        self.ui.TargetType.addItems(self.par.targets.keys())
-        self.ui.ArgyllRes.addItems(self.par.ArgyllResolutions.keys())
-        self.ui.ArgyllAlgoritm.addItems(self.par.ArgyllAlgoritms.keys())
-        self.ui.ArgyllUparam.addItems(self.par.ArgyllUparam.keys())
+        self.ui.TargetType.addItems( self.Targets.keys() )
+        self.ui.ArgyllRes.addItems (self.ArgyllRes.keys() )
+        self.ui.ArgyllAlgoritm.addItems( self.ArgyllAlgoritm.keys() )
+        self.ui.ArgyllUparam.addItems( self.ArgyllUParam.keys() )
         self.ui.tabWidget_2.setTabEnabled(2, False)
         self.ui.tabWidget_2.setTabEnabled(1, False)
         self.ui.tabWidget_2.setTabEnabled(0, False)
@@ -79,8 +85,13 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.InstallProfile.setEnabled(False)
         self.ui.InstallProfile.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('execute_64px.png')))
         self.ui.InstallProfile.setIconSize(QtCore.QSize(45, 45))
+        # --- Create Proof image
+        self.ui.createProofImage.setEnabled(False)
+        self.ui.createProofImage.clicked.connect(self.createdProofimage)
+        self.ui.createProofImage.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('execute_64px.png')))
+        self.ui.createProofImage.setIconSize(QtCore.QSize(45, 45))
 
-
+        self.ui.CopyRightText.setText(self.copyright)
         self.ui.radioButton.setChecked(True)
         self.ui.tabWidget.setTabEnabled(1, False)
 
@@ -147,10 +158,29 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.DcamprofICC.setChecked(False)
 
     def getMetadata(self, img):
+
         im = open(img, 'rb')
         metadata = exifread.process_file(im)
-        self.ui.ManufacturerText.setText(str( metadata['Image Make'] ))
-        self.ui.ModelText.setText(str( metadata['Image Model'] ) )
+        if str(metadata['Image Make']) != "":
+            manufacturer = str(metadata['Image Make'])
+        else:
+            manufacturer = "Manufacturer"
+
+        if str(metadata['Image Model']) != "":
+            model = str(metadata['Image Model'])
+        else:
+            model = "Model"
+
+        self.ui.ManufacturerText.setText(manufacturer)
+        self.ui.ModelText.setText(model)
+
+        filename = model+".icc"
+        filename = self.createICCFileName(filename.replace(" ","_"))
+
+        self.ui.FileNameText.setText(filename.replace(" ","_")+".icc")
+        self.ui.DestText.setText(filename.replace("_"," "))
+
+
 
     def openTestImage(self):
         '''
@@ -169,21 +199,24 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.FileNameValue.setText(os.path.basename(paths[0]))
 
         if os.path.isfile(paths[0]):
-            self.getMetadata( paths[0] )
+
             self.isRaw = False
+            self.CEGATS_path = False
             self.ui.tabWidget_2.setTabEnabled(0, True)
             self.ui.tabWidget_2.setCurrentIndex(0)
             self.ui.ExecuteReadImage.setEnabled(True)
             self.ui.LoadCGATS.setEnabled(True)
+            self.ui.createProofImage.setEnabled(True)
             self.inputImage = paths[0]
             self.filename = os.path.splitext(os.path.basename(self.inputImage))[0]
             self.tempFolder = os.path.join(os.path.dirname(paths[0]), self.filename)
             self.ti3 = os.path.join(self.tempFolder, self.filename + ".ti3")
             self.diag = os.path.join(self.tempFolder, self.filename + "_diag.tiff")
+            self.getMetadata(paths[0])
+            self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
             self.checkIfRawFile()
             self.loadImage()
             self.checkTempFolderContents()
-
 
     def checkIfRawFile(self):
         '''
@@ -252,7 +285,7 @@ class HomeUI(QtWidgets.QDialog):
 
     def runDcamprof(self):
 
-        target = self.par.targets[list(self.par.targets)[self.ui.TargetType.currentIndex()]]
+        target =  self.Targets[list( self.Targets)[self.ui.TargetType.currentIndex()]]
         jsonInProfile = os.path.join(self.pathRepo,target[2] )
         executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
         jsonOutProfile = os.path.join( self.tempFolder, self.filename+".json" )
@@ -273,7 +306,7 @@ class HomeUI(QtWidgets.QDialog):
         #dcamprof make-profile -g cc24-layout.json new-target.ti3 profile.json
         #dcamprof make-icc -n "Camera manufacturer and model" -f target.tif -t acr profile.json profile.icc
 
-        target = self.par.targets[list(self.par.targets)[self.ui.TargetType.currentIndex()]]
+        target =  self.Targets[list( self.Targets)[self.ui.TargetType.currentIndex()]]
         jsonInProfile = os.path.join(self.pathRepo,target[2] )
         executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
         jsonOutProfile = os.path.join( self.tempFolder, self.filename+".json" )
@@ -296,10 +329,9 @@ class HomeUI(QtWidgets.QDialog):
         model = self.ui.ModelText.text()
         description = self.ui.DestText.text()
         copyright = self.ui.CopyRightText.text()
-        outputfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text() )
-        argyllAlgoritm = self.par.ArgyllAlgoritms[ list(self.par.ArgyllAlgoritms)[ self.ui.ArgyllAlgoritm.currentIndex()] ]
-        argyllRes = self.par.ArgyllResolutions[list(self.par.ArgyllResolutions)[self.ui.ArgyllRes.currentIndex()]]
-        argyllUParam = self.par.ArgyllUparam[list(self.par.ArgyllUparam)[self.ui.ArgyllUparam.currentIndex()]]
+        argyllAlgoritm = self.ArgyllAlgoritm[ list(self.ArgyllAlgoritm)[self.ui.ArgyllAlgoritm.currentIndex()] ]
+        argyllRes = self.ArgyllRes[list(self.ArgyllRes)[self.ui.ArgyllRes.currentIndex()]]
+        argyllUParam = self.ArgyllUParam[list(self.ArgyllUParam)[self.ui.ArgyllUparam.currentIndex()]]
 
         if self.ui.ArgyllUparam.currentIndex() == 4: # if is "custom"
             valor = self.ui.ARgyllUslicer.value()
@@ -310,9 +342,20 @@ class HomeUI(QtWidgets.QDialog):
 
         executable = os.path.join(self.pathArgyllExecutables, "colprof")
 
-        cmd = [executable, "-v","-a", argyllAlgoritm,"-q",argyllRes, emphasis, argyllUParam ,"-O",outputfilename,"-A",manufacturer, "-M", model, "-D",description,"-C", copyright, os.path.splitext(self.ti3)[0]   ]
+        cmd = [executable, "-v","-a", argyllAlgoritm,"-q",argyllRes, emphasis, argyllUParam ,"-O",self.outputICCfilename,"-A",manufacturer, "-M", model, "-D",description,"-C", copyright, os.path.splitext(self.ti3)[0]   ]
         print(cmd)
         self.executeTool(cmd, "COLPROF", "argyll")
+
+        if os.path.isfile(self.outputICCfilename):
+            self.ui.createProofImage.setEnabled(True)
+            self.ui.InstallProfile.setEnabled(True)
+            filename = self.createICCFileName(os.path.basename( self.outputICCfilename ) )
+            self.ui.FileNameText.setText(filename.replace(" ","_")+".icc")
+            self.ui.DestText.setText(filename.replace("_", " ") )
+
+    def createdProofimage(self):
+
+        CreateProofImage(self.inputImage, self.outputICCfilename, self.ui, self.tempFolder)
 
     def createTempFolder(self):
         '''
@@ -329,11 +372,15 @@ class HomeUI(QtWidgets.QDialog):
         coordinates are (w,h) and cv2 shape are (h,w)
         :return: bool
         '''
+        if self.isRaw:
+            size = self.linealImageSize
+        else:
+            size = self.gammaImageSize
 
         for i in self.coodinates:
-            if i[1] > self.linealImageSize[0]:
+            if i[1] > size[0]:
                 return False
-            elif i[0] > self.linealImageSize[1]:
+            elif i[0] > size[1]:
                 return False
         return True
 
@@ -377,32 +424,41 @@ class HomeUI(QtWidgets.QDialog):
 
         if self.checkCoordinatesInside():
 
-            targetKey = list(self.par.targets)[ self.ui.TargetType.currentIndex()]
-            target = self.par.targets[targetKey]
+            targetKey = list(params.targets)[ self.ui.TargetType.currentIndex()]
+            target = params.targets[targetKey]
             #scanin -v -p -dipn rawfile.tif ColorChecker.cht cc24_ref.cie
             executable = os.path.join( self.pathArgyllExecutables, "scanin")
-            recogfile = os.path.join( self.pathRepo, target[1])
-            reference = os.path.join(self.pathRepo, target[0])
+            #recogfile = os.path.join( self.pathRepo, target[1])
+            #reference = os.path.join(self.pathRepo, target[0])
+            if not self.CEGATS_path:
+                reference = DefinePathsClass.create_reference_paths( target[0] )
+            else:
+                reference = self.CEGATS_path
 
-            #coordinate to string
-            res = []
-            for i in self.coodinates:
-                for j in i:
-                 res.append( str(round(j,2)) )
-            coor = ",".join(res)
+            recogfile = DefinePathsClass.create_reference_paths(target[1])
+            if not os.path.isfile(recogfile):
+                print("error no se encuenta")
+            else:
 
-            cmd = [executable, "-v2", "-p","-dipn", self.gamma, "-F", coor, "-O", self.ti3,  self.inputImage, recogfile, reference, self.diag ]
-            print(" ".join(cmd) )
-            self.executeTool(cmd, "SCANIN", "argyll")
+                #coordinate to string
+                res = []
+                for i in self.coodinates:
+                    for j in i:
+                     res.append( str(round(j,2)) )
+                coor = ",".join(res)
 
-            if os.path.isfile(self.ti3):
-                #enable ICC/DCP buton
-                self.ui.ExecuteTask.setEnabled(True)
-            if os.path.isfile(self.diag):
-                #load diag image
-                self.loadDiag()
-                self.ui.tabWidget_2.setTabEnabled(1, True)
-                self.ui.tabWidget_2.setCurrentIndex(1)
+                cmd = [executable, "-v2", "-p","-dipn", self.gamma, "-F", coor, "-O", self.ti3,  self.inputImage, recogfile, reference, self.diag ]
+                print(" ".join(cmd) )
+                self.executeTool(cmd, "SCANIN", "argyll")
+
+                if os.path.isfile(self.ti3):
+                    #enable ICC/DCP buton
+                    self.ui.ExecuteTask.setEnabled(True)
+                if os.path.isfile(self.diag):
+                    #load diag image
+                    self.loadDiag()
+                    self.ui.tabWidget_2.setTabEnabled(1, True)
+                    self.ui.tabWidget_2.setCurrentIndex(1)
         else:
             print("coordenadas mayores que imagen!")
 
@@ -492,6 +548,7 @@ class HomeUI(QtWidgets.QDialog):
         v2a.disableAutoRange('xy')
 
         image_data = cv2.imread( self.inputImage )
+        self.gammaImageSize = image_data.shape
         image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
         image_data = image_data.astype(np.uint16)
         image_data, self.factor = self.image_resize(image_data, width=self.lay_w, height=None, inter=cv2.INTER_AREA)
@@ -618,6 +675,34 @@ class HomeUI(QtWidgets.QDialog):
         factor = w/w1
 
         return resized, factor
+
+    def createICCFileName(self, filen):
+
+        os.chdir(self.tempFolder)
+        files = glob.glob("*.icc")
+        files.sort(key=os.path.getmtime)
+
+        if len(files) > 0:
+            last = files[-1]
+            name_orig, ext_orig = os.path.splitext(last)
+            arr = name_orig.split("_")
+            lastSection = arr[-1]
+
+            if "VE" in lastSection: #revisar esto que no funciona
+                lastItem = lastSection.replace("VE", "")
+                if lastItem.isdigit():
+                    newnumber = "VE" + str(int(lastItem) + 1)
+            else:
+                newnumber = "VE1"
+
+            arr.pop()
+            arr.append(str(newnumber))
+            filen = "_".join(arr)
+
+
+        filen = os.path.splitext(filen)[0]
+
+        return filen
 
 
 

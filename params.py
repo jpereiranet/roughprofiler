@@ -4,39 +4,44 @@
 
 class params:
 
-    def __init__(self):
-
-        self.targets = {
+    @staticmethod
+    def targets():
+        return {
                    "Colorchecker Classic": ("ColorChecker.cie","ColorChecker.cht", "cc24-layout.json" ),
                    "Colorchecker SG": ("ColorCheckerSG.cie", "ColorCheckerSG.cht", "ccsg-layout.json"),
                    "Colorchecker Passport": ("ColorCheckerPassport.cie", "ColorCheckerPassport.cht", ""),
                    "Colorchecker SG": ("", "ColorCheckerDC.cht", "")
                    }
 
-        self.ArgyllResolutions = {
-                            "Low": "l",
-                            "Medium": "m",
-                            "High": "h",
-                            "Ultra": "u"
-                            }
+    @staticmethod
+    def ArgyllResolutions():
+        return {
+                        "Low": "l",
+                        "Medium": "m",
+                        "High": "h",
+                        "Ultra": "u"
+                        }
 
-        self.ArgyllAlgoritms = {
-                            "Lab cLUT": "l",
-                            "XYZ cLUT": "x",
-                            "Gamma+matrix": "g",
-                            "Shaper+matrix": "s",
-                            "Matrix only": "m",
-                            "Single gamma+matrix": "G",
-                            "Single shaper+matrix": "S"
-                            }
+    @staticmethod
+    def ArgyllAlgoritms():
+        return {
+                    "Lab cLUT": "l",
+                    "XYZ cLUT": "x",
+                    "Gamma+matrix": "g",
+                    "Shaper+matrix": "s",
+                    "Matrix only": "m",
+                    "Single gamma+matrix": "G",
+                    "Single shaper+matrix": "S"
+                    }
 
-        self.ArgyllUparam = {
+    @staticmethod
+    def ArgyllUparam():
+        return {
             "clip cLUT values": "-uc",
             "Auto scale WP": "-u",
             "Force Absolute": "-ua",
             "None": "",
             "Custom": ""
-
         }
 
 
