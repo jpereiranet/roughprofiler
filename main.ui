@@ -198,7 +198,7 @@
 } </string>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="ArgyllCM">
     <attribute name="title">
@@ -457,86 +457,298 @@
     <attribute name="title">
      <string>Dcamprof</string>
     </attribute>
-    <widget class="QLabel" name="IlluminantLabel">
+    <widget class="QTabWidget" name="tabsDcamprof">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>40</y>
-       <width>61</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(155, 155, 155);</string>
-     </property>
-     <property name="text">
-      <string>Illuminant</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="DcamprofIlluminant">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>60</y>
-       <width>191</width>
-       <height>26</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(145, 145, 145);</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="DcamprofICC">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
        <y>10</y>
-       <width>51</width>
-       <height>20</height>
+       <width>211</width>
+       <height>361</height>
       </rect>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
+     <property name="currentIndex">
+      <number>1</number>
      </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(155, 155, 155);</string>
-     </property>
-     <property name="text">
-      <string>ICC</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="DcamprofDCP">
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>10</y>
-       <width>61</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(155, 155, 155);</string>
-     </property>
-     <property name="text">
-      <string>DCP</string>
-     </property>
+     <widget class="QWidget" name="tabDcamICC">
+      <attribute name="title">
+       <string>ICC</string>
+      </attribute>
+      <widget class="QComboBox" name="DcamprofAlgortimICC">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>191</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(145, 145, 145);</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="DcamprofToneICC">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>191</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(145, 145, 145);</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="DcamprofTOPeratorICC">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>130</y>
+         <width>191</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(145, 145, 145);</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_5">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>61</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(155, 155, 155);</string>
+       </property>
+       <property name="text">
+        <string>Profile Type</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_6">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>61</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(155, 155, 155);</string>
+       </property>
+       <property name="text">
+        <string>Tone Curve</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_7">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>110</y>
+         <width>81</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(155, 155, 155);</string>
+       </property>
+       <property name="text">
+        <string>Tone Operator</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tabDcamDCP">
+      <attribute name="title">
+       <string>DCP</string>
+      </attribute>
+      <widget class="QLabel" name="IlluminantLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>61</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(155, 155, 155);</string>
+       </property>
+       <property name="text">
+        <string>Illuminant</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="DcamprofIlluminant">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>191</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(145, 145, 145);</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="DcamprofToneDCP">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>191</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(145, 145, 145);</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="DcamprofTOPeratoDCP">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>130</y>
+         <width>191</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(145, 145, 145);</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_8">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>110</y>
+         <width>81</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(155, 155, 155);</string>
+       </property>
+       <property name="text">
+        <string>Tone Operator</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_9">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>61</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(155, 155, 155);</string>
+       </property>
+       <property name="text">
+        <string>Tone Curve</string>
+       </property>
+      </widget>
+      <widget class="QSlider" name="DcamExposureSlider">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>190</y>
+         <width>141</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimum">
+        <number>-3</number>
+       </property>
+       <property name="maximum">
+        <number>3</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_10">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>170</y>
+         <width>91</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(155, 155, 155);</string>
+       </property>
+       <property name="text">
+        <string>Exposure Ofset</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="exposureOffsetValue">
+       <property name="geometry">
+        <rect>
+         <x>160</x>
+         <y>190</y>
+         <width>41</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(155, 155, 155);</string>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </widget>
   </widget>
@@ -764,7 +976,7 @@
     <string>...</string>
    </property>
   </widget>
-  <widget class="QRadioButton" name="radioButton">
+  <widget class="QRadioButton" name="ArgyllWorkflow">
    <property name="geometry">
     <rect>
      <x>600</x>
@@ -785,7 +997,7 @@
     <string>Argyll Workflow (ICC)</string>
    </property>
   </widget>
-  <widget class="QRadioButton" name="radioButton_2">
+  <widget class="QRadioButton" name="DcamprofWorkflow">
    <property name="geometry">
     <rect>
      <x>600</x>
@@ -827,7 +1039,7 @@
 </string>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="ProofImageTab">
     <attribute name="title">

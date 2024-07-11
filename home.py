@@ -49,6 +49,14 @@ class HomeUI(QtWidgets.QDialog):
             self.ArgyllUParam = json.loads(self.config.get('PARAMS', 'ARGYLLUPARAM'))
             self.Targets = json.loads(self.config.get('PARAMS', 'TARGETS'))
 
+            self.DcamToneOperator = json.loads(self.config.get('PARAMS', 'DCAMPROFTONEOPERATOR'))
+            self.DcamToneCurveDcp = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEDCP'))
+            self.DcamToneCurveICC = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEICC'))
+            self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
+            self.DcamICCAlgoritm = json.loads(self.config.get('PARAMS', 'DCAMPROFICCALGORITM'))
+
+
+
         else:
             print("error load configuration")
 
@@ -67,6 +75,14 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.ArgyllRes.addItems (self.ArgyllRes.keys() )
         self.ui.ArgyllAlgoritm.addItems( self.ArgyllAlgoritm.keys() )
         self.ui.ArgyllUparam.addItems( self.ArgyllUParam.keys() )
+
+        self.ui.DcamprofAlgortimICC.addItems(self.DcamICCAlgoritm.keys())
+        self.ui.DcamprofTOPeratorICC.addItems(self.DcamToneOperator.keys())
+        self.ui.DcamprofTOPeratoDCP.addItems(self.DcamToneOperator.keys())
+        self.ui.DcamprofToneDCP.addItems(self.DcamToneCurveDcp.keys())
+        self.ui.DcamprofToneICC.addItems(self.DcamToneCurveICC.keys())
+        self.ui.DcamprofIlluminant.addItems(self.DcamIlluminant)
+
         self.ui.tabWidget_2.setTabEnabled(2, False)
         self.ui.tabWidget_2.setTabEnabled(1, False)
         self.ui.tabWidget_2.setTabEnabled(0, False)
@@ -94,41 +110,46 @@ class HomeUI(QtWidgets.QDialog):
         # --- install profile
         self.ui.InstallProfile.setEnabled(False)
         self.ui.InstallProfile.clicked.connect( self.installProfile )
-        self.ui.InstallProfile.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('execute_64px.png')))
+        self.ui.InstallProfile.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('saveprofile_64px.png')))
         self.ui.InstallProfile.setIconSize(QtCore.QSize(45, 45))
         # --- Create Proof image
         self.ui.createProofImage.setEnabled(False)
         self.ui.createProofImage.clicked.connect(self.createdProofimage)
-        self.ui.createProofImage.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('execute_64px.png')))
+        self.ui.createProofImage.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('proof_64px.png')))
         self.ui.createProofImage.setIconSize(QtCore.QSize(45, 45))
 
         self.ui.CopyRightText.setText(self.copyright)
-        self.ui.radioButton.setChecked(True)
+        self.ui.ArgyllWorkflow.setChecked(True)
         self.ui.tabWidget.setTabEnabled(1, False)
 
-        self.ui.DcamprofDCP.setChecked(True)
-        self.ui.DcamprofICC.setChecked(False)
-        self.ui.DcamprofDCP.clicked.connect(self.dcamprofDCPRadio)
-        self.ui.DcamprofICC.clicked.connect(self.dcamprofICCRadio)
-
-
-        self.ui.radioButton.clicked.connect(self.showArgyllWorkflow)
-        self.ui.radioButton_2.clicked.connect(self.showDcamprofWorkflow)
+        self.ui.ArgyllWorkflow.clicked.connect(self.showArgyllWorkflow)
+        self.ui.DcamprofWorkflow.clicked.connect(self.showDcamprofWorkflow)
 
         self.ui.ARgyllUslicer.setEnabled(False)
 
-        self.ui.ARgyllUslicer.valueChanged[int].connect(self.updateSliderLabel)
+        self.ui.DcamprofTOPeratorICC.setEnabled(False)
+        self.ui.DcamprofToneICC.currentTextChanged.connect(self.enableCamToneOperator)
 
+        self.ui.ARgyllUslicer.valueChanged[int].connect(self.updateSliderLabel)
         self.ui.ArgyllEmphasisSlider.valueChanged[int].connect(self.updateSliderLabelEmphasis)
+
+        self.ui.DcamExposureSlider.valueChanged[int].connect(self.updateSliderExposure)
 
         self.ui.ArgyllUparam.currentTextChanged.connect(self.enableSlider)
 
-        self.ui.FileNameValue.setText("nada")
+        self.ui.tabsDcamprof.tabBarClicked.connect(self.DcamProfTabsOnclick)
+        # self.ui.tabsDcamprof.currentIndex()
+
 
         #ArgyllEmphasisSlider
 
         #self.ui.DcamprofIlluminant
         #self.comboBox.currentIndexChanged.connect(self.update_chart)
+
+    def updateSliderExposure(self):
+        valor = self.ui.DcamExposureSlider.value()
+        self.ui.exposureOffsetValue.setText(str(valor))
+
 
     def updateSliderLabel(self):
         valor = self.ui.ARgyllUslicer.value()
@@ -144,13 +165,21 @@ class HomeUI(QtWidgets.QDialog):
         if self.ui.ArgyllUparam.currentIndex() == 4:  # if is "custom"
             self.ui.ARgyllUslicer.setEnabled(True)
 
+    def enableCamToneOperator(self):
+        option = list(self.DcamToneCurveICC)[self.ui.DcamprofToneICC.currentIndex()]
+        if option == "ACR":
+            self.ui.DcamprofTOPeratorICC.setEnabled(True)
+        else:
+            self.ui.DcamprofTOPeratorICC.setEnabled(False)
+
+
 
     def showArgyllWorkflow(self):
         self.ui.tabWidget.setCurrentIndex(0)
         self.ui.tabWidget.setTabEnabled(1,False)
         self.ui.tabWidget.setTabEnabled(0, True)
-        self.ui.radioButton.setChecked(True)
-        self.ui.radioButton_2.setChecked(False)
+        self.ui.ArgyllWorkflow.setChecked(True)
+        self.ui.DcamprofWorkflow.setChecked(False)
         filename = self.ui.FileNameText.text()
         filename = filename.replace(" ", "_")
         self.ui.FileNameText.setText(filename.replace(".dcp", ".icc") )
@@ -161,8 +190,8 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.tabWidget.setCurrentIndex(1)
         self.ui.tabWidget.setTabEnabled(0, False)
         self.ui.tabWidget.setTabEnabled(1, True)
-        self.ui.radioButton.setChecked(False)
-        self.ui.radioButton_2.setChecked(True)
+        self.ui.ArgyllWorkflow.setChecked(False)
+        self.ui.DcamprofWorkflow.setChecked(True)
         self.ui.createProofImage.setEnabled(False)
         filename = self.ui.FileNameText.text()
         filename = filename.replace(" ", "_")
@@ -170,26 +199,35 @@ class HomeUI(QtWidgets.QDialog):
         if self.tempFolder != "":
             self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
-    def dcamprofICCRadio(self):
-        self.ui.DcamprofDCP.setChecked(False)
-        self.ui.DcamprofICC.setChecked(True)
-        self.ui.createProofImage.setEnabled(False)
-        filename = self.ui.FileNameText.text()
-        filename = filename.replace(" ", "_")
-        self.ui.FileNameText.setText(filename.replace(".dcp", ".icc") )
-        if self.tempFolder != "":
-            self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
+
+    #self.ui.tabsDcamprof.currentIndex()
+
+    def DcamProfTabsOnclick(self):
+        '''
+        0 = DCP
+        1 = ICC
+        :return:
+        '''
+        index = self.ui.tabsDcamprof.currentIndex()
+
+        if index == 1:
+            self.ui.createProofImage.setEnabled(False)
+            filename = self.ui.FileNameText.text()
+            filename = filename.replace(" ", "_")
+            self.ui.FileNameText.setText(filename.replace(".dcp", ".icc"))
+            if self.tempFolder != "":
+                self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
+
+        elif index == 0:
+
+            self.ui.createProofImage.setEnabled(False)
+            filename = self.ui.FileNameText.text()
+            filename = filename.replace(" ", "_")
+            self.ui.FileNameText.setText(filename.replace(".icc", ".dcp"))
+            if self.tempFolder != "":
+                self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
 
-    def dcamprofDCPRadio(self):
-        self.ui.DcamprofDCP.setChecked(True)
-        self.ui.DcamprofICC.setChecked(False)
-        self.ui.createProofImage.setEnabled(False)
-        filename = self.ui.FileNameText.text()
-        filename = filename.replace(" ", "_")
-        self.ui.FileNameText.setText(filename.replace(".icc", ".dcp") )
-        if self.tempFolder != "":
-            self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
 
     def installProfile(self):
@@ -217,6 +255,7 @@ class HomeUI(QtWidgets.QDialog):
 
         im = open(img, 'rb')
         metadata = exifread.process_file(im)
+        #print(metadata)
         if str(metadata['Image Make']) != "":
             manufacturer = str(metadata['Image Make'])
         else:
@@ -255,6 +294,7 @@ class HomeUI(QtWidgets.QDialog):
         if len(paths) > 0:
             self.inputImage = paths[0]
             self.ui.FileNameValue.setText(os.path.basename(paths[0]))
+            self.ui.FileNameValue.repaint()
 
             if os.path.isfile(paths[0]):
 
@@ -275,6 +315,7 @@ class HomeUI(QtWidgets.QDialog):
                 self.loadImage()
                 self.checkTempFolderContents()
 
+
     def checkIfRawFile(self):
         '''
         if is a raw file create a thumbnail with rawpy
@@ -292,16 +333,25 @@ class HomeUI(QtWidgets.QDialog):
             if os.path.isfile(path):
                 self.inputImage = path
                 self.isRaw = True
-                self.ui.radioButton.setChecked(False)
-                self.ui.radioButton_2.setChecked(True)
+                self.ui.ArgyllWorkflow.setChecked(False)
+                self.ui.ArgyllWorkflow.setEnabled(False)
+                self.ui.DcamprofWorkflow.setChecked(True)
+                self.ui.DcamprofWorkflow.setEnabled(True)
                 self.showDcamprofWorkflow()
-                self.dcamprofDCPRadio()
-                self.ui.radioButton.setEnabled(False)
-                self.ui.radioButton_2.setEnabled(False)
+                self.ui.tabsDcamprof.setCurrentIndex(1)
+                self.ui.tabsDcamprof.setTabEnabled(0, False)
+                self.ui.FileNameValue.repaint() #para el bug en Mojave que no actualiza componentes
+
         else:
+            self.ui.ArgyllWorkflow.setEnabled(True)
+            self.ui.ArgyllWorkflow.setChecked(True)
+            self.ui.DcamprofWorkflow.setChecked(False)
+            self.ui.DcamprofWorkflow.setEnabled(True)
+            self.ui.tabsDcamprof.setTabEnabled(0, True)
+            self.ui.tabsDcamprof.setTabEnabled(1, False)
             self.showArgyllWorkflow()
-            self.ui.radioButton.setChecked(True)
-            self.ui.radioButton_2.setChecked(False)
+            self.ui.FileNameValue.repaint()
+
 
 
     def checkTempFolderContents(self):
@@ -340,13 +390,14 @@ class HomeUI(QtWidgets.QDialog):
         Execute ArgyllCMS o Dcamprof workflows
         :return:
         '''
-        if self.ui.radioButton.isChecked():
+        if self.ui.ArgyllWorkflow.isChecked():
             self.runColprof()
 
-        if self.ui.radioButton_2.isChecked():
-            if self.ui.DcamprofDCP.isChecked():
+        if self.ui.DcamprofWorkflow.isChecked():
+            index = self.ui.tabsDcamprof.currentIndex()
+            if index == 1:
                 self.runDcamprof()
-            if self.ui.DcamprofICC.isChecked():
+            elif index == 0:
                 self.runDcamprofICC()
 
 
@@ -362,12 +413,16 @@ class HomeUI(QtWidgets.QDialog):
         jsonOutProfile = os.path.join( self.tempFolder, self.filename+".json" )
         model = self.ui.ModelText.text()
         description = self.ui.DestText.text()
+        toneCurve = self.DcamToneCurveDcp[ list(self.DcamToneCurveDcp)[self.ui.DcamprofToneDCP.currentIndex()]]
+        toneOperator = self.DcamToneOperator[ list(self.DcamToneOperator)[self.ui.DcamprofTOPeratoDCP.currentIndex()]]
+        exposureOffset = self.ui.exposureOffsetValue.text()
+
 
         # make-profile -g cc24-layout.json rawfile.ti3 profile.json
         cmd = [executables, "make-profile", "-g",jsonInProfile, self.ti3, jsonOutProfile  ]
         print(cmd)
         self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
-        cmd = [executables, "make-dcp", "-n", model, "-d", description, "-t", "acr",jsonOutProfile,  self.outputICCfilename]
+        cmd = [executables, "make-dcp", "-n", model, "-d", description, "-t", toneCurve,"-o", toneOperator, "-b", exposureOffset,  jsonOutProfile,  self.outputICCfilename]
         print(cmd)
         if os.path.isfile(jsonOutProfile):
             self.executeTool(cmd, "Dcamprof make-dcp", "dcamprof")
@@ -392,14 +447,18 @@ class HomeUI(QtWidgets.QDialog):
         #iccFile = os.path.join( self.tempFolder, self.filename+".icc" )
         copyright = self.ui.CopyRightText.text()
         model = self.ui.ModelText.text()
+        toneCurve = self.DcamToneCurveICC[ list(self.DcamToneCurveICC)[self.ui.DcamprofToneICC.currentIndex()]]
+        toneOperator = self.DcamToneOperator[ list(self.DcamToneOperator)[self.ui.DcamprofTOPeratorICC.currentIndex()]]
+        algoritm = self.DcamICCAlgoritm[ list(self.DcamICCAlgoritm)[self.ui.DcamprofAlgortimICC.currentIndex()] ]
+
 
         cmd = [executables, "make-profile", "-g", jsonInProfile, self.ti3, jsonOutProfile  ]
 
         self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
 
         if os.path.isfile(jsonOutProfile):
-            cmd = [executables, "make-icc", "-n", model, "-c", copyright, "-t", "acr", jsonOutProfile,
-                   self.outputICCfilename, ]
+            cmd = [executables, "make-icc", "-n", model, "-c", copyright, "-p", algoritm,  "-t", toneCurve, "-o", toneOperator, jsonOutProfile,
+                   self.outputICCfilename ]
             print(cmd)
             self.executeTool(cmd, "Dcamprof make-icc", "dcamprof")
 
@@ -458,6 +517,12 @@ class HomeUI(QtWidgets.QDialog):
             icc = self.oldICCprofile
 
         CreateProofImage(self.inputImage, icc, self.ui, self.tempFolder)
+
+        name_orig, ext_orig = os.path.splitext(os.path.basename(icc))
+        file = os.path.join(self.tempFolder, name_orig + ".tiff")
+
+        if os.path.isfile(file):
+            AppWarningsClass.informative_warn("Image "+name_orig + ".tiff"+" was create ")
 
     def createTempFolder(self):
         '''

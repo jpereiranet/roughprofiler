@@ -19,6 +19,11 @@ class CreateProofImage():
             self.ArgyllAlgoritm = json.loads(self.config.get('PARAMS', 'ARGYLLALGORITM'))
             self.ArgyllUParam = json.loads(self.config.get('PARAMS', 'ARGYLLUPARAM'))
             self.Targets = json.loads(self.config.get('PARAMS', 'TARGETS'))
+            self.DcamToneOperator = json.loads(self.config.get('PARAMS', 'DCAMPROFTONEOPERATOR'))
+            self.DcamToneCurveDcp = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEDCP'))
+            self.DcamToneCurveICC = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEICC'))
+            self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
+            self.DcamICCAlgoritm = json.loads(self.config.get('PARAMS', 'DCAMPROFICCALGORITM'))
 
         self.icc = icc
         self.img_cv2 = cv2.imread(img)
@@ -33,22 +38,23 @@ class CreateProofImage():
 
     def readValues(self):
 
-        #self.ui.radioButton
-        #self.ui.radioButton_2
+        index = self.ui.tabsDcamprof.currentIndex()
 
-        argyllAlgoritm =  list(self.ArgyllAlgoritm)[self.ui.ArgyllAlgoritm.currentIndex()]
-        argyllRes =list(self.ArgyllRes)[self.ui.ArgyllRes.currentIndex()]
-        argyllUParam = list(self.ArgyllUParam)[self.ui.ArgyllUparam.currentIndex()]
+        if self.ui.DcamprofWorkflow.isChecked() and index == 0:
 
-        ArgyllUscale = self.ui.ArgyllUscale.text()
-        ArgyllGridEmphasis = self.ui.ArgyllGridEmphasis.text()
+            arr = {"DcamprofAlgortimICC": ( "Profile Type", list(self.DcamICCAlgoritm)[self.ui.DcamprofAlgortimICC.currentIndex()]),
+                    "DcamprofToneICC": ("Curve", list(self.DcamToneOperator)[self.ui.DcamprofTOPeratorICC.currentIndex()]),
+                   "DcamprofTOPeratorICC": ("Operator", list(self.DcamToneCurveICC)[self.ui.DcamprofToneICC.currentIndex()] ),
+                    }
 
-        arr = {"ArgyllAlgoritms": (self.ui.ProfileTypeLabel.text(), argyllAlgoritm),
-               "ArgyllRes": ("Profile Resolution", argyllRes),
-               "ArgyllUparam": ("WP Scale", argyllUParam),
-               "ArgyllUscale": ("WP custom Scale", ArgyllUscale),
-               "ArgyllGridEmphasis": ("cLUT grid emphasis", ArgyllGridEmphasis)
-               }
+        elif self.ui.ArgyllWorkflow.isChecked():
+
+            arr = {"ArgyllAlgoritms": (self.ui.ProfileTypeLabel.text(), list(self.ArgyllAlgoritm)[self.ui.ArgyllAlgoritm.currentIndex()] ),
+                   "ArgyllRes": ("Profile Resolution", list(self.ArgyllRes)[self.ui.ArgyllRes.currentIndex()]),
+                   "ArgyllUparam": ("WP Scale", list(self.ArgyllUParam)[self.ui.ArgyllUparam.currentIndex()]),
+                   "ArgyllUscale": ("WP custom Scale", self.ui.ArgyllUscale.text()),
+                   "ArgyllGridEmphasis": ("cLUT grid emphasis", self.ui.ArgyllGridEmphasis.text())
+                   }
         return arr
 
 
@@ -63,7 +69,7 @@ class CreateProofImage():
         i = 0
         c = 0
         rows = 2
-        colDisplacement = 700
+        colDisplacement = 900
         margin_top = 70
         padding_y = 20
         margin_left = 50
