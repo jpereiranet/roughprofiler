@@ -63,7 +63,7 @@ class CreateProofImage():
         i = 0
         c = 0
         rows = 2
-        colDisplacement = 600
+        colDisplacement = 700
         margin_top = 70
         padding_y = 20
         margin_left = 50
@@ -88,12 +88,14 @@ class CreateProofImage():
 
     def saveImage(self  ):
 
-        name_orig, ext_orig = os.path.splitext( os.path.basename(self.icc) )
-
-        file = os.path.join(self.tempFolder, name_orig+".tiff" )
-        profile = ImageCms.getOpenProfile(self.icc)
-        img_pil = Image.fromarray(cv2.cvtColor(self.img_cv2, cv2.COLOR_BGR2RGB))
-        img_pil.save(file, icc_profile=profile.tobytes())
+        if os.path.isfile(self.icc):
+            name_orig, ext_orig = os.path.splitext( os.path.basename(self.icc) )
+            file = os.path.join(self.tempFolder, name_orig+".tiff" )
+            profile = ImageCms.getOpenProfile(self.icc)
+            img_pil = Image.fromarray(cv2.cvtColor(self.img_cv2, cv2.COLOR_BGR2RGB))
+            img_pil.save(file, icc_profile=profile.tobytes())
+        else:
+            print("no icc found")
 
 
 #if __name__ == '__main__':

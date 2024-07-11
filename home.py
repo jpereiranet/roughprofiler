@@ -20,6 +20,10 @@ import configparser
 from proof_file import CreateProofImage
 import json
 import glob
+from warning_class import AppWarningsClass
+import shutil
+
+
 
 class HomeUI(QtWidgets.QDialog):
 
@@ -36,6 +40,9 @@ class HomeUI(QtWidgets.QDialog):
             self.pad_roi = int(self.config['LAYOUT']['PAD_ROI'])
             self.copyright = self.config['OTHERS']['COPYRIGHT']
 
+            self.pathdcp = self.config['INSTALL']['PATHDCP']
+            self.pathicc = self.config['INSTALL']['PATHICC']
+
 
             self.ArgyllRes = json.loads(self.config.get('PARAMS', 'ARGYLLRES'))
             self.ArgyllAlgoritm = json.loads(self.config.get('PARAMS', 'ARGYLLALGORITM'))
@@ -47,6 +54,9 @@ class HomeUI(QtWidgets.QDialog):
 
 
         #self.inputImage = "DSC_4453a.TIF"
+
+        self.coodinates = []
+        self.tempFolder = ""
 
         super(HomeUI, self).__init__(parent)
         self.ui = Ui_RoughProfiler2()
@@ -83,6 +93,7 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.ExecuteTask.setIconSize(QtCore.QSize(45, 45))
         # --- install profile
         self.ui.InstallProfile.setEnabled(False)
+        self.ui.InstallProfile.clicked.connect( self.installProfile )
         self.ui.InstallProfile.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('execute_64px.png')))
         self.ui.InstallProfile.setIconSize(QtCore.QSize(45, 45))
         # --- Create Proof image
@@ -140,6 +151,11 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.tabWidget.setTabEnabled(0, True)
         self.ui.radioButton.setChecked(True)
         self.ui.radioButton_2.setChecked(False)
+        filename = self.ui.FileNameText.text()
+        filename = filename.replace(" ", "_")
+        self.ui.FileNameText.setText(filename.replace(".dcp", ".icc") )
+        if self.tempFolder != "":
+            self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
     def showDcamprofWorkflow(self):
         self.ui.tabWidget.setCurrentIndex(1)
@@ -147,15 +163,55 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.tabWidget.setTabEnabled(1, True)
         self.ui.radioButton.setChecked(False)
         self.ui.radioButton_2.setChecked(True)
+        self.ui.createProofImage.setEnabled(False)
+        filename = self.ui.FileNameText.text()
+        filename = filename.replace(" ", "_")
+        self.ui.FileNameText.setText(filename.replace(".icc", ".dcp") )
+        if self.tempFolder != "":
+            self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
     def dcamprofICCRadio(self):
         self.ui.DcamprofDCP.setChecked(False)
         self.ui.DcamprofICC.setChecked(True)
+        self.ui.createProofImage.setEnabled(False)
+        filename = self.ui.FileNameText.text()
+        filename = filename.replace(" ", "_")
+        self.ui.FileNameText.setText(filename.replace(".dcp", ".icc") )
+        if self.tempFolder != "":
+            self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
 
     def dcamprofDCPRadio(self):
         self.ui.DcamprofDCP.setChecked(True)
         self.ui.DcamprofICC.setChecked(False)
+        self.ui.createProofImage.setEnabled(False)
+        filename = self.ui.FileNameText.text()
+        filename = filename.replace(" ", "_")
+        self.ui.FileNameText.setText(filename.replace(".icc", ".dcp") )
+        if self.tempFolder != "":
+            self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
+
+
+    def installProfile(self):
+
+        if os.path.isfile(self.outputICCfilename):
+            icc = self.outputICCfilename
+        else:
+            icc = self.oldICCprofile
+
+        filename = os.path.basename(icc)
+        ext = os.path.splitext(filename)[1]
+
+        if ext == ".dcp":
+            shutil.copyfile(icc, os.path.join( self.pathdcp, filename) )
+            if os.path.isfile(os.path.join( self.pathdcp, filename)):
+                AppWarningsClass.informative_warn("Profile DCP was installed")
+        elif ext == ".icc":
+            shutil.copyfile(icc, os.path.join(self.pathicc, filename) )
+            if os.path.isfile(os.path.join(self.pathicc, filename)):
+                AppWarningsClass.informative_warn("Profile ICC was installed")
+
+
 
     def getMetadata(self, img):
 
@@ -189,34 +245,35 @@ class HomeUI(QtWidgets.QDialog):
         '''
 
         path = "/Users/jpereira/Python/roughprofiler2/test"
+        path = ""
         qfd = QtWidgets.QFileDialog()
         paths = [str(file_n) for file_n in list(
             QtWidgets.QFileDialog.getOpenFileNames(qfd, "Select files", path,
                                                    filter='Images (*.png *.tif *.tiff  *.jpg *.jpeg *.dng *.nef)'
                                                    )[0])]
         #print(paths)
-        self.inputImage = paths[0]
-        self.ui.FileNameValue.setText(os.path.basename(paths[0]))
-
-        if os.path.isfile(paths[0]):
-
-            self.isRaw = False
-            self.CEGATS_path = False
-            self.ui.tabWidget_2.setTabEnabled(0, True)
-            self.ui.tabWidget_2.setCurrentIndex(0)
-            self.ui.ExecuteReadImage.setEnabled(True)
-            self.ui.LoadCGATS.setEnabled(True)
-            self.ui.createProofImage.setEnabled(True)
+        if len(paths) > 0:
             self.inputImage = paths[0]
-            self.filename = os.path.splitext(os.path.basename(self.inputImage))[0]
-            self.tempFolder = os.path.join(os.path.dirname(paths[0]), self.filename)
-            self.ti3 = os.path.join(self.tempFolder, self.filename + ".ti3")
-            self.diag = os.path.join(self.tempFolder, self.filename + "_diag.tiff")
-            self.getMetadata(paths[0])
-            self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
-            self.checkIfRawFile()
-            self.loadImage()
-            self.checkTempFolderContents()
+            self.ui.FileNameValue.setText(os.path.basename(paths[0]))
+
+            if os.path.isfile(paths[0]):
+
+                self.isRaw = False
+                self.CEGATS_path = False
+                self.ui.tabWidget_2.setTabEnabled(0, True)
+                self.ui.tabWidget_2.setCurrentIndex(0)
+                self.ui.ExecuteReadImage.setEnabled(True)
+                self.ui.LoadCGATS.setEnabled(True)
+                self.inputImage = paths[0]
+                self.filename = os.path.splitext(os.path.basename(self.inputImage))[0]
+                self.tempFolder = os.path.join(os.path.dirname(paths[0]), self.filename)
+                self.ti3 = os.path.join(self.tempFolder, self.filename + ".ti3")
+                self.diag = os.path.join(self.tempFolder, self.filename + "_diag.tiff")
+                self.getMetadata(paths[0])
+                self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
+                self.checkIfRawFile()
+                self.loadImage()
+                self.checkTempFolderContents()
 
     def checkIfRawFile(self):
         '''
@@ -231,11 +288,21 @@ class HomeUI(QtWidgets.QDialog):
                 self.createTempFolder()
                 #rgbImage = DevelopImages.raw_get_thumbnail(self.inputImage)
                 rgbImage = DevelopImages.raw_gamma_develop(self.inputImage)
-
                 cv2.imwrite(path, rgbImage)
             if os.path.isfile(path):
                 self.inputImage = path
                 self.isRaw = True
+                self.ui.radioButton.setChecked(False)
+                self.ui.radioButton_2.setChecked(True)
+                self.showDcamprofWorkflow()
+                self.dcamprofDCPRadio()
+                self.ui.radioButton.setEnabled(False)
+                self.ui.radioButton_2.setEnabled(False)
+        else:
+            self.showArgyllWorkflow()
+            self.ui.radioButton.setChecked(True)
+            self.ui.radioButton_2.setChecked(False)
+
 
     def checkTempFolderContents(self):
         '''
@@ -284,38 +351,66 @@ class HomeUI(QtWidgets.QDialog):
 
 
     def runDcamprof(self):
+        '''
+        Run Dcamprof DCP
+        :return:
+        '''
 
-        target =  self.Targets[list( self.Targets)[self.ui.TargetType.currentIndex()]]
-        jsonInProfile = os.path.join(self.pathRepo,target[2] )
+        target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
+        jsonInProfile = DefinePathsClass.create_reference_paths(target[2])
         executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
         jsonOutProfile = os.path.join( self.tempFolder, self.filename+".json" )
-        dcpFile = os.path.join( self.tempFolder, self.filename+".dcp" )
+        model = self.ui.ModelText.text()
+        description = self.ui.DestText.text()
 
         # make-profile -g cc24-layout.json rawfile.ti3 profile.json
         cmd = [executables, "make-profile", "-g",jsonInProfile, self.ti3, jsonOutProfile  ]
         print(cmd)
         self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
-        cmd = [executables, "make-dcp", "-n", "Nikon", "-d", "mi profile", "-t", "acr",jsonOutProfile,  dcpFile]
+        cmd = [executables, "make-dcp", "-n", model, "-d", description, "-t", "acr",jsonOutProfile,  self.outputICCfilename]
         print(cmd)
-        self.executeTool(cmd, "Dcamprof make-dcp", "dcamprof")
-        #dcamprof make-dcp -n "Camera manufacturer and model" -d "My Profile" -t acr profile.json profile.dcp
+        if os.path.isfile(jsonOutProfile):
+            self.executeTool(cmd, "Dcamprof make-dcp", "dcamprof")
+            #dcamprof make-dcp -n "Camera manufacturer and model" -d "My Profile" -t acr profile.json profile.dcp
 
+        if os.path.isfile(self.outputICCfilename):
+            self.ui.InstallProfile.setEnabled(True)
 
     def runDcamprofICC(self):
+        '''
+        Run Dcamprof ICC
+        :return:
+        '''
 
         #dcamprof make-profile -g cc24-layout.json new-target.ti3 profile.json
         #dcamprof make-icc -n "Camera manufacturer and model" -f target.tif -t acr profile.json profile.icc
 
-        target =  self.Targets[list( self.Targets)[self.ui.TargetType.currentIndex()]]
-        jsonInProfile = os.path.join(self.pathRepo,target[2] )
+        target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
+        jsonInProfile = DefinePathsClass.create_reference_paths(target[2])
         executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
         jsonOutProfile = os.path.join( self.tempFolder, self.filename+".json" )
-        iccFile = os.path.join( self.tempFolder, self.filename+".icc" )
+        #iccFile = os.path.join( self.tempFolder, self.filename+".icc" )
+        copyright = self.ui.CopyRightText.text()
+        model = self.ui.ModelText.text()
 
         cmd = [executables, "make-profile", "-g", jsonInProfile, self.ti3, jsonOutProfile  ]
 
-        cmd = [executables, "make-icc", "-n", "Nikon", "-d", "mi profile", "-t", "acr",jsonOutProfile,  iccFile]
+        self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
 
+        if os.path.isfile(jsonOutProfile):
+            cmd = [executables, "make-icc", "-n", model, "-c", copyright, "-t", "acr", jsonOutProfile,
+                   self.outputICCfilename, ]
+            print(cmd)
+            self.executeTool(cmd, "Dcamprof make-icc", "dcamprof")
+
+            if os.path.isfile(self.outputICCfilename):
+                self.oldICCprofile = self.outputICCfilename
+                self.ui.createProofImage.setEnabled(True)
+                self.ui.InstallProfile.setEnabled(True)
+                filename = self.createICCFileName(os.path.basename(self.outputICCfilename))
+                self.outputICCfilename = os.path.join(self.tempFolder, filename.replace(" ", "_") + ".icc")
+                self.ui.FileNameText.setText(filename.replace(" ", "_") + ".icc")
+                self.ui.DestText.setText(filename.replace("_", " "))
 
 
 
@@ -347,15 +442,22 @@ class HomeUI(QtWidgets.QDialog):
         self.executeTool(cmd, "COLPROF", "argyll")
 
         if os.path.isfile(self.outputICCfilename):
+            self.oldICCprofile = self.outputICCfilename
             self.ui.createProofImage.setEnabled(True)
             self.ui.InstallProfile.setEnabled(True)
             filename = self.createICCFileName(os.path.basename( self.outputICCfilename ) )
+            self.outputICCfilename = os.path.join( self.tempFolder,filename.replace(" ", "_") + ".icc" )
             self.ui.FileNameText.setText(filename.replace(" ","_")+".icc")
             self.ui.DestText.setText(filename.replace("_", " ") )
 
     def createdProofimage(self):
 
-        CreateProofImage(self.inputImage, self.outputICCfilename, self.ui, self.tempFolder)
+        if os.path.isfile(self.outputICCfilename):
+            icc = self.outputICCfilename
+        else:
+            icc = self.oldICCprofile
+
+        CreateProofImage(self.inputImage, icc, self.ui, self.tempFolder)
 
     def createTempFolder(self):
         '''
@@ -377,11 +479,12 @@ class HomeUI(QtWidgets.QDialog):
         else:
             size = self.gammaImageSize
 
-        for i in self.coodinates:
-            if i[1] > size[0]:
-                return False
-            elif i[0] > size[1]:
-                return False
+
+            for i in self.coodinates:
+                if i[1] > size[0]:
+                    return False
+                elif i[0] > size[1]:
+                    return False
         return True
 
     def createLinearImage(self):
@@ -422,45 +525,47 @@ class HomeUI(QtWidgets.QDialog):
         if self.isRaw:
             self.createLinearImage()
 
-        if self.checkCoordinatesInside():
+        if len(self.coodinates) > 0:
+            if self.checkCoordinatesInside():
+                target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
+                #scanin -v -p -dipn rawfile.tif ColorChecker.cht cc24_ref.cie
+                executable = os.path.join( self.pathArgyllExecutables, "scanin")
+                #recogfile = os.path.join( self.pathRepo, target[1])
+                #reference = os.path.join(self.pathRepo, target[0])
+                if not self.CEGATS_path:
+                    reference = DefinePathsClass.create_reference_paths( target[0] )
+                else:
+                    reference = self.CEGATS_path
 
-            targetKey = list(params.targets)[ self.ui.TargetType.currentIndex()]
-            target = params.targets[targetKey]
-            #scanin -v -p -dipn rawfile.tif ColorChecker.cht cc24_ref.cie
-            executable = os.path.join( self.pathArgyllExecutables, "scanin")
-            #recogfile = os.path.join( self.pathRepo, target[1])
-            #reference = os.path.join(self.pathRepo, target[0])
-            if not self.CEGATS_path:
-                reference = DefinePathsClass.create_reference_paths( target[0] )
+                recogfile = DefinePathsClass.create_reference_paths(target[1])
+
+                if not os.path.isfile(recogfile):
+                    print("error no se encuenta")
+                else:
+
+                    #coordinate to string
+                    res = []
+                    for i in self.coodinates:
+                        for j in i:
+                         res.append( str(round(j,2)) )
+                    coor = ",".join(res)
+
+                    cmd = [executable, "-v2", "-p","-dipn", self.gamma, "-F", coor, "-O", self.ti3,  self.inputImage, recogfile, reference, self.diag ]
+                    print(" ".join(cmd) )
+                    self.executeTool(cmd, "SCANIN", "argyll")
+
+                    if os.path.isfile(self.ti3):
+                        #enable ICC/DCP buton
+                        self.ui.ExecuteTask.setEnabled(True)
+                    if os.path.isfile(self.diag):
+                        #load diag image
+                        self.loadDiag()
+                        self.ui.tabWidget_2.setTabEnabled(1, True)
+                        self.ui.tabWidget_2.setCurrentIndex(1)
             else:
-                reference = self.CEGATS_path
-
-            recogfile = DefinePathsClass.create_reference_paths(target[1])
-            if not os.path.isfile(recogfile):
-                print("error no se encuenta")
-            else:
-
-                #coordinate to string
-                res = []
-                for i in self.coodinates:
-                    for j in i:
-                     res.append( str(round(j,2)) )
-                coor = ",".join(res)
-
-                cmd = [executable, "-v2", "-p","-dipn", self.gamma, "-F", coor, "-O", self.ti3,  self.inputImage, recogfile, reference, self.diag ]
-                print(" ".join(cmd) )
-                self.executeTool(cmd, "SCANIN", "argyll")
-
-                if os.path.isfile(self.ti3):
-                    #enable ICC/DCP buton
-                    self.ui.ExecuteTask.setEnabled(True)
-                if os.path.isfile(self.diag):
-                    #load diag image
-                    self.loadDiag()
-                    self.ui.tabWidget_2.setTabEnabled(1, True)
-                    self.ui.tabWidget_2.setCurrentIndex(1)
+                return AppWarningsClass.critical_warn("Coordinates biggest than image")
         else:
-            print("coordenadas mayores que imagen!")
+            return AppWarningsClass.critical_warn("Select a region of interest first")
 
 
     def executeTool(self, cmd, toolName, workflow):
@@ -678,27 +783,36 @@ class HomeUI(QtWidgets.QDialog):
 
     def createICCFileName(self, filen):
 
-        os.chdir(self.tempFolder)
-        files = glob.glob("*.icc")
-        files.sort(key=os.path.getmtime)
+        ext = "icc"
 
-        if len(files) > 0:
-            last = files[-1]
-            name_orig, ext_orig = os.path.splitext(last)
-            arr = name_orig.split("_")
-            lastSection = arr[-1]
+        if self.isRaw:
+            ext = "dcp"
 
-            if "VE" in lastSection: #revisar esto que no funciona
-                lastItem = lastSection.replace("VE", "")
-                if lastItem.isdigit():
-                    newnumber = "VE" + str(int(lastItem) + 1)
-            else:
-                newnumber = "VE1"
+        if os.path.isdir(self.tempFolder):
+            #os.chdir(self.tempFolder)
+            files = glob.glob(os.path.join(self.tempFolder,"*."+ext ) )
+            files.sort(key=os.path.getmtime)
 
-            arr.pop()
-            arr.append(str(newnumber))
-            filen = "_".join(arr)
+            if len(files) > 0:
+                last = files[-1]
+                last = os.path.basename(last)
+                name_orig, ext_orig = os.path.splitext(last)
+                arr = name_orig.split("_")
+                lastSection = arr[-1]
 
+                if "VE" in lastSection: #revisar esto que no funciona
+                    lastItem = lastSection.replace("VE", "")
+                    if lastItem.isdigit():
+                        newnumber = "VE" + str(int(lastItem) + 1)
+                else:
+                    newnumber = str(lastSection)+"_VE1"
+
+                arr.pop()
+                arr.append(str(newnumber))
+                filen = "_".join(arr)
+        else:
+            filen = os.path.splitext(filen)[0]
+            filen = filen+"_VE1"
 
         filen = os.path.splitext(filen)[0]
 
