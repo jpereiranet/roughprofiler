@@ -456,7 +456,7 @@ class HomeUI(QtWidgets.QDialog):
             toneCurve = DefinePathsClass.create_reference_paths(toneCurve)
 
         illuminant = "D50"
-        deepth = "33" #64?
+        deepth = "33"  #64?
 
         #toneCurve2 = "/Users/jpereira/Python/roughprofiler2/reference/curve22.rtc"
         toneCurve3 = "/Users/jpereira/Python/roughprofiler2/reference/tone-curve.json"
