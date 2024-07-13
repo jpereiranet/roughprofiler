@@ -167,7 +167,7 @@ class HomeUI(QtWidgets.QDialog):
 
     def enableCamToneOperator(self):
         option = list(self.DcamToneCurveICC)[self.ui.DcamprofToneICC.currentIndex()]
-        if option == "ACR":
+        if option != "none":
             self.ui.DcamprofTOPeratorICC.setEnabled(True)
         else:
             self.ui.DcamprofTOPeratorICC.setEnabled(False)
@@ -195,7 +195,7 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.createProofImage.setEnabled(False)
         filename = self.ui.FileNameText.text()
         filename = filename.replace(" ", "_")
-        self.ui.FileNameText.setText(filename.replace(".icc", ".dcp") )
+        #self.ui.FileNameText.setText(filename.replace(".icc", ".dcp") )
         if self.tempFolder != "":
             self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
@@ -210,15 +210,15 @@ class HomeUI(QtWidgets.QDialog):
         '''
         index = self.ui.tabsDcamprof.currentIndex()
 
-        if index == 1:
-            self.ui.createProofImage.setEnabled(False)
+        if index == 0:
+            self.ui.createProofImage.setEnabled(True)
             filename = self.ui.FileNameText.text()
             filename = filename.replace(" ", "_")
             self.ui.FileNameText.setText(filename.replace(".dcp", ".icc"))
             if self.tempFolder != "":
                 self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
-        elif index == 0:
+        elif index == 1:
 
             self.ui.createProofImage.setEnabled(False)
             filename = self.ui.FileNameText.text()
@@ -451,14 +451,22 @@ class HomeUI(QtWidgets.QDialog):
         toneOperator = self.DcamToneOperator[ list(self.DcamToneOperator)[self.ui.DcamprofTOPeratorICC.currentIndex()]]
         algoritm = self.DcamICCAlgoritm[ list(self.DcamICCAlgoritm)[self.ui.DcamprofAlgortimICC.currentIndex()] ]
 
+        print(toneCurve)
+        if "curve" in toneCurve:
+            toneCurve = DefinePathsClass.create_reference_paths(toneCurve)
 
-        cmd = [executables, "make-profile", "-g", jsonInProfile, self.ti3, jsonOutProfile  ]
+        illuminant = "D50"
+        deepth = "33" #64?
 
+        #toneCurve2 = "/Users/jpereira/Python/roughprofiler2/reference/curve22.rtc"
+        toneCurve3 = "/Users/jpereira/Python/roughprofiler2/reference/tone-curve.json"
+
+        cmd = [executables, "make-profile", "-n", model, "-i", illuminant,"-y", "-0.15", "-g", jsonInProfile, self.ti3,  jsonOutProfile  ]
+        print(cmd)
         self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
 
         if os.path.isfile(jsonOutProfile):
-            cmd = [executables, "make-icc", "-n", model, "-c", copyright, "-p", algoritm,  "-t", toneCurve, "-o", toneOperator, jsonOutProfile,
-                   self.outputICCfilename ]
+            cmd = [executables, "make-icc", "-n", model,"-s", deepth, "-c", copyright, "-p", algoritm, "-t", toneCurve,"-o", toneOperator, jsonOutProfile, self.outputICCfilename ]
             print(cmd)
             self.executeTool(cmd, "Dcamprof make-icc", "dcamprof")
 
@@ -730,6 +738,7 @@ class HomeUI(QtWidgets.QDialog):
         v2a.autoRange()
 
         self.ui.verticalLayout.addWidget(graphicsView)
+
 
 
     def createROI(self):
