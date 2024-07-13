@@ -461,7 +461,9 @@ class HomeUI(QtWidgets.QDialog):
         #toneCurve2 = "/Users/jpereira/Python/roughprofiler2/reference/curve22.rtc"
         toneCurve3 = "/Users/jpereira/Python/roughprofiler2/reference/tone-curve.json"
 
-        cmd = [executables, "make-profile", "-n", model, "-i", illuminant,"-y", "-0.15", "-g", jsonInProfile, self.ti3,  jsonOutProfile  ]
+        #toneOperator = "/Users/jpereira/Python/roughprofiler2/reference/ntro_conf.json"
+
+        cmd = [executables, "make-profile", "-n", model, "-i", illuminant,"-y", "−0.2", "-g", jsonInProfile, self.ti3,  jsonOutProfile  ]
         print(cmd)
         self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
 
