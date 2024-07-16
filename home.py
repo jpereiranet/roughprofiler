@@ -54,6 +54,7 @@ class HomeUI(QtWidgets.QDialog):
             self.DcamToneCurveICC = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEICC'))
             self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
             self.DcamICCAlgoritm = json.loads(self.config.get('PARAMS', 'DCAMPROFICCALGORITM'))
+            self.ICCLutResolution = json.loads(self.config.get('PARAMS', 'ICCLUTRESOLUTION'))
 
 
 
@@ -81,7 +82,8 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.DcamprofTOPeratoDCP.addItems(self.DcamToneOperator.keys())
         self.ui.DcamprofToneDCP.addItems(self.DcamToneCurveDcp.keys())
         self.ui.DcamprofToneICC.addItems(self.DcamToneCurveICC.keys())
-        self.ui.DcamprofIlluminant.addItems(self.DcamIlluminant)
+        self.ui.DcamprofIlluminant.addItems(self.DcamIlluminant.keys())
+        self.ui.DcamprofICCResLUT.addItems(self.ICCLutResolution.keys())
 
         self.ui.tabWidget_2.setTabEnabled(2, False)
         self.ui.tabWidget_2.setTabEnabled(1, False)
@@ -127,7 +129,7 @@ class HomeUI(QtWidgets.QDialog):
 
         self.ui.ARgyllUslicer.setEnabled(False)
 
-        self.ui.DcamprofTOPeratorICC.setEnabled(False)
+        self.ui.DcamprofTOPeratorICC.setEnabled(True)
         self.ui.DcamprofToneICC.currentTextChanged.connect(self.enableCamToneOperator)
 
         self.ui.ARgyllUslicer.valueChanged[int].connect(self.updateSliderLabel)
@@ -138,6 +140,8 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.ArgyllUparam.currentTextChanged.connect(self.enableSlider)
 
         self.ui.tabsDcamprof.tabBarClicked.connect(self.DcamProfTabsOnclick)
+
+        self.ui.GlareCheckBox.setChecked(True)
         # self.ui.tabsDcamprof.currentIndex()
 
 
@@ -422,6 +426,7 @@ class HomeUI(QtWidgets.QDialog):
         cmd = [executables, "make-profile", "-g",jsonInProfile, self.ti3, jsonOutProfile  ]
         print(cmd)
         self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
+
         cmd = [executables, "make-dcp", "-n", model, "-d", description, "-t", toneCurve,"-o", toneOperator, "-b", exposureOffset,  jsonOutProfile,  self.outputICCfilename]
         print(cmd)
         if os.path.isfile(jsonOutProfile):
@@ -430,6 +435,8 @@ class HomeUI(QtWidgets.QDialog):
 
         if os.path.isfile(self.outputICCfilename):
             self.ui.InstallProfile.setEnabled(True)
+
+
 
     def runDcamprofICC(self):
         '''
@@ -441,7 +448,6 @@ class HomeUI(QtWidgets.QDialog):
         #dcamprof make-icc -n "Camera manufacturer and model" -f target.tif -t acr profile.json profile.icc
 
         target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
-        jsonInProfile = DefinePathsClass.create_reference_paths(target[2])
         executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
         jsonOutProfile = os.path.join( self.tempFolder, self.filename+".json" )
         #iccFile = os.path.join( self.tempFolder, self.filename+".icc" )
@@ -450,29 +456,53 @@ class HomeUI(QtWidgets.QDialog):
         toneCurve = self.DcamToneCurveICC[ list(self.DcamToneCurveICC)[self.ui.DcamprofToneICC.currentIndex()]]
         toneOperator = self.DcamToneOperator[ list(self.DcamToneOperator)[self.ui.DcamprofTOPeratorICC.currentIndex()]]
         algoritm = self.DcamICCAlgoritm[ list(self.DcamICCAlgoritm)[self.ui.DcamprofAlgortimICC.currentIndex()] ]
+        illuminant = self.DcamIlluminant[ list(self.DcamIlluminant)[self.ui.DcamprofIlluminant.currentIndex()] ]
+        lutRes = self.ICCLutResolution[ list(self.ICCLutResolution)[self.ui.DcamprofICCResLUT.currentIndex()] ]
+        yLimit = self.ui.YLimitBox.text()
 
-        print(toneCurve)
+        print(lutRes)
+
+        dcamreports = os.path.join(self.tempFolder, "dcamreports")
+
+
+
+        if not os.path.isdir(dcamreports):
+            os.mkdir(dcamreports)
+
         if "curve" in toneCurve:
             toneCurve = DefinePathsClass.create_reference_paths(toneCurve)
-
-        illuminant = "D50"
-        deepth = "33"  #64?
 
         #toneCurve2 = "/Users/jpereira/Python/roughprofiler2/reference/curve22.rtc"
         toneCurve3 = "/Users/jpereira/Python/roughprofiler2/reference/tone-curve.json"
 
         #toneOperator = "/Users/jpereira/Python/roughprofiler2/reference/ntro_conf.json"
 
-        cmd = [executables, "make-profile", "-n", model, "-i", illuminant,"-y", "−0.2", "-g", jsonInProfile, self.ti3,  jsonOutProfile  ]
+        look = "/Users/jpereira/Python/roughprofiler2/reference/ntro_lookop_conf.json"
+        look = "/Users/jpereira/Python/roughprofiler2/reference/lessblue.json"
+
+
+        #cmd = [executables, "make-profile", "-n", model, "-i", illuminant,"-y", "−0.2", "-g", jsonInProfile, "-r", dcamreports,"-a", look, self.ti3,  jsonOutProfile  ]
+        cmd = [executables, "make-profile", "-n", model, "-i", illuminant,"-y", str(yLimit),"-a", look, "-r", dcamreports, self.ti3,  jsonOutProfile  ]
+
+        if self.ui.GlareCheckBox.isChecked():
+            jsonInProfile = DefinePathsClass.create_reference_paths(target[2])
+            cmd.insert(10, "-g")
+            cmd.insert(11, jsonInProfile)
+
+
         print(cmd)
-        self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
+        output = self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
+
+        with open(os.path.join(self.tempFolder, "log.txt"), 'a') as f:
+            f.write(output)
 
         if os.path.isfile(jsonOutProfile):
-            cmd = [executables, "make-icc", "-n", model,"-s", deepth, "-c", copyright, "-p", algoritm, "-t", toneCurve,"-o", toneOperator, jsonOutProfile, self.outputICCfilename ]
+            cmd = [executables, "make-icc", "-n", model,"-s", str(lutRes), "-c", copyright, "-p", algoritm,"-W", "-t", toneCurve,"-o", toneOperator, jsonOutProfile, self.outputICCfilename ]
             print(cmd)
             self.executeTool(cmd, "Dcamprof make-icc", "dcamprof")
 
             if os.path.isfile(self.outputICCfilename):
+                self.runProfCheck()
                 self.oldICCprofile = self.outputICCfilename
                 self.ui.createProofImage.setEnabled(True)
                 self.ui.InstallProfile.setEnabled(True)
@@ -482,6 +512,13 @@ class HomeUI(QtWidgets.QDialog):
                 self.ui.DestText.setText(filename.replace("_", " "))
 
 
+    def runProfCheck(self):
+
+        executable = os.path.join(self.pathArgyllExecutables, "profcheck")
+
+        cmd = [executable, "-v2", "-Ir", self.ti3,self.outputICCfilename ]
+
+        self.executeTool(cmd, "PROFCHECK", "argyll")
 
     def runColprof(self):
         '''
@@ -667,11 +704,29 @@ class HomeUI(QtWidgets.QDialog):
             output = p.stdout.readline
 
         for line in iter(output, b''):
-            self.ui.textEdit.insertPlainText(line.decode('utf-8'))
+            if toolName == "PROFCHECK":
+                self.ui.textEdit.insertPlainText(self.formatProfCheck(line.decode('utf-8')))
+            else:
+                self.ui.textEdit.insertPlainText(line.decode('utf-8'))
+
             self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
             QApplication.processEvents()
         p.stdout.close()
         p.wait()
+
+        return self.ui.textEdit.toPlainText()
+
+    def formatProfCheck(self, cadena):
+        arr = cadena.split(" ")
+        if arr[0] == "No":
+            return "\n"
+        elif arr[0] == "Profile":
+            return "AVG: "+str(arr[9].replace(",",""))+" MAX: "+str(arr[6].replace(",","")) + "\n"
+        else:
+            value = round( float( arr[0].replace("]", "").replace("[", "")),1)
+
+            return arr[1] +" "+ str( value ) + "\n"
+
 
     def loadDiag(self):
         '''

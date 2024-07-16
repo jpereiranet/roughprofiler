@@ -24,6 +24,7 @@ class CreateProofImage():
             self.DcamToneCurveICC = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEICC'))
             self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
             self.DcamICCAlgoritm = json.loads(self.config.get('PARAMS', 'DCAMPROFICCALGORITM'))
+            self.ICCLutResolution = json.loads(self.config.get('PARAMS', 'ICCLUTRESOLUTION'))
 
         self.icc = icc
         self.img_cv2 = cv2.imread(img)
@@ -40,16 +41,26 @@ class CreateProofImage():
 
         index = self.ui.tabsDcamprof.currentIndex()
 
+        #algoritm = self.DcamICCAlgoritm[ list(self.DcamICCAlgoritm)[self.ui.DcamprofAlgortimICC.currentIndex()] ]
+
         if self.ui.DcamprofWorkflow.isChecked() and index == 0:
 
-            arr = {"DcamprofAlgortimICC": ( "Profile Type", list(self.DcamICCAlgoritm)[self.ui.DcamprofAlgortimICC.currentIndex()]),
+            arr = {
+                    "Engine":("Engine", "Dcamproof"),
+                    "DcamprofAlgortimICC": ( "Profile Type", list(self.DcamICCAlgoritm)[self.ui.DcamprofAlgortimICC.currentIndex()]),
                     "DcamprofToneICC": ("Curve", list(self.DcamToneOperator)[self.ui.DcamprofTOPeratorICC.currentIndex()]),
-                   "DcamprofTOPeratorICC": ("Operator", list(self.DcamToneCurveICC)[self.ui.DcamprofToneICC.currentIndex()] ),
+                    "DcamprofTOPeratorICC": ("Operator", list(self.DcamToneCurveICC)[self.ui.DcamprofToneICC.currentIndex()] ),
+                    "Illuminant": ("Illuminant", list(self.DcamIlluminant)[self.ui.DcamprofIlluminant.currentIndex()] ),
+                    "LUTRes": ("Profile Resolution", self.ICCLutResolution[
+                       list(self.ICCLutResolution)[self.ui.DcamprofICCResLUT.currentIndex()]]),
+                    "Ylimit": ("Y Limit", self.ui.YLimitBox.text() )
+
                     }
 
         elif self.ui.ArgyllWorkflow.isChecked():
 
-            arr = {"ArgyllAlgoritms": (self.ui.ProfileTypeLabel.text(), list(self.ArgyllAlgoritm)[self.ui.ArgyllAlgoritm.currentIndex()] ),
+            arr = {"Engine":("Engine", "Argyll"),
+                   "ArgyllAlgoritms": (self.ui.ProfileTypeLabel.text(), list(self.ArgyllAlgoritm)[self.ui.ArgyllAlgoritm.currentIndex()] ),
                    "ArgyllRes": ("Profile Resolution", list(self.ArgyllRes)[self.ui.ArgyllRes.currentIndex()]),
                    "ArgyllUparam": ("WP Scale", list(self.ArgyllUParam)[self.ui.ArgyllUparam.currentIndex()]),
                    "ArgyllUscale": ("WP custom Scale", self.ui.ArgyllUscale.text()),
@@ -85,7 +96,7 @@ class CreateProofImage():
 
             posicion = (margin_left + colDisplacement * c, padding_y + self.pos + margin_top * i)
 
-            campo = value[0] + ": " + value[1]
+            campo = str(value[0]) + ": " + str(value[1])
             cv2.putText(self.img_cv2, campo, posicion, cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0, 0, 0), thickness,
                         cv2.LINE_AA)
 
