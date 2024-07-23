@@ -22,6 +22,9 @@ import json
 import glob
 from warning_class import AppWarningsClass
 import shutil
+from colormath.color_objects import LabColor, sRGBColor
+from colormath.color_conversions import convert_color
+from color import ColorProof
 
 
 
@@ -51,10 +54,10 @@ class HomeUI(QtWidgets.QDialog):
 
             self.DcamToneOperator = json.loads(self.config.get('PARAMS', 'DCAMPROFTONEOPERATOR'))
             self.DcamToneCurveDcp = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEDCP'))
-            self.DcamToneCurveICC = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEICC'))
+            #self.DcamToneCurveICC = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEICC'))
             self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
-            self.DcamICCAlgoritm = json.loads(self.config.get('PARAMS', 'DCAMPROFICCALGORITM'))
-            self.ICCLutResolution = json.loads(self.config.get('PARAMS', 'ICCLUTRESOLUTION'))
+            #self.DcamICCAlgoritm = json.loads(self.config.get('PARAMS', 'DCAMPROFICCALGORITM'))
+            #self.ICCLutResolution = json.loads(self.config.get('PARAMS', 'ICCLUTRESOLUTION'))
 
 
 
@@ -77,14 +80,15 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.ArgyllAlgoritm.addItems( self.ArgyllAlgoritm.keys() )
         self.ui.ArgyllUparam.addItems( self.ArgyllUParam.keys() )
 
-        self.ui.DcamprofAlgortimICC.addItems(self.DcamICCAlgoritm.keys())
-        self.ui.DcamprofTOPeratorICC.addItems(self.DcamToneOperator.keys())
+        #self.ui.DcamprofAlgortimICC.addItems(self.DcamICCAlgoritm.keys())
+        #self.ui.DcamprofTOPeratorICC.addItems(self.DcamToneOperator.keys())
         self.ui.DcamprofTOPeratoDCP.addItems(self.DcamToneOperator.keys())
         self.ui.DcamprofToneDCP.addItems(self.DcamToneCurveDcp.keys())
-        self.ui.DcamprofToneICC.addItems(self.DcamToneCurveICC.keys())
+        #self.ui.DcamprofToneICC.addItems(self.DcamToneCurveICC.keys())
         self.ui.DcamprofIlluminant.addItems(self.DcamIlluminant.keys())
-        self.ui.DcamprofICCResLUT.addItems(self.ICCLutResolution.keys())
+        #self.ui.DcamprofICCResLUT.addItems(self.ICCLutResolution.keys())
 
+        self.ui.tabWidget_2.setTabEnabled(3, False)
         self.ui.tabWidget_2.setTabEnabled(2, False)
         self.ui.tabWidget_2.setTabEnabled(1, False)
         self.ui.tabWidget_2.setTabEnabled(0, False)
@@ -121,16 +125,19 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.createProofImage.setIconSize(QtCore.QSize(45, 45))
 
         self.ui.CopyRightText.setText(self.copyright)
-        self.ui.ArgyllWorkflow.setChecked(True)
-        self.ui.tabWidget.setTabEnabled(1, False)
+        #self.ui.ArgyllWorkflow.setChecked(True)
+        #self.ui.tabWidget.setTabEnabled(1, False)
 
-        self.ui.ArgyllWorkflow.clicked.connect(self.showArgyllWorkflow)
-        self.ui.DcamprofWorkflow.clicked.connect(self.showDcamprofWorkflow)
+        #self.ui.ArgyllWorkflow.clicked.connect(self.showArgyllWorkflow)
+        #self.ui.DcamprofWorkflow.clicked.connect(self.showDcamprofWorkflow)
+        #self.ui.tabsDcamprof.tabBarClicked.connect(self.DcamProfTabsOnclick)
+
+        self.ui.tabWidget.tabBarClicked.connect(self.choiceDCPICC)
 
         self.ui.ARgyllUslicer.setEnabled(False)
 
-        self.ui.DcamprofTOPeratorICC.setEnabled(True)
-        self.ui.DcamprofToneICC.currentTextChanged.connect(self.enableCamToneOperator)
+        #self.ui.DcamprofTOPeratorICC.setEnabled(True)
+        #self.ui.DcamprofToneICC.currentTextChanged.connect(self.enableCamToneOperator)
 
         self.ui.ARgyllUslicer.valueChanged[int].connect(self.updateSliderLabel)
         self.ui.ArgyllEmphasisSlider.valueChanged[int].connect(self.updateSliderLabelEmphasis)
@@ -139,10 +146,13 @@ class HomeUI(QtWidgets.QDialog):
 
         self.ui.ArgyllUparam.currentTextChanged.connect(self.enableSlider)
 
-        self.ui.tabsDcamprof.tabBarClicked.connect(self.DcamProfTabsOnclick)
+
 
         self.ui.GlareCheckBox.setChecked(True)
         # self.ui.tabsDcamprof.currentIndex()
+
+
+
 
 
         #ArgyllEmphasisSlider
@@ -152,7 +162,7 @@ class HomeUI(QtWidgets.QDialog):
 
     def updateSliderExposure(self):
         valor = self.ui.DcamExposureSlider.value()
-        self.ui.exposureOffsetValue.setText(str(valor))
+        self.ui.exposureOffsetValue.setText(str( valor / 10))
 
 
     def updateSliderLabel(self):
@@ -177,31 +187,23 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.DcamprofTOPeratorICC.setEnabled(False)
 
 
+    def choiceDCPICC(self):
 
-    def showArgyllWorkflow(self):
-        self.ui.tabWidget.setCurrentIndex(0)
-        self.ui.tabWidget.setTabEnabled(1,False)
-        self.ui.tabWidget.setTabEnabled(0, True)
-        self.ui.ArgyllWorkflow.setChecked(True)
-        self.ui.DcamprofWorkflow.setChecked(False)
+        tab = self.ui.tabWidget.currentIndex()
+        #self.ui.ArgyllWorkflow.setChecked(True)
+        #self.ui.tabWidget.setTabEnabled(0, True)
         filename = self.ui.FileNameText.text()
         filename = filename.replace(" ", "_")
-        self.ui.FileNameText.setText(filename.replace(".dcp", ".icc") )
-        if self.tempFolder != "":
-            self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
-    def showDcamprofWorkflow(self):
-        self.ui.tabWidget.setCurrentIndex(1)
-        self.ui.tabWidget.setTabEnabled(0, False)
-        self.ui.tabWidget.setTabEnabled(1, True)
-        self.ui.ArgyllWorkflow.setChecked(False)
-        self.ui.DcamprofWorkflow.setChecked(True)
-        self.ui.createProofImage.setEnabled(False)
-        filename = self.ui.FileNameText.text()
-        filename = filename.replace(" ", "_")
-        #self.ui.FileNameText.setText(filename.replace(".icc", ".dcp") )
-        if self.tempFolder != "":
-            self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
+        if tab == 1:
+            self.ui.FileNameText.setText(filename.replace(".dcp", ".icc"))
+            if self.tempFolder != "":
+                self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
+
+        if tab == 0:
+            self.ui.FileNameText.setText(filename.replace(".icc", ".dcp") )
+            if self.tempFolder != "":
+                self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
 
     #self.ui.tabsDcamprof.currentIndex()
@@ -288,7 +290,6 @@ class HomeUI(QtWidgets.QDialog):
         '''
 
         path = "/Users/jpereira/Python/roughprofiler2/test"
-        path = ""
         qfd = QtWidgets.QFileDialog()
         paths = [str(file_n) for file_n in list(
             QtWidgets.QFileDialog.getOpenFileNames(qfd, "Select files", path,
@@ -337,23 +338,23 @@ class HomeUI(QtWidgets.QDialog):
             if os.path.isfile(path):
                 self.inputImage = path
                 self.isRaw = True
-                self.ui.ArgyllWorkflow.setChecked(False)
-                self.ui.ArgyllWorkflow.setEnabled(False)
-                self.ui.DcamprofWorkflow.setChecked(True)
-                self.ui.DcamprofWorkflow.setEnabled(True)
-                self.showDcamprofWorkflow()
-                self.ui.tabsDcamprof.setCurrentIndex(1)
-                self.ui.tabsDcamprof.setTabEnabled(0, False)
+                filename = self.ui.FileNameText.text()
+                self.ui.FileNameText.setText(filename.replace(".icc", ".dcp"))
+                #self.ui.ArgyllCM.setEnabled(False)
+                #self.ui.Dcamprof.setEnabled(True)
+                self.ui.tabWidget.setTabEnabled(0, True)
+                self.ui.tabWidget.setTabEnabled(1, False)
+                self.ui.tabWidget.setCurrentIndex(0)
                 self.ui.FileNameValue.repaint() #para el bug en Mojave que no actualiza componentes
 
         else:
-            self.ui.ArgyllWorkflow.setEnabled(True)
-            self.ui.ArgyllWorkflow.setChecked(True)
-            self.ui.DcamprofWorkflow.setChecked(False)
-            self.ui.DcamprofWorkflow.setEnabled(True)
-            self.ui.tabsDcamprof.setTabEnabled(0, True)
-            self.ui.tabsDcamprof.setTabEnabled(1, False)
-            self.showArgyllWorkflow()
+            filename = self.ui.FileNameText.text()
+            self.ui.FileNameText.setText(filename.replace(".dcp", ".icc"))
+            #self.ui.Dcamprof.setEnabled(False)
+            #self.ui.ArgyllCM.setEnabled(True)
+            self.ui.tabWidget.setTabEnabled(0, False)
+            self.ui.tabWidget.setTabEnabled(1, True)
+            self.ui.tabWidget.setCurrentIndex(1)
             self.ui.FileNameValue.repaint()
 
 
@@ -394,15 +395,13 @@ class HomeUI(QtWidgets.QDialog):
         Execute ArgyllCMS o Dcamprof workflows
         :return:
         '''
-        if self.ui.ArgyllWorkflow.isChecked():
+        index = self.ui.tabWidget.currentIndex()
+        if index == 1:
             self.runColprof()
 
-        if self.ui.DcamprofWorkflow.isChecked():
-            index = self.ui.tabsDcamprof.currentIndex()
-            if index == 1:
-                self.runDcamprof()
-            elif index == 0:
-                self.runDcamprofICC()
+        if index == 0:
+            self.runDcamprof()
+
 
 
     def runDcamprof(self):
@@ -410,7 +409,7 @@ class HomeUI(QtWidgets.QDialog):
         Run Dcamprof DCP
         :return:
         '''
-
+        output = ""
         target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
         jsonInProfile = DefinePathsClass.create_reference_paths(target[2])
         executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
@@ -420,17 +419,42 @@ class HomeUI(QtWidgets.QDialog):
         toneCurve = self.DcamToneCurveDcp[ list(self.DcamToneCurveDcp)[self.ui.DcamprofToneDCP.currentIndex()]]
         toneOperator = self.DcamToneOperator[ list(self.DcamToneOperator)[self.ui.DcamprofTOPeratoDCP.currentIndex()]]
         exposureOffset = self.ui.exposureOffsetValue.text()
+        illuminant = self.DcamIlluminant[ list(self.DcamIlluminant)[self.ui.DcamprofIlluminant.currentIndex()] ]
+        yLimit = self.ui.YLimitBox.text()
+        filename = self.ui.FileNameText.text()
+        #print(illuminant)
+        
+        look = "/Users/jpereira/Python/roughprofiler2/reference/testlook.json"
+
+        print(toneCurve)
+        if ".json" in toneCurve or ".rtc" in toneCurve:
+            toneCurve = DefinePathsClass.create_reference_paths(toneCurve)
+
+        if ".json" in toneOperator:
+            toneOperator = DefinePathsClass.create_reference_paths(toneOperator)
 
 
         # make-profile -g cc24-layout.json rawfile.ti3 profile.json
-        cmd = [executables, "make-profile", "-g",jsonInProfile, self.ti3, jsonOutProfile  ]
-        print(cmd)
-        self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
+        cmd = [executables, "make-profile","-i", illuminant,"-y", str(yLimit),"-d","0.02", "-g",jsonInProfile, self.ti3, jsonOutProfile  ]
+        if self.ui.GlareCheckBox.isChecked():
+            jsonInProfile = DefinePathsClass.create_reference_paths(target[2])
+            #cmd.insert(8, "-g")
+            #cmd.insert(9, jsonInProfile)
 
-        cmd = [executables, "make-dcp", "-n", model, "-d", description, "-t", toneCurve,"-o", toneOperator, "-b", exposureOffset,  jsonOutProfile,  self.outputICCfilename]
+        if self.ui.LookCorrection.isChecked():
+            jsonInProfile = DefinePathsClass.create_reference_paths("lessblue.json")
+            cmd.insert(8, "-a")
+            cmd.insert(9, jsonInProfile)
+        #cmd.insert(2, "-a")
+        #cmd.insert(3, look)
+
+        print(cmd)
+        output, _ = self.executeTool(cmd, "Dcamprof make-profile", "dcamprof", output)
+
+        cmd = [executables, "make-dcp", "-n", model, "-d", description, "-t", toneCurve,"-o", toneOperator, "-b", exposureOffset,  jsonOutProfile,  os.path.join(self.tempFolder, filename)]
         print(cmd)
         if os.path.isfile(jsonOutProfile):
-            self.executeTool(cmd, "Dcamprof make-dcp", "dcamprof")
+            self.executeTool(cmd, "Dcamprof make-dcp", "dcamprof", output)
             #dcamprof make-dcp -n "Camera manufacturer and model" -d "My Profile" -t acr profile.json profile.dcp
 
         if os.path.isfile(self.outputICCfilename):
@@ -438,15 +462,10 @@ class HomeUI(QtWidgets.QDialog):
 
 
 
-    def runDcamprofICC(self):
-        '''
-        Run Dcamprof ICC
-        :return:
-        '''
-
+    '''def runDcamprofICC(self):
         #dcamprof make-profile -g cc24-layout.json new-target.ti3 profile.json
         #dcamprof make-icc -n "Camera manufacturer and model" -f target.tif -t acr profile.json profile.icc
-
+        output = ""
         target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
         executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
         jsonOutProfile = os.path.join( self.tempFolder, self.filename+".json" )
@@ -459,66 +478,75 @@ class HomeUI(QtWidgets.QDialog):
         illuminant = self.DcamIlluminant[ list(self.DcamIlluminant)[self.ui.DcamprofIlluminant.currentIndex()] ]
         lutRes = self.ICCLutResolution[ list(self.ICCLutResolution)[self.ui.DcamprofICCResLUT.currentIndex()] ]
         yLimit = self.ui.YLimitBox.text()
+        filename = self.ui.FileNameText.text()
 
-        print(lutRes)
+        #dcamreports = os.path.join(self.tempFolder, "dcamreports")
 
-        dcamreports = os.path.join(self.tempFolder, "dcamreports")
+        #if not os.path.isdir(dcamreports):
+            #os.mkdir(dcamreports)
 
-
-
-        if not os.path.isdir(dcamreports):
-            os.mkdir(dcamreports)
-
+        print(toneCurve)
         if "curve" in toneCurve:
             toneCurve = DefinePathsClass.create_reference_paths(toneCurve)
 
-        #toneCurve2 = "/Users/jpereira/Python/roughprofiler2/reference/curve22.rtc"
-        toneCurve3 = "/Users/jpereira/Python/roughprofiler2/reference/tone-curve.json"
-
-        #toneOperator = "/Users/jpereira/Python/roughprofiler2/reference/ntro_conf.json"
-
-        look = "/Users/jpereira/Python/roughprofiler2/reference/ntro_lookop_conf.json"
-        look = "/Users/jpereira/Python/roughprofiler2/reference/lessblue.json"
+        print(toneOperator)
+        if "json" in toneOperator:
+            toneOperator = DefinePathsClass.create_reference_paths(toneOperator)
 
 
-        #cmd = [executables, "make-profile", "-n", model, "-i", illuminant,"-y", "−0.2", "-g", jsonInProfile, "-r", dcamreports,"-a", look, self.ti3,  jsonOutProfile  ]
-        cmd = [executables, "make-profile", "-n", model, "-i", illuminant,"-y", str(yLimit),"-a", look, "-r", dcamreports, self.ti3,  jsonOutProfile  ]
+        #cmd = [executables, "tiff-tf", ]
+
+        cmd = [executables, "make-profile", "-n", model, "-i", illuminant,"-y", str(yLimit), self.ti3,  jsonOutProfile  ]
 
         if self.ui.GlareCheckBox.isChecked():
             jsonInProfile = DefinePathsClass.create_reference_paths(target[2])
-            cmd.insert(10, "-g")
-            cmd.insert(11, jsonInProfile)
+            cmd.insert(8, "-g")
+            cmd.insert(9, jsonInProfile)
 
+        if self.ui.LookCorrection.isChecked():
+            #look = "/Users/jpereira/Python/roughprofiler2/reference/ntro_conf.json"
+            #cmd.insert(6, "-a")
+            #cmd.insert(7, look)
+            look = "/Users/jpereira/Python/roughprofiler2/test/co/lineal_curve.json"
+            cmd.insert(8, "-f")
+            cmd.insert(9, self.inputImage)
 
         print(cmd)
-        output = self.executeTool(cmd, "Dcamprof make-profile", "dcamprof")
+        output, _ = self.executeTool(cmd, "Dcamprof make-profile", "dcamprof", output )
 
-        with open(os.path.join(self.tempFolder, "log.txt"), 'a') as f:
-            f.write(output)
+        #with open(os.path.join(self.tempFolder, "log.txt"), 'a') as f:
+            #f.write(output)
 
         if os.path.isfile(jsonOutProfile):
-            cmd = [executables, "make-icc", "-n", model,"-s", str(lutRes), "-c", copyright, "-p", algoritm,"-W", "-t", toneCurve,"-o", toneOperator, jsonOutProfile, self.outputICCfilename ]
+            cmd = [executables, "make-icc", "-n", model,"-s", str(lutRes), "-c", copyright, "-p", algoritm,"-t", toneCurve,"-o", toneOperator, jsonOutProfile, os.path.join(self.tempFolder, filename) ]
             print(cmd)
-            self.executeTool(cmd, "Dcamprof make-icc", "dcamprof")
+            output, _ = self.executeTool(cmd, "Dcamprof make-icc", "dcamprof", output)
 
             if os.path.isfile(self.outputICCfilename):
-                self.runProfCheck()
+                self.runProfCheck(output)
                 self.oldICCprofile = self.outputICCfilename
                 self.ui.createProofImage.setEnabled(True)
                 self.ui.InstallProfile.setEnabled(True)
                 filename = self.createICCFileName(os.path.basename(self.outputICCfilename))
                 self.outputICCfilename = os.path.join(self.tempFolder, filename.replace(" ", "_") + ".icc")
                 self.ui.FileNameText.setText(filename.replace(" ", "_") + ".icc")
-                self.ui.DestText.setText(filename.replace("_", " "))
+                self.ui.DestText.setText(filename.replace("_", " "))'''
 
 
-    def runProfCheck(self):
+    def runProfCheck(self, output):
 
         executable = os.path.join(self.pathArgyllExecutables, "profcheck")
 
         cmd = [executable, "-v2", "-Ir", self.ti3,self.outputICCfilename ]
 
-        self.executeTool(cmd, "PROFCHECK", "argyll")
+        _ , proofdata = self.executeTool(cmd, "PROFCHECK", "argyll", output)
+
+        self.loadProofChart(proofdata)
+        self.loadProofDELChart(proofdata)
+        self.loadProofDECChart(proofdata)
+        self.loadProofDEHChart(proofdata)
+        a = ColorProof()
+        a.createJson(proofdata)
 
     def runColprof(self):
         '''
@@ -545,9 +573,10 @@ class HomeUI(QtWidgets.QDialog):
 
         cmd = [executable, "-v","-a", argyllAlgoritm,"-q",argyllRes, emphasis, argyllUParam ,"-O",self.outputICCfilename,"-A",manufacturer, "-M", model, "-D",description,"-C", copyright, os.path.splitext(self.ti3)[0]   ]
         print(cmd)
-        self.executeTool(cmd, "COLPROF", "argyll")
+        output, _ = self.executeTool(cmd, "COLPROF", "argyll", output="")
 
         if os.path.isfile(self.outputICCfilename):
+            self.runProfCheck(output)
             self.oldICCprofile = self.outputICCfilename
             self.ui.createProofImage.setEnabled(True)
             self.ui.InstallProfile.setEnabled(True)
@@ -664,7 +693,7 @@ class HomeUI(QtWidgets.QDialog):
 
                     cmd = [executable, "-v2", "-p","-dipn", self.gamma, "-F", coor, "-O", self.ti3,  self.inputImage, recogfile, reference, self.diag ]
                     print(" ".join(cmd) )
-                    self.executeTool(cmd, "SCANIN", "argyll")
+                    self.executeTool(cmd, "SCANIN", "argyll", output="")
 
                     if os.path.isfile(self.ti3):
                         #enable ICC/DCP buton
@@ -680,7 +709,7 @@ class HomeUI(QtWidgets.QDialog):
             return AppWarningsClass.critical_warn("Select a region of interest first")
 
 
-    def executeTool(self, cmd, toolName, workflow):
+    def executeTool(self, cmd, toolName, workflow, output):
         '''
         Execute binary files
         :param cmd: list of params
@@ -688,9 +717,16 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
+        self.ui.textEdit.clear()
+        proofcheckOutput = []
+
+        if output != "":
+            #print(output)
+            self.ui.textEdit.insertPlainText(output)
+
         self.ui.tabWidget_2.setCurrentIndex(2)
         self.ui.tabWidget_2.setTabEnabled(2, True)
-        self.ui.textEdit.clear()
+
         self.ui.textEdit.insertPlainText("---- "+toolName+"-----\n")
         QApplication.processEvents()
 
@@ -703,29 +739,30 @@ class HomeUI(QtWidgets.QDialog):
         elif workflow == "argyll":
             output = p.stdout.readline
 
+        proof = ColorProof()
         for line in iter(output, b''):
             if toolName == "PROFCHECK":
-                self.ui.textEdit.insertPlainText(self.formatProfCheck(line.decode('utf-8')))
+                item = proof.formatProfCheck(line.decode('utf-8'))
+                proofcheckOutput.append( item )
+                self.ui.textEdit.insertPlainText(proof.itemTostring(item) )
             else:
-                self.ui.textEdit.insertPlainText(line.decode('utf-8'))
+                txt = line.decode('utf-8')
+                self.ui.textEdit.insertPlainText(txt)
 
             self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
             QApplication.processEvents()
+
+
         p.stdout.close()
         p.wait()
+        #print(proofcheckOutput)
+        return self.ui.textEdit.toPlainText(), proofcheckOutput
 
-        return self.ui.textEdit.toPlainText()
-
-    def formatProfCheck(self, cadena):
-        arr = cadena.split(" ")
-        if arr[0] == "No":
-            return "\n"
-        elif arr[0] == "Profile":
-            return "AVG: "+str(arr[9].replace(",",""))+" MAX: "+str(arr[6].replace(",","")) + "\n"
-        else:
-            value = round( float( arr[0].replace("]", "").replace("[", "")),1)
-
-            return arr[1] +" "+ str( value ) + "\n"
+    def convertLabtoHex(self, L, a, b):
+        lab = LabColor(L, a, b)
+        RGB = convert_color(lab, sRGBColor)
+        hex = RGB.get_rgb_hex()
+        return hex
 
 
     def loadDiag(self):
@@ -762,6 +799,124 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.verticalLayout_2.addWidget(graphicsView)
 
 
+    def loadProofChart(self, data):
+
+        if len(data) > 1:
+            for i in reversed(range(self.ui.verticalLayout_prooftab.count())):
+                self.ui.verticalLayout_prooftab.itemAt(i).widget().setParent(None)
+
+            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
+            graphicsView.setObjectName("graphicsView")
+
+            window = pg.PlotWidget(name='Plot1')
+
+            xlab = []
+            ticks = []
+            colors = []
+            i = 0
+            data.pop(0)
+            data.pop()
+            for item in data:
+                #('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
+                xlab.append(float(item[1]))
+                colors.append(item[2])
+                ticks.append((i, item[0]))
+                i = i + 1
+
+            window.getAxis('bottom').setTicks([ticks])
+            bargraph = pg.BarGraphItem(x=range(len(xlab)), height=xlab, width=0.5,
+                                       brushes=colors)
+            window.addItem(bargraph)
+
+            self.ui.verticalLayout_prooftab.addWidget(window)
+            self.ui.tabWidget_2.setTabEnabled(3, True)
+            self.ui.tabWidget_2.setCurrentIndex(3)
+        else:
+            self.ui.tabWidget_2.setTabEnabled(3, False)
+
+    def loadProofDELChart(self, data):
+
+        if len(data) > 1:
+            for i in reversed(range(self.ui.verticalLayout_prooftab_DEL.count())):
+                self.ui.verticalLayout_prooftab_DEL.itemAt(i).widget().setParent(None)
+
+            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
+            graphicsView.setObjectName("graphicsView")
+
+            window = pg.PlotWidget(name='Plot1')
+
+            xlab = []
+            ticks = []
+            colors = []
+            i = 0
+            for item in data:
+                #('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
+                xlab.append(float(item[3][0]))
+                colors.append(item[2])
+                ticks.append((i, item[0]))
+                i = i + 1
+
+            window.getAxis('bottom').setTicks([ticks])
+            bargraph = pg.BarGraphItem(x=range(len(xlab)), height=xlab, width=0.5,
+                                       brushes=colors)
+            window.addItem(bargraph)
+            self.ui.verticalLayout_prooftab_DEL.addWidget(window)
+
+    def loadProofDECChart(self, data):
+
+        if len(data) > 1:
+            for i in reversed(range(self.ui.verticalLayout_prooftab_DEC.count())):
+                self.ui.verticalLayout_prooftab_DEC.itemAt(i).widget().setParent(None)
+
+            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
+            graphicsView.setObjectName("graphicsView")
+
+            window = pg.PlotWidget(name='Plot1')
+
+            xlab = []
+            ticks = []
+            colors = []
+            i = 0
+            for item in data:
+                #('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
+                ticks.append((i, item[0]))
+                xlab.append(float(item[3][1]))
+                colors.append(item[2])
+                i = i + 1
+
+            window.getAxis('bottom').setTicks([ticks])
+            bargraph = pg.BarGraphItem(x=range(len(xlab)), height=xlab, width=0.5,
+                                       brushes=colors)
+            window.addItem(bargraph)
+            self.ui.verticalLayout_prooftab_DEC.addWidget(window)
+
+    def loadProofDEHChart(self, data):
+
+        if len(data) > 1:
+            for i in reversed(range(self.ui.verticalLayout_prooftab_DEH.count())):
+                self.ui.verticalLayout_prooftab_DEH.itemAt(i).widget().setParent(None)
+
+            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
+            graphicsView.setObjectName("graphicsView")
+
+            window = pg.PlotWidget(name='Plot1')
+
+            xlab = []
+            ticks = []
+            colors = []
+            i = 0
+            for item in data:
+                #('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
+                ticks.append((i, item[0]))
+                xlab.append(float(item[3][2]))
+                colors.append(item[2])
+                i = i + 1
+
+            window.getAxis('bottom').setTicks([ticks])
+            bargraph = pg.BarGraphItem(x=range(len(xlab)), height=xlab, width=0.5,
+                                       brushes=colors)
+            window.addItem(bargraph)
+            self.ui.verticalLayout_prooftab_DEH.addWidget(window)
 
     def loadImage(self ):
         '''
