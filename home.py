@@ -26,6 +26,7 @@ from colormath.color_objects import LabColor, sRGBColor
 from colormath.color_conversions import convert_color
 from color import ColorProof
 from confclass import ConfIni
+from presets import PresetManagement
 
 
 class HomeUI(QtWidgets.QDialog):
@@ -74,16 +75,12 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.ArgyllAlgoritm.addItems(self.ArgyllAlgoritm.keys())
         self.ui.ArgyllUparam.addItems(self.ArgyllUParam.keys())
 
-        # self.ui.DcamprofAlgortimICC.addItems(self.DcamICCAlgoritm.keys())
-        # self.ui.DcamprofTOPeratorICC.addItems(self.DcamToneOperator.keys())
         self.ui.DcamprofTOPeratoDCP.addItems(self.DcamToneOperator.keys())
         self.ui.DcamprofTOPeratoDCP.setEnabled(False)
         self.ui.DcamprofToneDCP.addItems(self.DcamToneCurveDcp.keys())
         self.ui.DcamprofToneDCP.currentTextChanged.connect(self.enableToneOperatorDCP)
-        # self.ui.DcamprofToneICC.addItems(self.DcamToneCurveICC.keys())
         self.ui.DcamprofIlluminant.addItems(self.DcamIlluminant.keys())
-        # self.ui.DcamprofICCResLUT.addItems(self.ICCLutResolution.keys())
-
+        #---- main tabs
         self.ui.tabWidget_2.setTabEnabled(3, False)
         self.ui.tabWidget_2.setTabEnabled(2, False)
         self.ui.tabWidget_2.setTabEnabled(1, False)
@@ -145,8 +142,6 @@ class HomeUI(QtWidgets.QDialog):
 
         # self.ui.tabWidget.tabBarClicked.connect(self.choiceDCPICC)
         self.ui.tabWidget.setCurrentIndex(0)
-        self.ui.tabWidget_2.setCurrentIndex(0)
-
 
         self.ui.ARgyllUslicer.setEnabled(False)
         self.ui.ARgyllUslicer.valueChanged[int].connect(self.updateSliderLabel)
@@ -327,6 +322,8 @@ class HomeUI(QtWidgets.QDialog):
                 self.loadImage()
                 self.checkTempFolderContents()
                 self.enableDisableICCDEP()
+
+                PresetManagement.setParams(self.ui, self.tempFolder)
 
     def checkIfRawFile(self):
         '''
@@ -573,6 +570,7 @@ class HomeUI(QtWidgets.QDialog):
 
         if os.path.isfile(self.outputICCfilename):
             self.runProfCheck(output)
+            PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder)
             self.oldICCprofile = self.outputICCfilename
             self.ui.createProofImage.setEnabled(True)
             self.ui.InstallProfile.setEnabled(True)

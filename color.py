@@ -2,15 +2,16 @@ from colormath.color_objects import LabColor, sRGBColor, LCHabColor, AdobeRGBCol
 from colormath.color_conversions import convert_color
 import  json
 
-
+'''
+Parse ArgyllCMS Profcheck strings
+[28.743221] C04: 0.91445260 0.77353450 0.09066738 -> 75.494139 3.148460 109.012936 should be 83.885368 2.642543 81.526502
+'''
 class ColorProof():
 
+    #def __init__(self):
 
-    def __init__(self):
-
-        cadena = "[28.743221] C04: 0.91445260 0.77353450 0.09066738 -> 75.494139 3.148460 109.012936 should be 83.885368 2.642543 81.526502"
+        #cadena = "[28.743221] C04: 0.91445260 0.77353450 0.09066738 -> 75.494139 3.148460 109.012936 should be 83.885368 2.642543 81.526502"
         #print( self.formatProfCheck(cadena) )
-
 
     def formatProfCheck(self, cadena):
         arr = cadena.split(" ")
@@ -89,6 +90,7 @@ class ColorProof():
         json_str = json.dumps(l)
         #print(json_str)
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
 
-    a = ColorProof()
+
+    #a = ColorProof()

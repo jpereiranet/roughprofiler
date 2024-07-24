@@ -19,9 +19,7 @@ class CreateProofImage():
             self.ArgyllAlgoritm = json.loads(self.config.get('PARAMS', 'ARGYLLALGORITM'))
             self.ArgyllUParam = json.loads(self.config.get('PARAMS', 'ARGYLLUPARAM'))
             self.Targets = json.loads(self.config.get('PARAMS', 'TARGETS'))
-            #self.DcamToneOperator = json.loads(self.config.get('PARAMS', 'DCAMPROFTONEOPERATOR'))
-            #self.DcamToneCurveDcp = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEDCP'))
-            #self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
+
 
         self.icc = icc
         self.img_cv2 = cv2.imread(img)
