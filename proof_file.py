@@ -19,12 +19,9 @@ class CreateProofImage():
             self.ArgyllAlgoritm = json.loads(self.config.get('PARAMS', 'ARGYLLALGORITM'))
             self.ArgyllUParam = json.loads(self.config.get('PARAMS', 'ARGYLLUPARAM'))
             self.Targets = json.loads(self.config.get('PARAMS', 'TARGETS'))
-            self.DcamToneOperator = json.loads(self.config.get('PARAMS', 'DCAMPROFTONEOPERATOR'))
-            self.DcamToneCurveDcp = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEDCP'))
-            self.DcamToneCurveICC = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEICC'))
-            self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
-            self.DcamICCAlgoritm = json.loads(self.config.get('PARAMS', 'DCAMPROFICCALGORITM'))
-            self.ICCLutResolution = json.loads(self.config.get('PARAMS', 'ICCLUTRESOLUTION'))
+            #self.DcamToneOperator = json.loads(self.config.get('PARAMS', 'DCAMPROFTONEOPERATOR'))
+            #self.DcamToneCurveDcp = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEDCP'))
+            #self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
 
         self.icc = icc
         self.img_cv2 = cv2.imread(img)
@@ -39,11 +36,12 @@ class CreateProofImage():
 
     def readValues(self):
 
-        index = self.ui.tabsDcamprof.currentIndex()
+        #index = self.ui.tabsDcamprof.currentIndex()
 
         #algoritm = self.DcamICCAlgoritm[ list(self.DcamICCAlgoritm)[self.ui.DcamprofAlgortimICC.currentIndex()] ]
 
-        if self.ui.DcamprofWorkflow.isChecked() and index == 0:
+        index = self.ui.tabWidget.currentIndex()
+        if index == 1:
 
             arr = {
                     "Engine":("Engine", "Dcamproof"),
@@ -57,7 +55,7 @@ class CreateProofImage():
 
                     }
 
-        elif self.ui.ArgyllWorkflow.isChecked():
+        elif index == 0:
 
             arr = {"Engine":("Engine", "Argyll"),
                    "ArgyllAlgoritms": (self.ui.ProfileTypeLabel.text(), list(self.ArgyllAlgoritm)[self.ui.ArgyllAlgoritm.currentIndex()] ),
