@@ -27,6 +27,7 @@ from colormath.color_conversions import convert_color
 from color import ColorProof
 from confclass import ConfIni
 from presets import PresetManagement
+import webbrowser
 
 
 class HomeUI(QtWidgets.QDialog):
@@ -35,6 +36,8 @@ class HomeUI(QtWidgets.QDialog):
 
         self.config = configparser.ConfigParser()
         path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
+        self.pathArgyllExecutables = ""
+        self.pathDcamprofExecutables = ""
         if os.path.exists(path_conf_file):
             self.config.read(path_conf_file)
             self.pathArgyllExecutables = self.config['APPS']['ARGYLL']
@@ -46,6 +49,7 @@ class HomeUI(QtWidgets.QDialog):
 
             self.pathdcp = self.config['INSTALL']['PATHDCP']
             self.pathicc = self.config['INSTALL']['PATHICC']
+
 
             self.ArgyllRes = json.loads(self.config.get('PARAMS', 'ARGYLLRES'))
             self.ArgyllAlgoritm = json.loads(self.config.get('PARAMS', 'ARGYLLALGORITM'))
@@ -60,7 +64,6 @@ class HomeUI(QtWidgets.QDialog):
         else:
             print("error load configuration")
 
-        # self.inputImage = "DSC_4453a.TIF"
 
         self.coodinates = []
         self.tempFolder = ""
@@ -68,6 +71,17 @@ class HomeUI(QtWidgets.QDialog):
         super(HomeUI, self).__init__(parent)
         self.ui = Ui_RoughProfiler2()
         self.ui.setupUi(self)
+
+        #check if Argyll or Dcamprof exists:
+        if self.pathArgyllExecutables == "" or self.pathDcamprofExecutables == "":
+            AppWarningsClass.informative_warn("ArgyllCMS paths or DCAMPROF paths are missing in configuration file, please define before start")
+            self.ui.tabWidget_2.setCurrentIndex(3)
+        elif not os.path.isdir(self.pathArgyllExecutables):
+            AppWarningsClass.informative_warn("ArgyllCMS paths was defined but currently is missing")
+            self.ui.tabWidget_2.setCurrentIndex(3)
+        elif not os.path.isdir(self.pathDcamprofExecutables):
+            AppWarningsClass.informative_warn("Dcamprof paths was defined but currently is missing")
+            self.ui.tabWidget_2.setCurrentIndex(3)
 
         # self.ui.verticalLayout.addWidget()
         self.ui.TargetType.addItems(self.Targets.keys())
@@ -85,7 +99,7 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.tabWidget_2.setTabEnabled(2, False)
         self.ui.tabWidget_2.setTabEnabled(1, False)
         self.ui.tabWidget_2.setTabEnabled(0, False)
-        self.ui.tabWidget_2.setCurrentIndex(0)
+        #self.ui.tabWidget_2.setCurrentIndex(0)
         # --- open imagen
         self.ui.ExecuteReadImage.clicked.connect(self.readImage)
         self.ui.textEdit.setReadOnly(True)
@@ -116,6 +130,13 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.createProofImage.clicked.connect(self.createdProofimage)
         self.ui.createProofImage.setIcon(QtGui.QIcon(DefinePathsClass.create_resource_path('proof_64px.png')))
         self.ui.createProofImage.setIconSize(QtCore.QSize(45, 45))
+        # --- Argyll Dcamproof URLS
+        self.ui.ArgyllOpenSite.clicked.connect(self.openArgyllCMSSite)
+        self.ui.DCamprofOpenSite.clicked.connect(self.openDcamprofSite)
+
+        #---- open pach tuning file
+        self.ui.OpenTuningFile.clicked.connect(self.openTuningFile)
+
 
         # ---- Configuration
 
@@ -152,7 +173,17 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.DcamExposureSlider.valueChanged[int].connect(self.updateSliderExposure)
         self.ui.ArgyllUparam.currentTextChanged.connect(self.enableSlider)
 
-        self.ui.GlareCheckBox.setChecked(True)
+
+        self.printInfo("Hello! This is a free app from Jose Pereira, www.jpereira.net")
+
+
+    def openArgyllCMSSite(self):
+        url = "https://www.argyllcms.com/"
+        webbrowser.open(url, new=0, autoraise=True)
+
+    def openDcamprofSite(self):
+        url = "https://torger.se/anders/dcamprof.html#download"
+        webbrowser.open(url, new=0, autoraise=True)
 
 
     def updateSliderExposure(self):
@@ -172,6 +203,14 @@ class HomeUI(QtWidgets.QDialog):
     def enableSlider(self):
         if self.ui.ArgyllUparam.currentIndex() == 4:  # if is "custom"
             self.ui.ARgyllUslicer.setEnabled(True)
+        else:
+            self.ui.ARgyllUslicer.setEnabled(False)
+            self.ui.ArgyllUscale.setText("1.0")
+            self.ui.ARgyllUslicer.setValue(1)
+
+    def printInfo(self, msg):
+        self.ui.infoBox.setText(msg)
+        self.ui.infoBox.repaint()
 
     def enableToneOperatorDCP(self):
 
@@ -189,19 +228,23 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.DcamprofTOPeratorICC.setEnabled(False)
 
     def loadhistorypreset(self):
-
+        '''
+        When a preset (history) is set, his values are load
+        :return:
+        '''
         index = self.ui.HistoryCombo.currentIndex()
         #mode =  self.ui.tabWidget.currentIndex()
         if index > 0:
+            self.printInfo("Loading old settings")
             preset = self.presets[index]
             jsonFile = os.path.join(self.tempFolder, preset+".json" )
             data = PresetManagement.setParams(self.ui,jsonFile)
-
-            self.loadProofChart(data["proofdata"])
-            self.loadProofDELChart(data["proofdata"])
-            self.loadProofDECChart(data["proofdata"])
-            self.loadProofDEHChart(data["proofdata"])
-            self.ui.tabWidget_2.setCurrentIndex(3)
+            if data["proofdata"]:
+                self.loadProofChart(data["proofdata"])
+                self.loadProofDELChart(data["proofdata"])
+                self.loadProofDECChart(data["proofdata"])
+                self.loadProofDEHChart(data["proofdata"])
+                self.ui.tabWidget_2.setCurrentIndex(3)
 
             if not self.isRaw:
                 self.ui.createProofImage.setEnabled(True)
@@ -209,15 +252,27 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.InstallProfile.setEnabled(True)
 
     def updateHistoryCombo(self):
-
+        '''
+        Populate the combobox history with the old history presets
+        :return:
+        '''
         self.presets = PresetManagement.populateHistoryCombo(self.tempFolder)
-        if len(self.presets) > 0:
+        if len(self.presets) > 1:
+            self.ui.HistoryCombo.clear()
             self.ui.HistoryCombo.addItems(self.presets)
             self.ui.HistoryCombo.setEnabled(True)
             self.ui.HistoryCombo.repaint()
+        else:
+            self.ui.HistoryCombo.clear()
+            self.ui.HistoryCombo.setEnabled(False)
+            self.ui.HistoryCombo.repaint()
+
 
     def enableDisableICCDEP(self):
-
+        '''
+        if is a raw file or not, enable or disable differents butons and options
+        :return:
+        '''
         filename = self.ui.FileNameText.text()
         if self.isRaw:
             self.ui.FileNameText.setText(filename.replace(".icc", ".dcp"))
@@ -238,29 +293,43 @@ class HomeUI(QtWidgets.QDialog):
 
 
     def installProfile(self):
-
+        '''
+        Copy profile to system path
+        :return:
+        '''
         if os.path.isfile(self.outputICCfilename):
             icc = self.outputICCfilename
         else:
             icc = self.oldICCprofile
 
-        print(icc)
+        #print(icc)
         filename = os.path.basename(icc)
         ext = os.path.splitext(filename)[1]
 
         if ext == ".dcp":
-            shutil.copyfile(icc, os.path.join(self.pathdcp, filename))
-            if os.path.isfile(os.path.join(self.pathdcp, filename)):
-                AppWarningsClass.informative_warn("Profile DCP was installed")
-                print(os.path.join(self.pathdcp, filename))
-                print("OK DCP")
+            if os.path.isdir(self.pathdcp):
+                shutil.copyfile(icc, os.path.join(self.pathdcp, filename))
+                if os.path.isfile(os.path.join(self.pathdcp, filename)):
+                    AppWarningsClass.informative_warn("Profile DCP was installed")
+                    self.printInfo("Profile "+filename+" was installed")
+                    #print(os.path.join(self.pathdcp, filename))
+            else:
+                self.printInfo("Camera profiles folder not found")
         elif ext == ".icc":
-            shutil.copyfile(icc, os.path.join(self.pathicc, filename))
-            if os.path.isfile(os.path.join(self.pathicc, filename)):
-                AppWarningsClass.informative_warn("Profile ICC was installed")
+            if os.path.isdir(self.pathicc):
+                shutil.copyfile(icc, os.path.join(self.pathicc, filename))
+                if os.path.isfile(os.path.join(self.pathicc, filename)):
+                    AppWarningsClass.informative_warn("Profile ICC was installed")
+                    self.printInfo("Profile " + filename + " was installed")
+                else:
+                    self.printInfo("ICC folder not found")
 
     def getMetadata(self, img):
-
+        '''
+        Read metadata from image for model info
+        :param img:
+        :return:
+        '''
 
         im = open(img, 'rb')
         metadata = exifread.process_file(im)
@@ -288,13 +357,33 @@ class HomeUI(QtWidgets.QDialog):
         ConfIni.saveParams(field, self.ui)
 
     def openConfFolder(self, field):
-        startingDir = "/Users/jpereira/Python/roughprofiler2/test"
+        startingDir = self.config['PATHS']['lastfolder']
         destDir = QtGui.QFileDialog.getExistingDirectory(None,
                                                          'Open executables directory',
                                                          startingDir,
                                                          QtGui.QFileDialog.ShowDirsOnly)
         if destDir != "":
             ConfIni.openAndSavePaths(field, destDir, self.ui)
+
+    def openTuningFile(self):
+        '''
+        Open a JSON file with tuning info
+        https://torger.se/anders/dcamprof.html#make_profile_deep_blue
+        :return:
+        '''
+        path = self.config['PATHS']['lastfolder']
+        qfd = QtWidgets.QFileDialog()
+        filter = "JSON Files (*.json)"
+        title = "Open JSON Tuning file"
+        fname = QtWidgets.QFileDialog.getOpenFileName(qfd, title, path, filter)[0]
+        if fname != "":
+            self.ui.boxTuningFilePath.setText(fname)
+            self.dcamproftuningfile = fname
+        else:
+            self.ui.boxTuningFilePath.setText("")
+
+        self.printInfo("When tuning file is loading, process can become very slow")
+
 
 
     def openTestImage(self):
@@ -303,7 +392,7 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
-        path = "/Users/jpereira/Python/roughprofiler2/test"
+        path = self.config['PATHS']['lastfolder']
         qfd = QtWidgets.QFileDialog()
         paths = [str(file_n) for file_n in list(
             QtWidgets.QFileDialog.getOpenFileNames(qfd, "Select files", path,
@@ -314,6 +403,7 @@ class HomeUI(QtWidgets.QDialog):
             self.inputImage = paths[0]
             self.ui.FileNameValue.setText(os.path.basename(paths[0]))
             self.ui.FileNameValue.repaint()
+            ConfIni.savelastpath(os.path.dirname(paths[0]))
 
             if os.path.isfile(paths[0]):
                 self.isRaw = False
@@ -345,6 +435,7 @@ class HomeUI(QtWidgets.QDialog):
         '''
         rawExt = [".DNG", ".dng", ".NEF", ".nef"]
         if os.path.splitext(os.path.basename(self.inputImage))[1] in rawExt:
+            self.printInfo("File is in raw format, running develop process, wait...")
             self.rawinputfile = self.inputImage
             path = os.path.join(self.tempFolder, "thumb_" + self.filename + ".tiff")
 
@@ -382,7 +473,7 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
         qfd = QtWidgets.QFileDialog()
-        path = "/Users/jpereira/Python/roughprofiler2/test"
+        path = self.config['PATHS']['lastfolder']
 
         filter = "Images (*.txt *.cie)"
         title = "GET CGATS"
@@ -391,6 +482,7 @@ class HomeUI(QtWidgets.QDialog):
         if os.path.isfile(fname):
             self.CEGATS_path = str(fname)
             self.ui.ReferenceNameValue.setText(os.path.basename(self.CEGATS_path))
+            self.printInfo("Loading CGATS file")
 
     def executeProcess(self):
         '''
@@ -399,8 +491,10 @@ class HomeUI(QtWidgets.QDialog):
         '''
         index = self.ui.tabWidget.currentIndex()
         if index == 0:
+            self.printInfo("Calling for Colprof")
             self.runColprof()
         elif index == 1:
+            self.printInfo("Calling for Decamprof")
             self.runDcamprof()
 
     def runDcamprof(self):
@@ -432,10 +526,10 @@ class HomeUI(QtWidgets.QDialog):
                 AppWarningsClass.critical_warn("JSON target profile do not exists, please update confinguration.ini")
                 self.ui.GlareCheckBox.setChecked(False)
 
-        if self.ui.LookCorrection.isChecked():
-            jsonInProfile = DefinePathsClass.create_reference_paths("lessblue.json")
-            cmd.insert(2, "-a")
-            cmd.insert(3, jsonInProfile)
+        if self.ui.boxTuningFilePath.text() != "":
+            if os.path.isfile(self.ui.boxTuningFilePath.text()):
+                cmd.insert(2, "-a")
+                cmd.insert(3, self.ui.boxTuningFilePath.text())
 
         print(cmd)
         output, _ = self.executeTool(cmd, "Dcamprof make-profile", "dcamprof", output)
@@ -463,100 +557,38 @@ class HomeUI(QtWidgets.QDialog):
             self.executeTool(cmd, "Dcamprof make-dcp", "dcamprof", output)
 
         if os.path.isfile(self.outputICCfilename):
+            self.printInfo("Decamprof Finish. DCP was create")
             self.oldICCprofile = self.outputICCfilename
             self.createICCFileName(rootname="")
             self.ui.InstallProfile.setEnabled(True)
-            PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder, proofdata,
-                                           self.outputICCfilename)
+            PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder, self.outputICCfilename, None)
             self.updateHistoryCombo()
-
-    '''def runDcamprofICC(self):
-        #dcamprof make-profile -g cc24-layout.json new-target.ti3 profile.json
-        #dcamprof make-icc -n "Camera manufacturer and model" -f target.tif -t acr profile.json profile.icc
-        output = ""
-        target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
-        executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
-        jsonOutProfile = os.path.join( self.tempFolder, self.filename+".json" )
-        #iccFile = os.path.join( self.tempFolder, self.filename+".icc" )
-        copyright = self.ui.CopyRightText.text()
-        model = self.ui.ModelText.text()
-        toneCurve = self.DcamToneCurveICC[ list(self.DcamToneCurveICC)[self.ui.DcamprofToneICC.currentIndex()]]
-        toneOperator = self.DcamToneOperator[ list(self.DcamToneOperator)[self.ui.DcamprofTOPeratorICC.currentIndex()]]
-        algoritm = self.DcamICCAlgoritm[ list(self.DcamICCAlgoritm)[self.ui.DcamprofAlgortimICC.currentIndex()] ]
-        illuminant = self.DcamIlluminant[ list(self.DcamIlluminant)[self.ui.DcamprofIlluminant.currentIndex()] ]
-        lutRes = self.ICCLutResolution[ list(self.ICCLutResolution)[self.ui.DcamprofICCResLUT.currentIndex()] ]
-        yLimit = self.ui.YLimitBox.text()
-        filename = self.ui.FileNameText.text()
-
-        #dcamreports = os.path.join(self.tempFolder, "dcamreports")
-
-        #if not os.path.isdir(dcamreports):
-            #os.mkdir(dcamreports)
-
-        print(toneCurve)
-        if "curve" in toneCurve:
-            toneCurve = DefinePathsClass.create_reference_paths(toneCurve)
-
-        print(toneOperator)
-        if "json" in toneOperator:
-            toneOperator = DefinePathsClass.create_reference_paths(toneOperator)
+        else:
+            self.printInfo("ERROR: DCP was NOT create, check terminal display")
 
 
-        #cmd = [executables, "tiff-tf", ]
-
-        cmd = [executables, "make-profile", "-n", model, "-i", illuminant,"-y", str(yLimit), self.ti3,  jsonOutProfile  ]
-
-        if self.ui.GlareCheckBox.isChecked():
-            jsonInProfile = DefinePathsClass.create_reference_paths(target[2])
-            cmd.insert(8, "-g")
-            cmd.insert(9, jsonInProfile)
-
-        if self.ui.LookCorrection.isChecked():
-            #look = "/Users/jpereira/Python/roughprofiler2/reference/ntro_conf.json"
-            #cmd.insert(6, "-a")
-            #cmd.insert(7, look)
-            look = "/Users/jpereira/Python/roughprofiler2/test/co/lineal_curve.json"
-            cmd.insert(8, "-f")
-            cmd.insert(9, self.inputImage)
-
-        print(cmd)
-        output, _ = self.executeTool(cmd, "Dcamprof make-profile", "dcamprof", output )
-
-        #with open(os.path.join(self.tempFolder, "log.txt"), 'a') as f:
-            #f.write(output)
-
-        if os.path.isfile(jsonOutProfile):
-            cmd = [executables, "make-icc", "-n", model,"-s", str(lutRes), "-c", copyright, "-p", algoritm,"-t", toneCurve,"-o", toneOperator, jsonOutProfile, os.path.join(self.tempFolder, filename) ]
-            print(cmd)
-            output, _ = self.executeTool(cmd, "Dcamprof make-icc", "dcamprof", output)
-
-            if os.path.isfile(self.outputICCfilename):
-                self.runProfCheck(output)
-                self.oldICCprofile = self.outputICCfilename
-                self.ui.createProofImage.setEnabled(True)
-                self.ui.InstallProfile.setEnabled(True)
-                filename = self.createICCFileName(os.path.basename(self.outputICCfilename))
-                self.outputICCfilename = os.path.join(self.tempFolder, filename.replace(" ", "_") + ".icc")
-                self.ui.FileNameText.setText(filename.replace(" ", "_") + ".icc")
-                self.ui.DestText.setText(filename.replace("_", " "))'''
 
     def runProfCheck(self, output):
-
+        '''
+        Run ArgillCMS Profcheck to get delta errors
+        :param output:
+        :return:
+        '''
         executable = os.path.join(self.pathArgyllExecutables, "profcheck")
 
         cmd = [executable, "-v2", "-Ir", self.ti3, self.outputICCfilename]
 
         _, proofdata = self.executeTool(cmd, "PROFCHECK", "argyll", output)
 
-        PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder, proofdata,self.outputICCfilename )
+        PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder,self.outputICCfilename, proofdata )
 
         self.loadProofChart(proofdata)
         self.loadProofDELChart(proofdata)
         self.loadProofDECChart(proofdata)
         self.loadProofDEHChart(proofdata)
 
-        # a = ColorProof()
-        # a.createJson(proofdata)
+        self.printInfo("Profcheck finish")
+
 
     def runColprof(self):
         '''
@@ -581,21 +613,33 @@ class HomeUI(QtWidgets.QDialog):
 
         executable = os.path.join(self.pathArgyllExecutables, "colprof")
 
-        cmd = [executable, "-v", "-a", argyllAlgoritm, "-bn", "-q", argyllRes, emphasis, argyllUParam, "-O",
+        cmd = [executable, "-v", "-a", argyllAlgoritm, "-q", argyllRes, emphasis, argyllUParam, "-O",
                self.outputICCfilename, "-A", manufacturer, "-M", model, "-D", description, "-C", copyright,
                os.path.splitext(self.ti3)[0]]
+
+        if not self.ui.RemoveB2ATable.isChecked():
+            cmd.insert( 4, "-bn")
+
         print(cmd)
+
         output, _ = self.executeTool(cmd, "COLPROF", "argyll", output="")
 
         if os.path.isfile(self.outputICCfilename):
+            self.printInfo("Colprof finish. ICC was create")
             self.runProfCheck(output)
             self.oldICCprofile = self.outputICCfilename
             self.ui.createProofImage.setEnabled(True)
             self.ui.InstallProfile.setEnabled(True)
             self.createICCFileName(rootname="")
             self.updateHistoryCombo()
+        else:
+            self.printInfo("ERROR: ICC was NOT create, check terminal display")
 
     def createdProofimage(self):
+        '''
+        Create a tiff image form test chart image with the icc profile attached and an letterbox with params info
+        :return:
+        '''
 
         if os.path.isfile(self.outputICCfilename):
             icc = self.outputICCfilename
@@ -609,6 +653,7 @@ class HomeUI(QtWidgets.QDialog):
 
         if os.path.isfile(file):
             AppWarningsClass.informative_warn("Image " + name_orig + ".tiff" + " was create ")
+            self.printInfo("Image " + name_orig + ".tiff" + " was create ")
 
     def createTempFolder(self):
         '''
@@ -654,6 +699,7 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.tabWidget_2.setTabEnabled(2, True)
             self.ui.textEdit.clear()
             self.ui.textEdit.insertPlainText("Raw processing wait a moment\n")
+            self.printInfo("Raw processing wait a moment")
             QApplication.processEvents()
             linealImage = DevelopImages.raw_lineal_develop(self.rawinputfile)
             cv2.imwrite(path, linealImage)
@@ -664,8 +710,10 @@ class HomeUI(QtWidgets.QDialog):
             self.gamma = "-G1.0"
             return True
         else:
-            print("No linear image from raw was created")
-            return False
+            return AppWarningsClass.critical_warn(
+                "Error on raw processing, not linear image")
+            self.printInfo("Error on raw processing, not linear image")
+
 
     def readImage(self):
         '''
@@ -674,7 +722,7 @@ class HomeUI(QtWidgets.QDialog):
         '''
 
         self.createTempFolder()
-        self.gamma = "-G2.2"
+
 
         if self.isRaw:
             self.createLinearImage()
@@ -682,10 +730,9 @@ class HomeUI(QtWidgets.QDialog):
         if len(self.coodinates) > 0:
             if self.checkCoordinatesInside():
                 target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
-                # scanin -v -p -dipn rawfile.tif ColorChecker.cht cc24_ref.cie
+
                 executable = os.path.join(self.pathArgyllExecutables, "scanin")
-                # recogfile = os.path.join( self.pathRepo, target[1])
-                # reference = os.path.join(self.pathRepo, target[0])
+
                 if not self.CEGATS_path:
                     reference = DefinePathsClass.create_reference_paths(target[0])
                 else:
@@ -694,7 +741,8 @@ class HomeUI(QtWidgets.QDialog):
                 recogfile = DefinePathsClass.create_reference_paths(target[1])
 
                 if not os.path.isfile(recogfile):
-                    print("error no se encuenta")
+                    self.printInfo("Recognition file is missing, check Reference folder")
+                    return AppWarningsClass.critical_warn("Recognition file "+target[1]+" is missing, check Reference folder")
                 else:
 
                     # coordinate to string
@@ -703,23 +751,33 @@ class HomeUI(QtWidgets.QDialog):
                         for j in i:
                             res.append(str(round(j, 2)))
                     coor = ",".join(res)
+                    gamma = "-G" + self.config['SCANIN']['gamma']
+                    diagnostics = self.config['SCANIN']['diagnostics']
 
-                    cmd = [executable, "-v2", "-p", "-dipn", self.gamma, "-F", coor, "-O", self.ti3, self.inputImage,
+                    cmd = [executable, "-v2","-p", diagnostics, gamma, "-F", coor, "-O", self.ti3, self.inputImage,
                            recogfile, reference, self.diag]
+
+
                     print(" ".join(cmd))
                     self.executeTool(cmd, "SCANIN", "argyll", output="")
 
                     if os.path.isfile(self.ti3):
                         # enable ICC/DCP buton
+                        self.printInfo("Scannin finish, ti3 was create")
                         self.ui.ExecuteTask.setEnabled(True)
                     if os.path.isfile(self.diag):
+                        self.printInfo("Scannin finish, diag.tiff was create")
                         # load diag image
                         self.loadDiag()
                         self.ui.tabWidget_2.setTabEnabled(1, True)
                         self.ui.tabWidget_2.setCurrentIndex(1)
+                        #PresetManagement.saveCoordinates(self.tempFolder, coor)
             else:
+                self.printInfo("There are coordinates outside!")
                 return AppWarningsClass.critical_warn("There are coordinates outside!")
+
         else:
+            self.printInfo("Select a region of interest first")
             return AppWarningsClass.critical_warn("Select a region of interest first")
 
     def executeTool(self, cmd, toolName, workflow, output):
@@ -743,6 +801,7 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.textEdit.insertPlainText("---- " + toolName + "-----\n")
         QApplication.processEvents()
 
+        self.printInfo("Running "+toolName+", wait!")
         cmd = list(filter(None, cmd))
         p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE, bufsize=1)
@@ -814,7 +873,7 @@ class HomeUI(QtWidgets.QDialog):
 
     def loadProofChart(self, data):
 
-        if len(data) > 1:
+        if len(data) > 0:
             delta = round(float(data[-1][0]), 1)
             deltaM = round(float(data[-1][1]), 1)
             self.ui.DeltaEValue.setText(str(delta))
@@ -969,6 +1028,8 @@ class HomeUI(QtWidgets.QDialog):
 
             self.ui.verticalLayout.addWidget(graphicsView)
 
+            self.printInfo("The image was uploaded")
+
         else:
             AppWarningsClass.informative_warn("Image file is corrupt")
 
@@ -977,12 +1038,16 @@ class HomeUI(QtWidgets.QDialog):
         Create Region Of Interest
         :return:
         '''
+        if os.path.isfile( os.path.join(self.tempFolder, "coordinates.json")  ):
+            top_left,bottom_right, self.coodinates = PresetManagement.readCoordinates(self.tempFolder)
+        else:
+            centro = [self.lay_w / 2, self.lay_h / 2]
+            ratio = self.lay_w / self.lay_h
+            top_left = [centro[0] - self.pad_roi * ratio / 2, centro[1] - self.pad_roi / 2]
+            bottom_right = [self.pad_roi * ratio, self.pad_roi]
 
-        centro = [self.lay_w / 2, self.lay_h / 2]
-        ratio = self.lay_w / self.lay_h
-        top_left = [centro[0] - self.pad_roi * ratio / 2, centro[1] - self.pad_roi / 2]
 
-        my_roi = pg.ROI(top_left, [self.pad_roi * ratio, self.pad_roi], pen=pg.mkPen(width=4.5, color='r'))
+        my_roi = pg.ROI(top_left, bottom_right , pen=pg.mkPen(width=4.5, color='r'))
 
         my_roi.addScaleHandle([1, 1], [0, 0], lockAspect=False)
         my_roi.addScaleHandle([0, 0], [1, 1], lockAspect=False)
@@ -1031,6 +1096,8 @@ class HomeUI(QtWidgets.QDialog):
         bottom_left = self.rotate_via_numpy((x, h + y), angle)
 
         self.coodinates = [top_left, top_right, bottom_right, bottom_left]
+
+        PresetManagement.saveCoordinates(self.tempFolder,state, self.coodinates )
         # print(self.coodinates)
 
     def image_resize(self, image, width=None, height=None, inter=cv2.INTER_AREA):

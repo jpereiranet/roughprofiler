@@ -126,12 +126,12 @@
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
-  <widget class="QLabel" name="Signature">
+  <widget class="QLabel" name="infoBox">
    <property name="geometry">
     <rect>
      <x>30</x>
      <y>620</y>
-     <width>391</width>
+     <width>471</width>
      <height>20</height>
     </rect>
    </property>
@@ -452,6 +452,30 @@
       <string>1</string>
      </property>
     </widget>
+    <widget class="QCheckBox" name="RemoveB2ATable">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>290</y>
+       <width>151</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(155, 155, 155);</string>
+     </property>
+     <property name="text">
+      <string>Remove B2A Table</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="Dcamprof">
     <attribute name="title">
@@ -460,7 +484,7 @@
     <widget class="QLineEdit" name="YLimitBox">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>60</x>
        <y>270</y>
        <width>51</width>
        <height>21</height>
@@ -593,27 +617,6 @@
       <string>Glare Compensation</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="LookCorrection">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>300</y>
-       <width>151</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(155, 155, 155);</string>
-     </property>
-     <property name="text">
-      <string>Look corretion</string>
-     </property>
-    </widget>
     <widget class="QSlider" name="DcamExposureSlider">
      <property name="geometry">
       <rect>
@@ -636,7 +639,7 @@
     <widget class="QLabel" name="IlluminantLabel">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>20</x>
        <y>180</y>
        <width>61</width>
        <height>16</height>
@@ -691,7 +694,7 @@
     <widget class="QLabel" name="IlluminantLabel_2">
      <property name="geometry">
       <rect>
-       <x>90</x>
+       <x>20</x>
        <y>270</y>
        <width>61</width>
        <height>16</height>
@@ -707,6 +710,66 @@
      </property>
      <property name="text">
       <string>Y Limit</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="PatchTuningLabel">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>300</y>
+       <width>111</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(155, 155, 155);</string>
+     </property>
+     <property name="text">
+      <string>Patch Tuning file</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="boxTuningFilePath">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>320</y>
+       <width>131</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(145, 145, 145);</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="OpenTuningFile">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>310</y>
+       <width>71</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Open</string>
      </property>
     </widget>
    </widget>
@@ -943,7 +1006,7 @@
 </string>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="ProofImageTab">
     <attribute name="title">
@@ -1544,6 +1607,32 @@
      </property>
      <property name="text">
       <string>Save</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="ArgyllOpenSite">
+     <property name="geometry">
+      <rect>
+       <x>510</x>
+       <y>30</y>
+       <width>61</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Site</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="DCamprofOpenSite">
+     <property name="geometry">
+      <rect>
+       <x>510</x>
+       <y>90</y>
+       <width>61</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Site</string>
      </property>
     </widget>
    </widget>

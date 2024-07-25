@@ -27,7 +27,14 @@ class ConfIni():
             config.write(configfile)
 
 
-
+    @staticmethod
+    def savelastpath(path):
+        config = configparser.ConfigParser()
+        path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
+        config.read(path_conf_file)
+        config['PATHS']['lastfolder'] = path
+        with open(path_conf_file, 'w') as configfile:  # save
+            config.write(configfile)
 
     @staticmethod
     def openAndSavePaths( field, value, ui):
@@ -36,7 +43,6 @@ class ConfIni():
         path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
 
         config.read(path_conf_file)
-        #print(config['DEFAULT']['path'])  # -> "/path/name/"
 
         if field == "argyllpath":
             ui.boxConfArgyll.setText(value)

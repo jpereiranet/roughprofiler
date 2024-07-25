@@ -17,7 +17,7 @@ class PresetManagement():
 
 
     @staticmethod
-    def saveAllParams(ui, CGATS, ti3, tempFolder, proofdata, profilename):
+    def saveAllParams(ui, CGATS, ti3, tempFolder, profilename, proofdata):
 
         params = {
         "process": ui.tabWidget.currentIndex(),
@@ -32,6 +32,7 @@ class PresetManagement():
         "ArgyllUparam": ui.ArgyllUparam.currentIndex(),
         "ArgyllUscale": ui.ArgyllUscale.text(),
         "ArgyllGridEmphasis": ui.ArgyllGridEmphasis.text(),
+        "RemoveB2ATable": ui.RemoveB2ATable.isChecked(),
 
         "ManufacturerText": ui.ManufacturerText.text(),
         "CopyRightText": ui.CopyRightText.text(),
@@ -55,13 +56,42 @@ class PresetManagement():
             json.dump(params, outfile)
 
     @staticmethod
+    def saveCoordinates(tempFolder, state, coordinates):
+
+        print(state)
+        params = {
+            "x": state['pos'][0],
+            "y": state['pos'][1],
+            "w": state['size'][0],
+            "h": state['size'][1],
+            "angle": state['angle'],
+            "coordinates": coordinates
+        }
+
+        pathJson = os.path.join(tempFolder,"coordinates.json")
+        with open(pathJson, "w") as outfile:
+            json.dump(params, outfile)
+
+    @staticmethod
+    def readCoordinates(tempFolder):
+
+        file = os.path.join(tempFolder, "coordinates.json")
+        f = open(file)
+        data = json.load(f)
+        return [ data["x"], data["y"] ], [data["w"], data["h"] ], data["coordinates"]
+
+
+    @staticmethod
     def populateHistoryCombo(tempFolder):
 
         files = glob.glob(os.path.join(tempFolder, "*.json"))
+        baseName = os.path.basename(tempFolder)
         files.sort(key=os.path.getmtime)
         f = ["---"]
         for file in files:
-            f.append( os.path.splitext(os.path.basename(file))[0] )
+            baseNameFile = os.path.splitext(os.path.basename(file))[0] #remove dcamprof json from list
+            if baseNameFile != baseName and baseNameFile != "coordinates":
+                f.append( baseNameFile )
         return f
 
 
@@ -101,6 +131,7 @@ class PresetManagement():
         ui.ArgyllUscale.setText(data["ArgyllUscale"])
         ui.ArgyllEmphasisSlider.setValue(  int(round(float(data["ArgyllGridEmphasis"]) / 0.1, 0 )) )
         ui.ArgyllGridEmphasis.setText(data["ArgyllGridEmphasis"])
+        ui.RemoveB2ATable.setChecked(data["RemoveB2ATable"])
 
         ui.ManufacturerText.setText(data["ManufacturerText"] )
         ui.CopyRightText.setText(data["CopyRightText"] )
