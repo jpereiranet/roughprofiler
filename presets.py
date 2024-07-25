@@ -17,10 +17,11 @@ class PresetManagement():
 
 
     @staticmethod
-    def saveAllParams(ui, CGATS, ti3, tempFolder, proofdata):
+    def saveAllParams(ui, CGATS, ti3, tempFolder, proofdata, profilename):
 
         params = {
         "process": ui.tabWidget.currentIndex(),
+        "profilename": profilename,
         "ti3": ti3,
         "hash_ti3": PresetManagement.sha256sum(ti3),
         "CEGATS_path": CGATS,
@@ -115,4 +116,4 @@ class PresetManagement():
         ui.GlareCheckBox.setChecked( data["GlareCheckBox"] )
         ui.YLimitBox.setText( data["YLimitBox"] )
 
-        return data["proofdata"]
+        return data

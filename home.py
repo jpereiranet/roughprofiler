@@ -195,12 +195,12 @@ class HomeUI(QtWidgets.QDialog):
         if index > 0:
             preset = self.presets[index]
             jsonFile = os.path.join(self.tempFolder, preset+".json" )
-            proofdata = PresetManagement.setParams(self.ui,jsonFile)
+            data = PresetManagement.setParams(self.ui,jsonFile)
 
-            self.loadProofChart(proofdata)
-            self.loadProofDELChart(proofdata)
-            self.loadProofDECChart(proofdata)
-            self.loadProofDEHChart(proofdata)
+            self.loadProofChart(data["proofdata"])
+            self.loadProofDELChart(data["proofdata"])
+            self.loadProofDECChart(data["proofdata"])
+            self.loadProofDEHChart(data["proofdata"])
             self.ui.tabWidget_2.setCurrentIndex(3)
 
             if not self.isRaw:
@@ -466,6 +466,8 @@ class HomeUI(QtWidgets.QDialog):
             self.oldICCprofile = self.outputICCfilename
             self.createICCFileName(rootname="")
             self.ui.InstallProfile.setEnabled(True)
+            PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder, proofdata,
+                                           self.outputICCfilename)
             self.updateHistoryCombo()
 
     '''def runDcamprofICC(self):
@@ -546,7 +548,7 @@ class HomeUI(QtWidgets.QDialog):
 
         _, proofdata = self.executeTool(cmd, "PROFCHECK", "argyll", output)
 
-        PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder, proofdata)
+        PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder, proofdata,self.outputICCfilename )
 
         self.loadProofChart(proofdata)
         self.loadProofDELChart(proofdata)
