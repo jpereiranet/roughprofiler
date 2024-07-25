@@ -1,12 +1,10 @@
-import os
-import sys
-import time
+
 import pyqtgraph as pg
 import cv2
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QProgressBar, QSplashScreen
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QPixmap
 from main import Ui_RoughProfiler2
 from developraw import DevelopImages
@@ -34,6 +32,10 @@ class HomeUI(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
 
+        super(HomeUI, self).__init__(parent)
+        self.ui = Ui_RoughProfiler2()
+        self.ui.setupUi(self)
+
         self.config = configparser.ConfigParser()
         path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
         self.pathArgyllExecutables = ""
@@ -60,17 +62,11 @@ class HomeUI(QtWidgets.QDialog):
             self.DcamToneCurveDcp = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEDCP'))
             self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
 
-
         else:
-            print("error load configuration")
-
+            AppWarningsClass.critical_warn("Configuration cannot loaded check confinguration.ini file on configuration folder")
 
         self.coodinates = []
         self.tempFolder = ""
-
-        super(HomeUI, self).__init__(parent)
-        self.ui = Ui_RoughProfiler2()
-        self.ui.setupUi(self)
 
         #check if Argyll or Dcamprof exists:
         if self.pathArgyllExecutables == "" or self.pathDcamprofExecutables == "":
