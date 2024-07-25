@@ -17,9 +17,7 @@ class PresetManagement():
 
 
     @staticmethod
-    def saveAllParams(ui, CGATS, ti3, tempFolder):
-        print(ti3)
-        print(CGATS)
+    def saveAllParams(ui, CGATS, ti3, tempFolder, proofdata):
 
         params = {
         "process": ui.tabWidget.currentIndex(),
@@ -45,7 +43,8 @@ class PresetManagement():
         "exposureOffsetValue": ui.exposureOffsetValue.text(),
         "DcamprofIlluminant": ui.DcamprofIlluminant.currentIndex(),
         "GlareCheckBox": ui.GlareCheckBox.isChecked(),
-        "YLimitBox": ui.YLimitBox.text()
+        "YLimitBox": ui.YLimitBox.text(),
+        "proofdata": proofdata
         }
 
 
@@ -55,14 +54,25 @@ class PresetManagement():
             json.dump(params, outfile)
 
     @staticmethod
-    def readLastPreset(tempFolder):
+    def populateHistoryCombo(tempFolder):
 
         files = glob.glob(os.path.join(tempFolder, "*.json"))
         files.sort(key=os.path.getmtime)
-        last = files[-1]
-        f = open(last)
-        data = json.load(f)
-        return data
+        f = ["---"]
+        for file in files:
+            f.append( os.path.splitext(os.path.basename(file))[0] )
+        return f
+
+
+
+    @staticmethod
+    def readLastPreset(ui, tempFolder):
+
+        files = glob.glob(os.path.join(tempFolder, "*.json"))
+        files.sort(key=os.path.getmtime)
+        if len(files) > 0:
+            last = files[-1]
+            PresetManagement.setParams(ui,last )
 
     @staticmethod
     def checkHashFiles(file, hash, param):
@@ -72,9 +82,10 @@ class PresetManagement():
 
 
     @staticmethod
-    def setParams(ui,tempFolder ):
+    def setParams(ui,file):
 
-        data = PresetManagement.readLastPreset(tempFolder)
+        f = open(file)
+        data = json.load(f)
 
         PresetManagement.checkHashFiles(data["ti3"], data["hash_ti3"], "Ti3")
         if data["CEGATS_path"]:
@@ -104,8 +115,4 @@ class PresetManagement():
         ui.GlareCheckBox.setChecked( data["GlareCheckBox"] )
         ui.YLimitBox.setText( data["YLimitBox"] )
 
-
-if __name__ == '__main__':
-
-    tempFolder  ="/Users/jpereira/Python/roughprofiler2/test/DSC_4453a/"
-    PresetManagement.readLastPreset(tempFolder)
+        return data["proofdata"]

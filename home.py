@@ -139,6 +139,9 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.SaveFilenamePrefix.clicked.connect(lambda state, field="prefix": self.saveConfParams(field))
         self.ui.SaveDefaultModel.clicked.connect(lambda state, field="model": self.saveConfParams(field))
 
+        # --------- History Combo
+        self.ui.HistoryCombo.setEnabled(False)
+        self.ui.HistoryCombo.currentTextChanged.connect(self.loadhistorypreset)
 
         # self.ui.tabWidget.tabBarClicked.connect(self.choiceDCPICC)
         self.ui.tabWidget.setCurrentIndex(0)
@@ -185,6 +188,34 @@ class HomeUI(QtWidgets.QDialog):
         else:
             self.ui.DcamprofTOPeratorICC.setEnabled(False)
 
+    def loadhistorypreset(self):
+
+        index = self.ui.HistoryCombo.currentIndex()
+        #mode =  self.ui.tabWidget.currentIndex()
+        if index > 0:
+            preset = self.presets[index]
+            jsonFile = os.path.join(self.tempFolder, preset+".json" )
+            proofdata = PresetManagement.setParams(self.ui,jsonFile)
+
+            self.loadProofChart(proofdata)
+            self.loadProofDELChart(proofdata)
+            self.loadProofDECChart(proofdata)
+            self.loadProofDEHChart(proofdata)
+            self.ui.tabWidget_2.setCurrentIndex(3)
+
+            if not self.isRaw:
+                self.ui.createProofImage.setEnabled(True)
+
+            self.ui.InstallProfile.setEnabled(True)
+
+    def updateHistoryCombo(self):
+
+        self.presets = PresetManagement.populateHistoryCombo(self.tempFolder)
+        if len(self.presets) > 0:
+            self.ui.HistoryCombo.addItems(self.presets)
+            self.ui.HistoryCombo.setEnabled(True)
+            self.ui.HistoryCombo.repaint()
+
     def enableDisableICCDEP(self):
 
         filename = self.ui.FileNameText.text()
@@ -205,30 +236,6 @@ class HomeUI(QtWidgets.QDialog):
 
     # self.ui.tabsDcamprof.currentIndex()
 
-    def DcamProfTabsOnclick(self):
-        '''
-        0 = DCP
-        1 = ICC
-        :return:
-        '''
-        index = self.ui.tabsDcamprof.currentIndex()
-
-        if index == 0:
-            self.ui.createProofImage.setEnabled(True)
-            filename = self.ui.FileNameText.text()
-            filename = filename.replace(" ", "_")
-            self.ui.FileNameText.setText(filename.replace(".dcp", ".icc"))
-            if self.tempFolder != "":
-                self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
-
-        elif index == 1:
-
-            self.ui.createProofImage.setEnabled(False)
-            filename = self.ui.FileNameText.text()
-            filename = filename.replace(" ", "_")
-            self.ui.FileNameText.setText(filename.replace(".icc", ".dcp"))
-            if self.tempFolder != "":
-                self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
 
     def installProfile(self):
 
@@ -254,9 +261,10 @@ class HomeUI(QtWidgets.QDialog):
 
     def getMetadata(self, img):
 
+
         im = open(img, 'rb')
         metadata = exifread.process_file(im)
-        # print(metadata)
+
         if str(metadata['Image Make']) != "":
             manufacturer = str(metadata['Image Make'])
         else:
@@ -265,7 +273,10 @@ class HomeUI(QtWidgets.QDialog):
         if str(metadata['Image Model']) != "":
             model = str(metadata['Image Model'])
         else:
-            model = "Model"
+            model = self.config["OTHERS"]["devicemodel"]
+            if model == "":
+                model = "no-model"
+
 
         self.ui.ManufacturerText.setText(manufacturer)
         self.ui.ModelText.setText(model)
@@ -323,7 +334,9 @@ class HomeUI(QtWidgets.QDialog):
                 self.checkTempFolderContents()
                 self.enableDisableICCDEP()
 
-                PresetManagement.setParams(self.ui, self.tempFolder)
+                #PresetManagement.readLastPreset(self.ui, self.tempFolder)
+
+                self.updateHistoryCombo()
 
     def checkIfRawFile(self):
         '''
@@ -453,6 +466,7 @@ class HomeUI(QtWidgets.QDialog):
             self.oldICCprofile = self.outputICCfilename
             self.createICCFileName(rootname="")
             self.ui.InstallProfile.setEnabled(True)
+            self.updateHistoryCombo()
 
     '''def runDcamprofICC(self):
         #dcamprof make-profile -g cc24-layout.json new-target.ti3 profile.json
@@ -532,10 +546,13 @@ class HomeUI(QtWidgets.QDialog):
 
         _, proofdata = self.executeTool(cmd, "PROFCHECK", "argyll", output)
 
+        PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder, proofdata)
+
         self.loadProofChart(proofdata)
         self.loadProofDELChart(proofdata)
         self.loadProofDECChart(proofdata)
         self.loadProofDEHChart(proofdata)
+
         # a = ColorProof()
         # a.createJson(proofdata)
 
@@ -570,11 +587,11 @@ class HomeUI(QtWidgets.QDialog):
 
         if os.path.isfile(self.outputICCfilename):
             self.runProfCheck(output)
-            PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder)
             self.oldICCprofile = self.outputICCfilename
             self.ui.createProofImage.setEnabled(True)
             self.ui.InstallProfile.setEnabled(True)
             self.createICCFileName(rootname="")
+            self.updateHistoryCombo()
 
     def createdProofimage(self):
 
@@ -796,12 +813,16 @@ class HomeUI(QtWidgets.QDialog):
     def loadProofChart(self, data):
 
         if len(data) > 1:
+            delta = round(float(data[-1][0]), 1)
+            deltaM = round(float(data[-1][1]), 1)
+            self.ui.DeltaEValue.setText(str(delta))
+            self.ui.DeltaEValueMax.setText(str(deltaM))
+
             for i in reversed(range(self.ui.verticalLayout_prooftab.count())):
                 self.ui.verticalLayout_prooftab.itemAt(i).widget().setParent(None)
 
             graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
             graphicsView.setObjectName("graphicsView")
-
             window = pg.PlotWidget(name='Plot1')
 
             xlab = []
@@ -1043,6 +1064,10 @@ class HomeUI(QtWidgets.QDialog):
 
     def createICCFileName(self, rootname):
 
+        prefix = self.config["OTHERS"]["filenamesufix"]
+        if prefix != "":
+            prefix = "_"+str(prefix)+"_"
+
         if self.isRaw:
             ext = "dcp"
         else:
@@ -1064,7 +1089,7 @@ class HomeUI(QtWidgets.QDialog):
                 rootname = name_orig[:-3]
 
         counter = f"{num:0>3}"
-        filename = "{0}{1}.{2}".format(rootname, counter, ext)
+        filename = "{0}{1}{2}.{3}".format(rootname,prefix, counter, ext)
         filename = filename.replace(" ", "_")
         self.ui.FileNameText.setText(filename)
         self.outputICCfilename = os.path.join(self.tempFolder, filename)

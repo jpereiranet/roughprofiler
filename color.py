@@ -42,7 +42,7 @@ class ColorProof():
     def itemTostring(self, items):
 
         if len(items) == 2: #es delta y max delta
-            return "Delta-e: "+str(items[0]) +" Max: "+str(items[1])+"\n"
+            return "Delta-e: "+str(round(float(items[0]),1)) +" Max: "+str( round(float(items[1]),1) )+"\n"
         elif len(items) > 2: #son parches
             return items[0] +": "+ str(items[1]) +"\n"
 
