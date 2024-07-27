@@ -39,6 +39,7 @@ class ConfIni():
     @staticmethod
     def openAndSavePaths( field, value, ui):
 
+        std = False
         config = configparser.ConfigParser()
         path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
 
@@ -62,6 +63,9 @@ class ConfIni():
             config['INSTALL']['PATHDCP'] = value
 
         with open(path_conf_file, 'w') as configfile:  # save
+            std = True
             config.write(configfile)
+
+        return std
 
 

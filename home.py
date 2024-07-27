@@ -36,34 +36,10 @@ class HomeUI(QtWidgets.QDialog):
         self.ui = Ui_RoughProfiler2()
         self.ui.setupUi(self)
 
-        self.config = configparser.ConfigParser()
-        path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
         self.pathArgyllExecutables = ""
         self.pathDcamprofExecutables = ""
-        if os.path.exists(path_conf_file):
-            self.config.read(path_conf_file)
-            self.pathArgyllExecutables = self.config['APPS']['ARGYLL']
-            self.pathDcamprofExecutables = self.config['APPS']['DCAMPROF']
-            self.lay_w = int(self.config['LAYOUT']['LAY_W'])
-            self.lay_h = int(self.config['LAYOUT']['LAY_H'])
-            self.pad_roi = int(self.config['LAYOUT']['PAD_ROI'])
-            #self.copyright = self.config['OTHERS']['COPYRIGHT']
 
-            self.pathdcp = self.config['INSTALL']['PATHDCP']
-            self.pathicc = self.config['INSTALL']['PATHICC']
-
-
-            self.ArgyllRes = json.loads(self.config.get('PARAMS', 'ARGYLLRES'))
-            self.ArgyllAlgoritm = json.loads(self.config.get('PARAMS', 'ARGYLLALGORITM'))
-            self.ArgyllUParam = json.loads(self.config.get('PARAMS', 'ARGYLLUPARAM'))
-            self.Targets = json.loads(self.config.get('PARAMS', 'TARGETS'))
-
-            self.DcamToneOperator = json.loads(self.config.get('PARAMS', 'DCAMPROFTONEOPERATOR'))
-            self.DcamToneCurveDcp = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEDCP'))
-            self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
-
-        else:
-            AppWarningsClass.critical_warn("Configuration cannot loaded check confinguration.ini file on configuration folder")
+        self.loadConfigurationINI()
 
         self.coodinates = []
         self.tempFolder = ""
@@ -79,17 +55,7 @@ class HomeUI(QtWidgets.QDialog):
             AppWarningsClass.informative_warn("Dcamprof paths was defined but currently is missing")
             self.ui.tabWidget_2.setCurrentIndex(3)
 
-        # self.ui.verticalLayout.addWidget()
-        self.ui.TargetType.addItems(self.Targets.keys())
-        self.ui.ArgyllRes.addItems(self.ArgyllRes.keys())
-        self.ui.ArgyllAlgoritm.addItems(self.ArgyllAlgoritm.keys())
-        self.ui.ArgyllUparam.addItems(self.ArgyllUParam.keys())
 
-        self.ui.DcamprofTOPeratoDCP.addItems(self.DcamToneOperator.keys())
-        self.ui.DcamprofTOPeratoDCP.setEnabled(False)
-        self.ui.DcamprofToneDCP.addItems(self.DcamToneCurveDcp.keys())
-        self.ui.DcamprofToneDCP.currentTextChanged.connect(self.enableToneOperatorDCP)
-        self.ui.DcamprofIlluminant.addItems(self.DcamIlluminant.keys())
         #---- main tabs
         self.ui.tabWidget_2.setTabEnabled(3, False)
         self.ui.tabWidget_2.setTabEnabled(2, False)
@@ -146,7 +112,6 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.boxConfFilenamePrefix.setText(self.config['OTHERS']['filenamesufix'])
         self.ui.boxConfDefaultModel.setText(self.config['OTHERS']['devicemodel'])
 
-
         self.ui.OpenArgyllPath.clicked.connect(lambda state, field="argyllpath": self.openConfFolder(field))
         self.ui.openDcamprofPath.clicked.connect(lambda state, field="dcamppath": self.openConfFolder(field))
         self.ui.OpenICCsystemPath.clicked.connect(lambda state, field="iccpath": self.openConfFolder(field))
@@ -160,7 +125,6 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.HistoryCombo.setEnabled(False)
         self.ui.HistoryCombo.currentTextChanged.connect(self.loadhistorypreset)
 
-        # self.ui.tabWidget.tabBarClicked.connect(self.choiceDCPICC)
         self.ui.tabWidget.setCurrentIndex(0)
 
         self.ui.ARgyllUslicer.setEnabled(False)
@@ -169,9 +133,49 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.DcamExposureSlider.valueChanged[int].connect(self.updateSliderExposure)
         self.ui.ArgyllUparam.currentTextChanged.connect(self.enableSlider)
 
-
         self.printInfo("Hello! This is a free app from Jose Pereira, www.jpereira.net")
 
+
+    def loadConfigurationINI(self):
+        self.config = configparser.ConfigParser()
+        path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
+
+        if os.path.exists(path_conf_file):
+            self.config.read(path_conf_file)
+            self.pathArgyllExecutables = self.config['APPS']['ARGYLL']
+            self.pathDcamprofExecutables = self.config['APPS']['DCAMPROF']
+            self.pathdcp = self.config['INSTALL']['PATHDCP']
+            self.pathicc = self.config['INSTALL']['PATHICC']
+
+            self.lay_w = int(self.config['LAYOUT']['LAY_W'])
+            self.lay_h = int(self.config['LAYOUT']['LAY_H'])
+            self.pad_roi = int(self.config['LAYOUT']['PAD_ROI'])
+            #self.copyright = self.config['OTHERS']['COPYRIGHT']
+
+            self.ArgyllRes = json.loads(self.config.get('PARAMS', 'ARGYLLRES'))
+            self.ui.ArgyllRes.addItems(self.ArgyllRes.keys())
+            self.ArgyllAlgoritm = json.loads(self.config.get('PARAMS', 'ARGYLLALGORITM'))
+            self.ui.ArgyllAlgoritm.addItems(self.ArgyllAlgoritm.keys())
+
+            self.ArgyllUParam = json.loads(self.config.get('PARAMS', 'ARGYLLUPARAM'))
+            self.ui.ArgyllUparam.addItems(self.ArgyllUParam.keys())
+
+            self.Targets = json.loads(self.config.get('PARAMS', 'TARGETS'))
+            self.ui.TargetType.addItems(self.Targets.keys())
+
+            self.DcamToneOperator = json.loads(self.config.get('PARAMS', 'DCAMPROFTONEOPERATOR'))
+            self.ui.DcamprofTOPeratoDCP.addItems(self.DcamToneOperator.keys())
+            self.ui.DcamprofTOPeratoDCP.setEnabled(False)
+
+            self.DcamToneCurveDcp = json.loads(self.config.get('PARAMS', 'DCAMPROFTONECURVEDCP'))
+            self.ui.DcamprofToneDCP.addItems(self.DcamToneCurveDcp.keys())
+            self.ui.DcamprofToneDCP.currentTextChanged.connect(self.enableToneOperatorDCP)
+
+            self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
+            self.ui.DcamprofIlluminant.addItems(self.DcamIlluminant.keys())
+
+        else:
+            AppWarningsClass.critical_warn("Configuration cannot loaded check confinguration.ini file on configuration folder")
 
     def openArgyllCMSSite(self):
         url = "https://www.argyllcms.com/"
@@ -359,7 +363,10 @@ class HomeUI(QtWidgets.QDialog):
                                                          startingDir,
                                                          QtWidgets.QFileDialog.ShowDirsOnly)
         if destDir != "":
-            ConfIni.openAndSavePaths(field, destDir, self.ui)
+            std = ConfIni.openAndSavePaths(field, destDir, self.ui)
+
+        if std:
+            self.loadConfigurationINI()
 
     def openTuningFile(self):
         '''
@@ -613,7 +620,7 @@ class HomeUI(QtWidgets.QDialog):
                self.outputICCfilename, "-A", manufacturer, "-M", model, "-D", description, "-C", copyright,
                os.path.splitext(self.ti3)[0]]
 
-        if not self.ui.RemoveB2ATable.isChecked():
+        if self.ui.RemoveB2ATable.isChecked():
             cmd.insert( 4, "-bn")
 
         print(cmd)
