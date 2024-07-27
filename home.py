@@ -3,9 +3,7 @@ import pyqtgraph as pg
 import cv2
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtGui import QPixmap
 from main import Ui_RoughProfiler2
 from developraw import DevelopImages
 import math
@@ -919,8 +917,8 @@ class HomeUI(QtWidgets.QDialog):
             for i in reversed(range(self.ui.verticalLayout_prooftab.count())):
                 self.ui.verticalLayout_prooftab.itemAt(i).widget().setParent(None)
 
-            lay_w = self.ui.verticalLayout_prooftab.frameGeometry().width()
-            lay_h = self.ui.verticalLayout_prooftab.frameGeometry().height()
+            lay_w = self.ui.verticalLayoutWidget_3.frameGeometry().width()
+            lay_h = self.ui.verticalLayoutWidget_3.frameGeometry().height()
             graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
             graphicsView.setObjectName("graphicsView")
             window = pg.PlotWidget(name='Plot1')
@@ -955,8 +953,8 @@ class HomeUI(QtWidgets.QDialog):
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEL.count())):
                 self.ui.verticalLayout_prooftab_DEL.itemAt(i).widget().setParent(None)
 
-            lay_w = self.ui.verticalLayout_prooftab_DEL.frameGeometry().width()
-            lay_h = self.ui.verticalLayout_prooftab_DEL.frameGeometry().height()
+            lay_w = self.ui.verticalLayoutWidget_4.frameGeometry().width()
+            lay_h = self.ui.verticalLayoutWidget_4.frameGeometry().height()
             graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
             graphicsView.setObjectName("graphicsView")
 
@@ -985,8 +983,8 @@ class HomeUI(QtWidgets.QDialog):
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEC.count())):
                 self.ui.verticalLayout_prooftab_DEC.itemAt(i).widget().setParent(None)
 
-            lay_w = self.ui.verticalLayout_prooftab_DEC.frameGeometry().width()
-            lay_h = self.ui.verticalLayout_prooftab_DEC.frameGeometry().height()
+            lay_w = self.ui.verticalLayoutWidget_5.frameGeometry().width()
+            lay_h = self.ui.verticalLayoutWidget_5.frameGeometry().height()
             graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
             graphicsView.setObjectName("graphicsView")
 
@@ -1015,8 +1013,8 @@ class HomeUI(QtWidgets.QDialog):
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEH.count())):
                 self.ui.verticalLayout_prooftab_DEH.itemAt(i).widget().setParent(None)
 
-            lay_w = self.ui.verticalLayout_prooftab_DEC.frameGeometry().width()
-            lay_h = self.ui.verticalLayout_prooftab_DEC.frameGeometry().height()
+            lay_w = self.ui.verticalLayoutWidget_6.frameGeometry().width()
+            lay_h = self.ui.verticalLayoutWidget_6.frameGeometry().height()
             graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
             graphicsView.setObjectName("graphicsView")
 
@@ -1051,7 +1049,7 @@ class HomeUI(QtWidgets.QDialog):
             lay_w = self.ui.verticalLayoutWidget.frameGeometry().width()
             lay_h = self.ui.verticalLayoutWidget.frameGeometry().height()
 
-            #self.gammaImageSize = image_data.shape
+            self.gammaImageSize = image_data.shape
             image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
             #image_data = image_data.astype(np.uint16)
             image_data, self.factor = self.image_resize(image_data, width=lay_w, height=None, inter=cv2.INTER_AREA)
