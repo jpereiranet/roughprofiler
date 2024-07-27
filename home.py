@@ -1017,7 +1017,7 @@ class HomeUI(QtWidgets.QDialog):
             #image_data = image_data.astype(np.uint16)
             image_data, self.factor = self.image_resize(image_data, width=int(self.lay_w), height=None, inter=cv2.INTER_AREA)
             pg.setConfigOptions(imageAxisOrder='row-major')
-            #pg.setConfigOption('useOpenGL', False)
+
             imageitem = pg.ImageItem(image_data)
             #imageitem.setOpts(axisOrder='row-major')
 
