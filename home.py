@@ -147,8 +147,6 @@ class HomeUI(QtWidgets.QDialog):
             self.pathdcp = self.config['INSTALL']['PATHDCP']
             self.pathicc = self.config['INSTALL']['PATHICC']
 
-            self.lay_w = int(self.config['LAYOUT']['LAY_W'])
-            self.lay_h = int(self.config['LAYOUT']['LAY_H'])
             self.pad_roi = int(self.config['LAYOUT']['PAD_ROI'])
             #self.copyright = self.config['OTHERS']['COPYRIGHT']
 
@@ -162,6 +160,7 @@ class HomeUI(QtWidgets.QDialog):
 
             self.Targets = json.loads(self.config.get('PARAMS', 'TARGETS'))
             self.ui.TargetType.addItems(self.Targets.keys())
+            self.ui.TargetType.currentTextChanged.connect(self.checkTargets)
 
             self.DcamToneOperator = json.loads(self.config.get('PARAMS', 'DCAMPROFTONEOPERATOR'))
             self.ui.DcamprofTOPeratoDCP.addItems(self.DcamToneOperator.keys())
@@ -226,6 +225,44 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.DcamprofTOPeratorICC.setEnabled(True)
         else:
             self.ui.DcamprofTOPeratorICC.setEnabled(False)
+
+    def checkTargets(self):
+
+        target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
+
+        cgats = DefinePathsClass.create_reference_paths(target[0])
+        recog = DefinePathsClass.create_reference_paths(target[1])
+        profile = DefinePathsClass.create_reference_paths(target[2])
+
+        if not os.path.isfile(cgats):
+            self.printInfo("CGATS reference file ("+target[0]+") do not exits!")
+            AppWarningsClass.informative_warn("CGATS reference file ("+target[0]+") do not exits!")
+            self.ui.ExecuteReadImage.setEnabled(False)
+        else:
+            self.ui.ReferenceNameValue.setText(target[0])
+            self.default_reference = cgats
+
+
+        if not os.path.isfile(recog):
+            self.printInfo("Recognition file ("+target[1]+") lost!")
+            AppWarningsClass.informative_warn("Recognition file lost! Check reference folder o configuration.ini")
+            self.ui.ExecuteReadImage.setEnabled(False)
+        else:
+            self.recogfile = recog
+
+        if os.path.isfile(recog) and os.path.isfile(cgats):
+            self.ui.ExecuteReadImage.setEnabled(True)
+
+        if not os.path.isfile(profile):
+            self.printInfo("JSON Dcamproof profile do not exits!")
+            self.ui.GlareCheckBox.setChecked(False)
+            self.ui.GlareCheckBox.setEnabled(False)
+            self.jsonDcamProfile = False
+        else:
+            self.jsonDcamProfile = profile
+            self.ui.GlareCheckBox.setChecked(True)
+            self.ui.GlareCheckBox.setEnabled(True)
+
 
     def loadhistorypreset(self):
         '''
@@ -413,7 +450,7 @@ class HomeUI(QtWidgets.QDialog):
                 self.CEGATS_path = False
                 self.ui.tabWidget_2.setTabEnabled(0, True)
                 self.ui.tabWidget_2.setCurrentIndex(0)
-                self.ui.ExecuteReadImage.setEnabled(True)
+                self.checkTargets()
                 self.ui.LoadCGATS.setEnabled(True)
                 self.inputImage = paths[0]
                 self.filename = os.path.splitext(os.path.basename(self.inputImage))[0]
@@ -506,7 +543,7 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
         output = ""
-        target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
+        #target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
         executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
         jsonOutProfile = os.path.join(self.tempFolder, self.filename + ".json")
         model = self.ui.ModelText.text()
@@ -521,10 +558,9 @@ class HomeUI(QtWidgets.QDialog):
 
         # add glare correction
         if self.ui.GlareCheckBox.isChecked():
-            if target[2] != "":
-                jsonInProfile = DefinePathsClass.create_reference_paths(target[2])
+            if self.jsonDcamProfile:
                 cmd.insert(2, "-g")
-                cmd.insert(3, jsonInProfile)
+                cmd.insert(3, self.jsonDcamProfile )
             else:
                 AppWarningsClass.critical_warn("JSON target profile do not exists, please update confinguration.ini")
                 self.ui.GlareCheckBox.setChecked(False)
@@ -732,20 +768,18 @@ class HomeUI(QtWidgets.QDialog):
 
         if len(self.coodinates) > 0:
             if self.checkCoordinatesInside():
-                target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
 
                 executable = os.path.join(self.pathArgyllExecutables, "scanin")
 
                 if not self.CEGATS_path:
-                    reference = DefinePathsClass.create_reference_paths(target[0])
+                    reference = self.default_reference
                 else:
                     reference = self.CEGATS_path
 
-                recogfile = DefinePathsClass.create_reference_paths(target[1])
 
-                if not os.path.isfile(recogfile):
-                    self.printInfo("Recognition file is missing, check Reference folder")
-                    return AppWarningsClass.critical_warn("Recognition file "+target[1]+" is missing, check Reference folder")
+                if not os.path.isfile(self.recogfile) or not os.path.isfile(reference):
+                    self.printInfo("Recognition file "+self.recogfile+" or reference file"+reference+" lost!")
+                    return AppWarningsClass.critical_warn("Recognition file "+self.recogfile+" or reference file"+reference+" lost!")
                 else:
 
                     # coordinate to string
@@ -758,7 +792,7 @@ class HomeUI(QtWidgets.QDialog):
                     diagnostics = self.config['SCANIN']['diagnostics']
 
                     cmd = [executable, "-v2","-p", diagnostics, gamma, "-F", coor, "-O", self.ti3, self.inputImage,
-                           recogfile, reference, self.diag]
+                           self.recogfile, reference, self.diag]
 
 
                     print(" ".join(cmd))
@@ -847,25 +881,25 @@ class HomeUI(QtWidgets.QDialog):
         if os.path.isfile(self.diag):
             image_data = cv2.imread(self.diag)
             if image_data is not None:
+                lay_w = self.ui.verticalLayoutWidget_2.frameGeometry().width()
+                lay_h = self.ui.verticalLayoutWidget_2.frameGeometry().height()
+
+                image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
+                #image_data = image_data.astype(np.uint16)
+                image_data, self.factor = self.image_resize(image_data, width=lay_w, height=None, inter=cv2.INTER_AREA)
+                image_data = cv2.flip(image_data, 0) # image apear flip in viewBox ¿?
+                imageitem = pg.ImageItem(image_data, axisOrder='row-major')
+
                 # clean widgets before
                 for i in reversed(range(self.ui.verticalLayout_2.count())):
                     self.ui.verticalLayout_2.itemAt(i).widget().setParent(None)
-
-                graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
+                graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
                 graphicsView.setObjectName("graphicsView")
                 v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
                 v2a.setMouseEnabled(x=False, y=False)
-                v2a.setLimits(xMin=0, xMax=self.lay_w)
+                v2a.setLimits(xMin=0, xMax=lay_w)
                 v2a.setAspectLocked()
                 v2a.disableAutoRange('xy')
-
-                image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
-                image_data = image_data.astype(np.uint16)
-
-                image_data, self.factor = self.image_resize(image_data, width=self.lay_w, height=None, inter=cv2.INTER_AREA)
-                # image apear flip in viewBox ¿?
-                image_data = cv2.flip(image_data, 0)
-                imageitem = pg.ImageItem(image_data, axisOrder='row-major')
                 v2a.addItem(imageitem)
                 v2a.autoRange()
 
@@ -885,7 +919,9 @@ class HomeUI(QtWidgets.QDialog):
             for i in reversed(range(self.ui.verticalLayout_prooftab.count())):
                 self.ui.verticalLayout_prooftab.itemAt(i).widget().setParent(None)
 
-            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
+            lay_w = self.ui.verticalLayout_prooftab.frameGeometry().width()
+            lay_h = self.ui.verticalLayout_prooftab.frameGeometry().height()
+            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
             graphicsView.setObjectName("graphicsView")
             window = pg.PlotWidget(name='Plot1')
 
@@ -919,10 +955,12 @@ class HomeUI(QtWidgets.QDialog):
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEL.count())):
                 self.ui.verticalLayout_prooftab_DEL.itemAt(i).widget().setParent(None)
 
-            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
+            lay_w = self.ui.verticalLayout_prooftab_DEL.frameGeometry().width()
+            lay_h = self.ui.verticalLayout_prooftab_DEL.frameGeometry().height()
+            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
             graphicsView.setObjectName("graphicsView")
 
-            window = pg.PlotWidget(name='Plot1')
+            window = pg.PlotWidget(name='Plot_DE')
 
             xlab = []
             ticks = []
@@ -947,10 +985,12 @@ class HomeUI(QtWidgets.QDialog):
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEC.count())):
                 self.ui.verticalLayout_prooftab_DEC.itemAt(i).widget().setParent(None)
 
-            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
+            lay_w = self.ui.verticalLayout_prooftab_DEC.frameGeometry().width()
+            lay_h = self.ui.verticalLayout_prooftab_DEC.frameGeometry().height()
+            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
             graphicsView.setObjectName("graphicsView")
 
-            window = pg.PlotWidget(name='Plot1')
+            window = pg.PlotWidget(name='Plot_DC')
 
             xlab = []
             ticks = []
@@ -975,10 +1015,12 @@ class HomeUI(QtWidgets.QDialog):
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEH.count())):
                 self.ui.verticalLayout_prooftab_DEH.itemAt(i).widget().setParent(None)
 
-            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
+            lay_w = self.ui.verticalLayout_prooftab_DEC.frameGeometry().width()
+            lay_h = self.ui.verticalLayout_prooftab_DEC.frameGeometry().height()
+            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
             graphicsView.setObjectName("graphicsView")
 
-            window = pg.PlotWidget(name='Plot1')
+            window = pg.PlotWidget(name='PlotDH')
 
             xlab = []
             ticks = []
@@ -1003,41 +1045,42 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
-        # clean widgets before
-        for i in reversed(range(self.ui.verticalLayout.count())):
-            self.ui.verticalLayout.itemAt(i).widget().setParent(None)
-
-        graphicsView = pg.GraphicsLayoutWidget(show=True, size=(self.lay_w, self.lay_h), border=True)
-        graphicsView.setObjectName("graphicsView")
-        v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
-        v2a.setMouseEnabled(x=False, y=False)
-        v2a.setLimits(xMin=0, xMax=self.lay_w)
-        v2a.setAspectLocked()
-        v2a.invertY(True)
-        v2a.disableAutoRange('xy')
-
         image_data = cv2.imread(self.inputImage)
         if image_data is not None:
-            self.gammaImageSize = image_data.shape
+            #get layout size for resize image
+            lay_w = self.ui.verticalLayoutWidget.frameGeometry().width()
+            lay_h = self.ui.verticalLayoutWidget.frameGeometry().height()
+
+            #self.gammaImageSize = image_data.shape
             image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
-
             #image_data = image_data.astype(np.uint16)
-            image_data, self.factor = self.image_resize(image_data, width=int(self.lay_w), height=None, inter=cv2.INTER_AREA)
+            image_data, self.factor = self.image_resize(image_data, width=lay_w, height=None, inter=cv2.INTER_AREA)
             pg.setConfigOptions(imageAxisOrder='row-major')
-
             imageitem = pg.ImageItem(image_data)
             #imageitem.setOpts(axisOrder='row-major')
 
+            # clean widgets before
+            for i in reversed(range(self.ui.verticalLayout.count())):
+                self.ui.verticalLayout.itemAt(i).widget().setParent(None)
+
+            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
+            graphicsView.setObjectName("graphicsView")
+            v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
+            v2a.setMouseEnabled(x=False, y=False)
+            v2a.setLimits(xMin=0, xMax=lay_w)
+            v2a.setAspectLocked()
+            v2a.invertY(True)
+            v2a.disableAutoRange('xy')
             v2a.addItem(imageitem)
             v2a.addItem(self.createROI())  # load ROI
             v2a.autoRange()
-
             self.ui.verticalLayout.addWidget(graphicsView)
 
             self.printInfo("The image was uploaded")
 
         else:
             AppWarningsClass.informative_warn("Image file is corrupt")
+            self.printInfo("The image file is corrupted")
 
     def createROI(self):
         '''
@@ -1047,8 +1090,10 @@ class HomeUI(QtWidgets.QDialog):
         if os.path.isfile( os.path.join(self.tempFolder, "coordinates.json")  ):
             top_left,bottom_right, self.coodinates = PresetManagement.readCoordinates(self.tempFolder)
         else:
-            centro = [self.lay_w / 2, self.lay_h / 2]
-            ratio = self.lay_w / self.lay_h
+            lay_w = self.ui.verticalLayoutWidget.frameGeometry().width()
+            lay_h = self.ui.verticalLayoutWidget.frameGeometry().height()
+            centro = [lay_w / 2, lay_h / 2]
+            ratio = lay_w / lay_h
             top_left = [centro[0] - self.pad_roi * ratio / 2, centro[1] - self.pad_roi / 2]
             bottom_right = [self.pad_roi * ratio, self.pad_roi]
 
