@@ -330,12 +330,12 @@ class HomeUI(QtWidgets.QDialog):
         im = open(img, 'rb')
         metadata = exifread.process_file(im)
 
-        if str(metadata['Image Make']) != "":
+        if 'Image Make' in metadata and str(metadata['Image Make']) != "":
             manufacturer = str(metadata['Image Make'])
         else:
             manufacturer = "Manufacturer"
 
-        if str(metadata['Image Model']) != "":
+        if 'Image Model' in metadata and str(metadata['Image Model']) != "":
             model = str(metadata['Image Model'])
         else:
             model = self.config["OTHERS"]["devicemodel"]
@@ -354,10 +354,10 @@ class HomeUI(QtWidgets.QDialog):
 
     def openConfFolder(self, field):
         startingDir = self.config['PATHS']['lastfolder']
-        destDir = QtGui.QFileDialog.getExistingDirectory(None,
+        destDir = QtWidgets.QFileDialog.getExistingDirectory(None,
                                                          'Open executables directory',
                                                          startingDir,
-                                                         QtGui.QFileDialog.ShowDirsOnly)
+                                                         QtWidgets.QFileDialog.ShowDirsOnly)
         if destDir != "":
             ConfIni.openAndSavePaths(field, destDir, self.ui)
 
@@ -800,7 +800,7 @@ class HomeUI(QtWidgets.QDialog):
         self.printInfo("Running "+toolName+", wait!")
         cmd = list(filter(None, cmd))
         p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE, bufsize=1)
+                             stderr=subprocess.PIPE)
 
         if workflow == "dcamprof":
             output = p.stderr.readline
@@ -1013,10 +1013,13 @@ class HomeUI(QtWidgets.QDialog):
         if image_data is not None:
             self.gammaImageSize = image_data.shape
             image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
-            image_data = image_data.astype(np.uint16)
-            image_data, self.factor = self.image_resize(image_data, width=self.lay_w, height=None, inter=cv2.INTER_AREA)
 
-            imageitem = pg.ImageItem(image_data, axisOrder='row-major')
+            #image_data = image_data.astype(np.uint16)
+            image_data, self.factor = self.image_resize(image_data, width=int(self.lay_w), height=None, inter=cv2.INTER_AREA)
+            pg.setConfigOptions(imageAxisOrder='row-major')
+            #pg.setConfigOption('useOpenGL', False)
+            imageitem = pg.ImageItem(image_data)
+            #imageitem.setOpts(axisOrder='row-major')
 
             v2a.addItem(imageitem)
             v2a.addItem(self.createROI())  # load ROI
@@ -1069,7 +1072,7 @@ class HomeUI(QtWidgets.QDialog):
         j = np.matrix([[c, s], [-s, c]])
         m = np.dot(j, [x, y])
 
-        return float(m.T[0]), float(m.T[1])
+        return m.T[0].astype(float).item(), m.T[1].astype(float).item()
 
     def createCoordinates(self, roi):
         '''
