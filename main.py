@@ -422,11 +422,11 @@ class Ui_RoughProfiler2(object):
         self.tabWidget_2.setFont(font)
         self.tabWidget_2.setAutoFillBackground(False)
         self.tabWidget_2.setStyleSheet("QTabWidget::pane {\n"
-"\n"
-"\n"
-" border-radius: 4px;\n"
+"  border: 0px solid lightgray;\n"
+"  top:0px; \n"
+"  background: rgb(250, 250, 250);\n"
+" border-radius: 9px;\n"
 "} \n"
-"\n"
 " QTabWidget::tab-bar {\n"
 "            alignment: center;\n"
 "}\n"
