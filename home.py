@@ -412,6 +412,7 @@ class HomeUI(QtWidgets.QDialog):
         ConfIni.saveParams(field, self.ui)
 
     def openConfFolder(self, field):
+        std = False
         startingDir = self.config['PATHS']['lastfolder']
         destDir = QtWidgets.QFileDialog.getExistingDirectory(None,
                                                          'Open executables directory',
@@ -863,7 +864,10 @@ class HomeUI(QtWidgets.QDialog):
         self.printInfo("Running "+toolName+", wait!")
         cmd = list(filter(None, cmd))
         p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+                             stderr=subprocess.PIPE, creationflags=subprocess.CREATE_NO_WINDOW)  #creationflags=0x00000008
+
+        #https://stackoverflow.com/questions/1016384/cross-platform-subprocess-with-hidden-window
+        #https://stackoverflow.com/questions/74048217/hide-popen-in-exe-mode
 
         if workflow == "dcamprof":
             output = p.stderr.readline
