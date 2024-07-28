@@ -244,7 +244,7 @@
       <rect>
        <x>20</x>
        <y>70</y>
-       <width>91</width>
+       <width>141</width>
        <height>16</height>
       </rect>
      </property>
@@ -285,7 +285,7 @@
       <rect>
        <x>20</x>
        <y>20</y>
-       <width>61</width>
+       <width>121</width>
        <height>16</height>
       </rect>
      </property>
@@ -307,7 +307,7 @@
       <rect>
        <x>20</x>
        <y>120</y>
-       <width>91</width>
+       <width>141</width>
        <height>16</height>
       </rect>
      </property>
@@ -417,7 +417,7 @@
       <rect>
        <x>20</x>
        <y>170</y>
-       <width>91</width>
+       <width>141</width>
        <height>16</height>
       </rect>
      </property>
@@ -458,7 +458,7 @@
       <rect>
        <x>20</x>
        <y>230</y>
-       <width>111</width>
+       <width>161</width>
        <height>16</height>
       </rect>
      </property>
@@ -530,7 +530,7 @@
     <widget class="QLineEdit" name="YLimitBox">
      <property name="geometry">
       <rect>
-       <x>60</x>
+       <x>70</x>
        <y>270</y>
        <width>51</width>
        <height>21</height>
@@ -598,7 +598,7 @@
       <rect>
        <x>20</x>
        <y>20</y>
-       <width>61</width>
+       <width>101</width>
        <height>16</height>
       </rect>
      </property>
@@ -826,19 +826,18 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QPushButton" name="OpenTuningFile">
+    <widget class="QToolButton" name="OpenTuningFile">
      <property name="geometry">
       <rect>
-       <x>150</x>
-       <y>310</y>
-       <width>71</width>
-       <height>41</height>
+       <x>160</x>
+       <y>320</y>
+       <width>61</width>
+       <height>21</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>11</pointsize>
       </font>
      </property>
      <property name="text">
@@ -872,7 +871,7 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>10</y>
+     <y>30</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -891,7 +890,7 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>50</y>
+     <y>70</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -910,7 +909,7 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>90</y>
+     <y>110</y>
      <width>291</width>
      <height>21</height>
     </rect>
@@ -929,7 +928,7 @@
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>10</y>
+     <y>30</y>
      <width>151</width>
      <height>21</height>
     </rect>
@@ -948,7 +947,7 @@
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>50</y>
+     <y>70</y>
      <width>151</width>
      <height>21</height>
     </rect>
@@ -967,7 +966,7 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>30</y>
+     <y>10</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -989,7 +988,7 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>70</y>
+     <y>50</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -1011,7 +1010,7 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>110</y>
+     <y>90</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -1033,7 +1032,7 @@
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>30</y>
+     <y>10</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -1055,7 +1054,7 @@
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>70</y>
+     <y>50</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -1097,10 +1096,14 @@
   background: rgb(220, 220, 220);
  border-radius: 9px;
 } 
+
+ QTabWidget::tab-bar {
+            alignment: center;
+}
 </string>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="ProofImageTab">
     <attribute name="title">
@@ -1354,7 +1357,7 @@
       <rect>
        <x>20</x>
        <y>20</y>
-       <width>131</width>
+       <width>221</width>
        <height>16</height>
       </rect>
      </property>
@@ -1398,7 +1401,7 @@
       <rect>
        <x>20</x>
        <y>80</y>
-       <width>131</width>
+       <width>241</width>
        <height>16</height>
       </rect>
      </property>
@@ -1442,7 +1445,7 @@
       <rect>
        <x>20</x>
        <y>129</y>
-       <width>131</width>
+       <width>231</width>
        <height>16</height>
       </rect>
      </property>
@@ -1464,7 +1467,7 @@
       <rect>
        <x>20</x>
        <y>180</y>
-       <width>131</width>
+       <width>221</width>
        <height>16</height>
       </rect>
      </property>
