@@ -93,13 +93,13 @@ class Ui_RoughProfiler2(object):
         self.tabWidget.setStyleSheet("QTabWidget::pane {\n"
 "  border: 0px solid lightgray;\n"
 "  top:0px; \n"
-"  background: rgb(220, 220, 220);\n"
+"  background: rgb(250, 250, 250);\n"
 " border-radius: 9px;\n"
 "} \n"
-"\n"
 " QTabWidget::tab-bar {\n"
 "            alignment: center;\n"
-"}")
+"}\n"
+"")
         self.tabWidget.setObjectName("tabWidget")
         self.ArgyllCM = QtWidgets.QWidget()
         self.ArgyllCM.setObjectName("ArgyllCM")
@@ -751,7 +751,7 @@ class Ui_RoughProfiler2(object):
 
         self.retranslateUi(RoughProfiler2)
         self.tabWidget.setCurrentIndex(0)
-        self.tabWidget_2.setCurrentIndex(0)
+        self.tabWidget_2.setCurrentIndex(4)
         self.tabsDeltas.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(RoughProfiler2)
 

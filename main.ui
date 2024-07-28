@@ -227,13 +227,13 @@
     <string notr="true">QTabWidget::pane {
   border: 0px solid lightgray;
   top:0px; 
-  background: rgb(220, 220, 220);
+  background: rgb(250, 250, 250);
  border-radius: 9px;
 } 
-
  QTabWidget::tab-bar {
             alignment: center;
-}</string>
+}
+</string>
    </property>
    <property name="currentIndex">
     <number>0</number>
@@ -1105,7 +1105,7 @@
 </string>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="ProofImageTab">
     <attribute name="title">
