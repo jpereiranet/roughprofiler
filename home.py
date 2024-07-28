@@ -224,6 +224,25 @@ class HomeUI(QtWidgets.QDialog):
         else:
             self.ui.DcamprofTOPeratorICC.setEnabled(False)
 
+    def defineExtensions(self, exts):
+        '''
+        Create extension from configuration
+        :param exts:
+        :return:
+        '''
+        extensions = exts.split(sep=",")
+        s = []
+        r = []
+        for ext in extensions:
+            s.append("*."+ext.replace(" ", ""))
+            s.append("*." + ext.replace(" ", "").upper() )
+            r.append(ext.replace(" ", ""))
+            r.append(ext.replace(" ", "").upper())
+
+        cadena = " ".join(s)
+        return cadena, r
+
+
     def checkTargets(self):
 
         target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
@@ -432,9 +451,10 @@ class HomeUI(QtWidgets.QDialog):
 
         path = self.config['PATHS']['lastfolder']
         qfd = QtWidgets.QFileDialog()
+        extensions, _ = self.defineExtensions( self.config['OTHERS']['fileext']+', '+self.config['OTHERS']['rawfileext'] )
         paths = [str(file_n) for file_n in list(
             QtWidgets.QFileDialog.getOpenFileNames(qfd, "Select files", path,
-                                                   filter='Images (*.png *.tif *.tiff  *.jpg *.jpeg *.dng *.nef)'
+                                                   filter='Images ('+extensions+')'
                                                    )[0])]
         # print(paths)
         if len(paths) > 0:
@@ -461,18 +481,21 @@ class HomeUI(QtWidgets.QDialog):
                 self.loadImage()
                 self.checkTempFolderContents()
                 self.enableDisableICCDEP()
+                self.clearDeltas()
+                self.updateHistoryCombo()
 
                 #PresetManagement.readLastPreset(self.ui, self.tempFolder)
 
-                self.updateHistoryCombo()
+
 
     def checkIfRawFile(self):
         '''
         if is a raw file create a thumbnail with rawpy
         :return:
         '''
-        rawExt = [".DNG", ".dng", ".NEF", ".nef"]
-        if os.path.splitext(os.path.basename(self.inputImage))[1] in rawExt:
+        #self.config['OTHERS']['rawfileext']
+        _, rawExt  = self.defineExtensions( self.config['OTHERS']['rawfileext'] )
+        if os.path.splitext(os.path.basename(self.inputImage))[1].replace(".","") in rawExt:
             self.printInfo("File is in raw format, running develop process, wait...")
             self.rawinputfile = self.inputImage
             path = os.path.join(self.tempFolder, "thumb_" + self.filename + ".tiff")
@@ -906,7 +929,33 @@ class HomeUI(QtWidgets.QDialog):
                 AppWarningsClass.informative_warn("Diag file is corrupt")
 
 
+    def clearDeltas(self):
+        '''
+        Clear delta-e, de-C, de-L y de-H graphs after load a new image
+        :return:
+        '''
+
+        self.ui.tabWidget_2.setTabEnabled(3, False)
+
+        for i in reversed(range(self.ui.verticalLayout_prooftab.count())):
+            self.ui.verticalLayout_prooftab.itemAt(i).widget().setParent(None)
+
+        for i in reversed(range(self.ui.verticalLayout_prooftab_DEL.count())):
+            self.ui.verticalLayout_prooftab_DEL.itemAt(i).widget().setParent(None)
+
+        for i in reversed(range(self.ui.verticalLayout_prooftab_DEC.count())):
+            self.ui.verticalLayout_prooftab_DEC.itemAt(i).widget().setParent(None)
+
+        for i in reversed(range(self.ui.verticalLayout_prooftab_DEH.count())):
+            self.ui.verticalLayout_prooftab_DEH.itemAt(i).widget().setParent(None)
+
+
     def loadProofChart(self, data):
+        '''
+        Print Delta-e Chart
+        :param data:
+        :return:
+        '''
 
         if len(data) > 0:
             delta = round(float(data[-1][0]), 1)
@@ -948,6 +997,11 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.tabWidget_2.setTabEnabled(3, False)
 
     def loadProofDELChart(self, data):
+        '''
+        Print delta-L chart
+        :param data:
+        :return:
+        '''
 
         if len(data) > 1:
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEL.count())):
@@ -978,6 +1032,11 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.verticalLayout_prooftab_DEL.addWidget(window)
 
     def loadProofDECChart(self, data):
+        '''
+        Print delta-C Chart
+        :param data:
+        :return:
+        '''
 
         if len(data) > 1:
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEC.count())):
@@ -1008,6 +1067,11 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.verticalLayout_prooftab_DEC.addWidget(window)
 
     def loadProofDEHChart(self, data):
+        '''
+        Print Delta-H Chart
+        :param data:
+        :return:
+        '''
 
         if len(data) > 1:
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEH.count())):
