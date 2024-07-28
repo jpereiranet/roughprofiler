@@ -4,7 +4,8 @@ import cv2
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QDialog
+from PyQt5.QtCore import QEvent
 from main import Ui_RoughProfiler2
 from developraw import DevelopImages
 import math
@@ -174,6 +175,14 @@ class HomeUI(QtWidgets.QDialog):
 
         else:
             AppWarningsClass.critical_warn("Configuration cannot loaded check confinguration.ini file on configuration folder")
+
+    def event(self, event):
+        if event.type() == QEvent.EnterWhatsThisMode:
+            AppWarningsClass.informative_warn("RoughProfiler is a free GUI software for ArgyllCMS by Graeme W. Gill (https://www.argyllcms.com/)"
+                                              " and DCamProf by Anders Torger (https://torger.se/anders/dcamprof.html)"
+                                              "developed by Jose Pereira (info@jpereira.net)")
+            return True
+        return QDialog.event(self, event)
 
     def openArgyllCMSSite(self):
         url = "https://www.argyllcms.com/"
@@ -840,13 +849,17 @@ class HomeUI(QtWidgets.QDialog):
             self.printInfo("Select a region of interest first")
             return AppWarningsClass.critical_warn("Select a region of interest first")
 
-    def executeTool(self, cmd, toolName, workflow, output):
+    def executeTool(self, cmd, toolName, workflow, output, **kwargs):
         '''
         Execute binary files
         :param cmd: list of params
         :param toolName: string with name of tool for informative log
         :return:
         '''
+
+        if (os.name == 'nt'):
+            # check this params, not run in win10
+            kwargs.setdefault('creationflags', subprocess.CREATE_NO_WINDOW)
 
         self.ui.textEdit.clear()
         proofcheckOutput = []
@@ -863,8 +876,10 @@ class HomeUI(QtWidgets.QDialog):
 
         self.printInfo("Running "+toolName+", wait!")
         cmd = list(filter(None, cmd))
-        p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE, creationflags=subprocess.CREATE_NO_WINDOW)  #creationflags=0x00000008
+        p = subprocess.Popen(cmd, shell=False,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,
+                             **kwargs)  #creationflags=0x00000008
 
         #https://stackoverflow.com/questions/1016384/cross-platform-subprocess-with-hidden-window
         #https://stackoverflow.com/questions/74048217/hide-popen-in-exe-mode

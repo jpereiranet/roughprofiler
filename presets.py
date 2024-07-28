@@ -69,17 +69,18 @@ class PresetManagement():
         }
 
         pathJson = os.path.join(tempFolder,"coordinates.json")
-        if os.path.isfile(pathJson):
-            with open(pathJson, "w") as outfile:
-                json.dump(params, outfile)
+
+        with open(pathJson, "w") as outfile:
+            json.dump(params, outfile)
 
     @staticmethod
     def readCoordinates(tempFolder):
 
         file = os.path.join(tempFolder, "coordinates.json")
-        f = open(file)
-        data = json.load(f)
-        return [ data["x"], data["y"] ], [data["w"], data["h"] ], data["coordinates"]
+        if os.path.isfile(file):
+            f = open(file)
+            data = json.load(f)
+            return [ data["x"], data["y"] ], [data["w"], data["h"] ], data["coordinates"]
 
 
     @staticmethod
