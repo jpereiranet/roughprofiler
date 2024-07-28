@@ -232,6 +232,7 @@
 } 
  QTabWidget::tab-bar {
             alignment: center;
+ border-radius: 3px;
 }
 </string>
    </property>
@@ -1100,7 +1101,8 @@
  border-radius: 9px;
 } 
  QTabWidget::tab-bar {
-            alignment: center;
+ alignment: center;
+ border-radius: 3px;
 }
 </string>
    </property>

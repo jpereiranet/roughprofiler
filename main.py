@@ -98,6 +98,7 @@ class Ui_RoughProfiler2(object):
 "} \n"
 " QTabWidget::tab-bar {\n"
 "            alignment: center;\n"
+" border-radius: 3px;\n"
 "}\n"
 "")
         self.tabWidget.setObjectName("tabWidget")
@@ -428,7 +429,8 @@ class Ui_RoughProfiler2(object):
 " border-radius: 9px;\n"
 "} \n"
 " QTabWidget::tab-bar {\n"
-"            alignment: center;\n"
+" alignment: center;\n"
+" border-radius: 3px;\n"
 "}\n"
 "")
         self.tabWidget_2.setObjectName("tabWidget_2")
