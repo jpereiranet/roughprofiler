@@ -50,6 +50,14 @@
    <property name="toolTip">
     <string>Load Image</string>
    </property>
+   <property name="styleSheet">
+    <string notr="true">QToolButton{
+border-style: solid;
+border-color: grey;
+border-width: 1px;
+border-radius: 5px;
+}</string>
+   </property>
    <property name="text">
     <string>...</string>
    </property>
@@ -70,6 +78,14 @@
    </property>
    <property name="toolTip">
     <string>Load CGATS file</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QToolButton{
+border-style: solid;
+border-color: grey;
+border-width: 1px;
+border-radius: 5px;
+}</string>
    </property>
    <property name="text">
     <string>...</string>
@@ -866,6 +882,14 @@
    </property>
    <property name="toolTip">
     <string>Create Profile</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QToolButton{
+border-style: solid;
+border-color: grey;
+border-width: 1px;
+border-radius: 5px;
+}</string>
    </property>
    <property name="text">
     <string>...</string>
@@ -1814,6 +1838,14 @@
    <property name="toolTip">
     <string>Read Image</string>
    </property>
+   <property name="styleSheet">
+    <string notr="true">QToolButton{
+border-style: solid;
+border-color: grey;
+border-width: 1px;
+border-radius: 5px;
+}</string>
+   </property>
    <property name="text">
     <string>...</string>
    </property>
@@ -1835,6 +1867,14 @@
    <property name="toolTip">
     <string>Install Profile</string>
    </property>
+   <property name="styleSheet">
+    <string notr="true">QToolButton{
+border-style: solid;
+border-color: grey;
+border-width: 1px;
+border-radius: 5px;
+}</string>
+   </property>
    <property name="text">
     <string>...</string>
    </property>
@@ -1855,6 +1895,14 @@
    </property>
    <property name="toolTip">
     <string>Create Proof Image</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QToolButton{
+border-style: solid;
+border-color: grey;
+border-width: 1px;
+border-radius: 5px;
+}</string>
    </property>
    <property name="text">
     <string>...</string>

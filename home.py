@@ -3,6 +3,7 @@ import pyqtgraph as pg
 import cv2
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QApplication
 from main import Ui_RoughProfiler2
 from developraw import DevelopImages
@@ -915,7 +916,8 @@ class HomeUI(QtWidgets.QDialog):
                 for i in reversed(range(self.ui.verticalLayout_2.count())):
                     self.ui.verticalLayout_2.itemAt(i).widget().setParent(None)
                 graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
-                graphicsView.setObjectName("graphicsView")
+                graphicsView.setBackground(QColor(250, 250, 250))
+                graphicsView.setObjectName("Diagnostics_file")
                 v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
                 v2a.setMouseEnabled(x=False, y=False)
                 v2a.setLimits(xMin=0, xMax=lay_w)
@@ -1126,7 +1128,8 @@ class HomeUI(QtWidgets.QDialog):
                 self.ui.verticalLayout.itemAt(i).widget().setParent(None)
 
             graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
-            graphicsView.setObjectName("graphicsView")
+            graphicsView.setObjectName("test_image")
+            graphicsView.setBackground( QColor(250,250,250) )
             v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
             v2a.setMouseEnabled(x=False, y=False)
             v2a.setLimits(xMin=0, xMax=lay_w)

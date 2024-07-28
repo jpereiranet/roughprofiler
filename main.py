@@ -27,12 +27,24 @@ class Ui_RoughProfiler2(object):
         font = QtGui.QFont()
         font.setFamily("Arial")
         self.OpenImage.setFont(font)
+        self.OpenImage.setStyleSheet("QToolButton{\n"
+"border-style: solid;\n"
+"border-color: grey;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"}")
         self.OpenImage.setObjectName("OpenImage")
         self.LoadCGATS = QtWidgets.QToolButton(RoughProfiler2)
         self.LoadCGATS.setGeometry(QtCore.QRect(10, 80, 61, 51))
         font = QtGui.QFont()
         font.setFamily("Arial")
         self.LoadCGATS.setFont(font)
+        self.LoadCGATS.setStyleSheet("QToolButton{\n"
+"border-style: solid;\n"
+"border-color: grey;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"}")
         self.LoadCGATS.setObjectName("LoadCGATS")
         self.ReferenceNameValue = QtWidgets.QLabel(RoughProfiler2)
         self.ReferenceNameValue.setGeometry(QtCore.QRect(100, 590, 201, 16))
@@ -335,6 +347,12 @@ class Ui_RoughProfiler2(object):
         font = QtGui.QFont()
         font.setFamily("Arial")
         self.ExecuteTask.setFont(font)
+        self.ExecuteTask.setStyleSheet("QToolButton{\n"
+"border-style: solid;\n"
+"border-color: grey;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"}")
         self.ExecuteTask.setObjectName("ExecuteTask")
         self.ManufacturerText = QtWidgets.QLineEdit(RoughProfiler2)
         self.ManufacturerText.setGeometry(QtCore.QRect(170, 30, 113, 21))
@@ -712,18 +730,36 @@ class Ui_RoughProfiler2(object):
         font = QtGui.QFont()
         font.setFamily("Arial")
         self.ExecuteReadImage.setFont(font)
+        self.ExecuteReadImage.setStyleSheet("QToolButton{\n"
+"border-style: solid;\n"
+"border-color: grey;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"}")
         self.ExecuteReadImage.setObjectName("ExecuteReadImage")
         self.InstallProfile = QtWidgets.QToolButton(RoughProfiler2)
         self.InstallProfile.setGeometry(QtCore.QRect(680, 570, 71, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
         self.InstallProfile.setFont(font)
+        self.InstallProfile.setStyleSheet("QToolButton{\n"
+"border-style: solid;\n"
+"border-color: grey;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"}")
         self.InstallProfile.setObjectName("InstallProfile")
         self.createProofImage = QtWidgets.QToolButton(RoughProfiler2)
         self.createProofImage.setGeometry(QtCore.QRect(760, 570, 71, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
         self.createProofImage.setFont(font)
+        self.createProofImage.setStyleSheet("QToolButton{\n"
+"border-style: solid;\n"
+"border-color: grey;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"}")
         self.createProofImage.setObjectName("createProofImage")
         self.FileNameValue = QtWidgets.QLabel(RoughProfiler2)
         self.FileNameValue.setGeometry(QtCore.QRect(100, 570, 201, 16))
