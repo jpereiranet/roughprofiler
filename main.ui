@@ -22,8 +22,16 @@
     <height>0</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <family>Arial</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>RoughProfiler2 by JPEREIRA.net</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QToolButton" name="OpenImage">
    <property name="geometry">
@@ -33,6 +41,11 @@
      <width>61</width>
      <height>51</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+    </font>
    </property>
    <property name="toolTip">
     <string>Load Image</string>
@@ -49,6 +62,11 @@
      <width>61</width>
      <height>51</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+    </font>
    </property>
    <property name="toolTip">
     <string>Load CGATS file</string>
@@ -68,6 +86,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>12</pointsize>
     </font>
    </property>
@@ -89,7 +108,8 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>12</pointsize>
+     <family>Arial</family>
+     <pointsize>11</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -113,7 +133,8 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>12</pointsize>
+     <family>Arial</family>
+     <pointsize>11</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -135,6 +156,11 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+    </font>
+   </property>
    <property name="styleSheet">
     <string notr="true">color: rgb(200, 116, 116);</string>
    </property>
@@ -153,6 +179,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>12</pointsize>
     </font>
    </property>
@@ -171,6 +198,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>10</pointsize>
     </font>
    </property>
@@ -189,6 +217,11 @@
      <width>231</width>
      <height>411</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+    </font>
    </property>
    <property name="styleSheet">
     <string notr="true">QTabWidget::pane {
@@ -215,6 +248,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -236,6 +270,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>12</pointsize>
       </font>
      </property>
@@ -254,6 +289,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -275,6 +311,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -296,6 +333,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>12</pointsize>
       </font>
      </property>
@@ -314,6 +352,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>12</pointsize>
       </font>
      </property>
@@ -360,6 +399,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>12</pointsize>
       </font>
      </property>
@@ -381,6 +421,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -421,6 +462,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -442,6 +484,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>12</pointsize>
       </font>
      </property>
@@ -463,6 +506,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -492,6 +536,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -513,6 +558,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>12</pointsize>
       </font>
      </property>
@@ -534,6 +580,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -555,6 +602,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -574,6 +622,11 @@
        <height>26</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(145, 145, 145);</string>
      </property>
@@ -589,6 +642,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>12</pointsize>
       </font>
      </property>
@@ -607,6 +661,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -625,6 +680,11 @@
        <width>141</width>
        <height>22</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
      </property>
      <property name="minimum">
       <number>-20</number>
@@ -647,6 +707,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -668,6 +729,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -687,6 +749,11 @@
        <height>26</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(145, 145, 145);</string>
      </property>
@@ -702,6 +769,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -723,6 +791,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -744,6 +813,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -765,6 +835,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -782,6 +853,11 @@
      <width>71</width>
      <height>61</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+    </font>
    </property>
    <property name="toolTip">
     <string>Create Profile</string>
@@ -801,6 +877,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>11</pointsize>
     </font>
    </property>
@@ -819,6 +896,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>11</pointsize>
     </font>
    </property>
@@ -837,6 +915,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>11</pointsize>
     </font>
    </property>
@@ -855,6 +934,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>11</pointsize>
     </font>
    </property>
@@ -873,6 +953,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>11</pointsize>
     </font>
    </property>
@@ -891,6 +972,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>10</pointsize>
     </font>
    </property>
@@ -912,6 +994,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>10</pointsize>
     </font>
    </property>
@@ -933,6 +1016,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>10</pointsize>
     </font>
    </property>
@@ -954,6 +1038,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>10</pointsize>
     </font>
    </property>
@@ -975,6 +1060,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>10</pointsize>
     </font>
    </property>
@@ -993,6 +1079,11 @@
      <width>581</width>
      <height>411</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+    </font>
    </property>
    <property name="autoFillBackground">
     <bool>false</bool>
@@ -1247,6 +1338,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -1265,6 +1357,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -1286,6 +1379,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -1307,6 +1401,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -1315,32 +1410,6 @@
      </property>
      <property name="text">
       <string>Dcamprof Excecutalbles</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="OpenArgyllPath">
-     <property name="geometry">
-      <rect>
-       <x>400</x>
-       <y>31</y>
-       <width>113</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Open</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="openDcamprofPath">
-     <property name="geometry">
-      <rect>
-       <x>400</x>
-       <y>90</y>
-       <width>113</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Open</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="boxConfICCPath">
@@ -1354,6 +1423,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -1362,19 +1432,6 @@
      </property>
      <property name="readOnly">
       <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="OpenICCsystemPath">
-     <property name="geometry">
-      <rect>
-       <x>400</x>
-       <y>140</y>
-       <width>113</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Open</string>
      </property>
     </widget>
     <widget class="QLabel" name="confLabelICCPath">
@@ -1388,6 +1445,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -1409,6 +1467,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -1417,19 +1476,6 @@
      </property>
      <property name="text">
       <string>DCP System Folder</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="OpenDCPsistemPath">
-     <property name="geometry">
-      <rect>
-       <x>400</x>
-       <y>190</y>
-       <width>113</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Open</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="boxConfDCPSystemPath">
@@ -1443,6 +1489,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -1464,6 +1511,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -1482,6 +1530,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -1490,19 +1539,6 @@
      </property>
      <property name="text">
       <string>Copyright</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="SaveCopyright">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>241</y>
-       <width>61</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Save</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="boxConfFilenamePrefix">
@@ -1516,6 +1552,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -1534,6 +1571,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -1542,19 +1580,6 @@
      </property>
      <property name="text">
       <string>Filename Prefix</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="SaveFilenamePrefix">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>290</y>
-       <width>61</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Save</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="boxConfDefaultModel">
@@ -1568,6 +1593,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>11</pointsize>
       </font>
      </property>
@@ -1586,6 +1612,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -1596,43 +1623,166 @@
       <string>Default Model</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="SaveDefaultModel">
+    <widget class="QToolButton" name="SaveCopyright">
      <property name="geometry">
       <rect>
-       <x>130</x>
-       <y>340</y>
-       <width>61</width>
-       <height>41</height>
+       <x>140</x>
+       <y>250</y>
+       <width>51</width>
+       <height>21</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
      </property>
      <property name="text">
       <string>Save</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="ArgyllOpenSite">
+    <widget class="QToolButton" name="SaveFilenamePrefix">
      <property name="geometry">
       <rect>
-       <x>510</x>
-       <y>30</y>
-       <width>61</width>
-       <height>41</height>
+       <x>140</x>
+       <y>300</y>
+       <width>51</width>
+       <height>21</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
      <property name="text">
-      <string>Site</string>
+      <string>Save</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="DCamprofOpenSite">
+    <widget class="QToolButton" name="SaveDefaultModel">
      <property name="geometry">
       <rect>
-       <x>510</x>
-       <y>90</y>
-       <width>61</width>
-       <height>41</height>
+       <x>140</x>
+       <y>350</y>
+       <width>51</width>
+       <height>21</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
      <property name="text">
-      <string>Site</string>
+      <string>Save</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="OpenArgyllPath">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>40</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
+     <property name="text">
+      <string>Open</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="openDcamprofPath">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>100</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
+     <property name="text">
+      <string>Open</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="OpenICCsystemPath">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>150</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
+     <property name="text">
+      <string>Open</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="OpenDCPsistemPath">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>200</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
+     <property name="text">
+      <string>Open</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="ArgyllOpenSite">
+     <property name="geometry">
+      <rect>
+       <x>490</x>
+       <y>40</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
+     <property name="text">
+      <string>website</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="DCamprofOpenSite">
+     <property name="geometry">
+      <rect>
+       <x>490</x>
+       <y>100</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
+     <property name="text">
+      <string>website</string>
      </property>
     </widget>
    </widget>
@@ -1645,6 +1795,11 @@
      <width>71</width>
      <height>61</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+    </font>
    </property>
    <property name="toolTip">
     <string>Read Image</string>
@@ -1662,6 +1817,11 @@
      <height>61</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+    </font>
+   </property>
    <property name="toolTip">
     <string>Install Profile</string>
    </property>
@@ -1677,6 +1837,11 @@
      <width>71</width>
      <height>61</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+    </font>
    </property>
    <property name="toolTip">
     <string>Create Proof Image</string>
@@ -1696,6 +1861,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>12</pointsize>
     </font>
    </property>
@@ -1717,6 +1883,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>12</pointsize>
     </font>
    </property>
@@ -1735,6 +1902,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial</family>
      <pointsize>10</pointsize>
     </font>
    </property>
