@@ -225,10 +225,12 @@
    </property>
    <property name="styleSheet">
     <string notr="true">QTabWidget::pane {
-  border: 1px solid lightgray;
-  top:5px; 
-  background: rgb(240, 240, 240);
-} </string>
+  border: 0px solid lightgray;
+  top:0px; 
+  background: rgb(220, 220, 220);
+ border-radius: 9px;
+} 
+</string>
    </property>
    <property name="currentIndex">
     <number>0</number>
@@ -1090,9 +1092,10 @@
    </property>
    <property name="styleSheet">
     <string notr="true">QTabWidget::pane {
-  border: 1px solid lightgray;
-  top:5px; 
-  background: rgb(240, 240, 240);
+  border: 0px solid lightgray;
+  top:0px; 
+  background: rgb(220, 220, 220);
+ border-radius: 9px;
 } 
 </string>
    </property>

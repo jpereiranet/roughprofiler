@@ -91,10 +91,12 @@ class Ui_RoughProfiler2(object):
         font.setFamily("Arial")
         self.tabWidget.setFont(font)
         self.tabWidget.setStyleSheet("QTabWidget::pane {\n"
-"  border: 1px solid lightgray;\n"
-"  top:5px; \n"
-"  background: rgb(240, 240, 240);\n"
-"} ")
+"  border: 0px solid lightgray;\n"
+"  top:0px; \n"
+"  background: rgb(220, 220, 220);\n"
+" border-radius: 9px;\n"
+"} \n"
+"")
         self.tabWidget.setObjectName("tabWidget")
         self.ArgyllCM = QtWidgets.QWidget()
         self.ArgyllCM.setObjectName("ArgyllCM")
@@ -418,9 +420,10 @@ class Ui_RoughProfiler2(object):
         self.tabWidget_2.setFont(font)
         self.tabWidget_2.setAutoFillBackground(False)
         self.tabWidget_2.setStyleSheet("QTabWidget::pane {\n"
-"  border: 1px solid lightgray;\n"
-"  top:5px; \n"
-"  background: rgb(240, 240, 240);\n"
+"  border: 0px solid lightgray;\n"
+"  top:0px; \n"
+"  background: rgb(220, 220, 220);\n"
+" border-radius: 9px;\n"
 "} \n"
 "")
         self.tabWidget_2.setObjectName("tabWidget_2")
