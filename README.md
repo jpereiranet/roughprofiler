@@ -27,8 +27,8 @@ ES: Es preciso descargar los binarios de ArgyllCMS y DCamProf para el sistema op
 
 EN: You need to download the ArgyllCMS and DCamProf binaries for the corresponding operating system:
 
-[DCamProf](https://torger.se/anders/dcamprof.html)
-[ArgyllCMS](https://www.argyllcms.com/#download)
+- [DCamProf](https://torger.se/anders/dcamprof.html)
+- [ArgyllCMS](https://www.argyllcms.com/#download)
 
 ES: Para DCampProf en MacOsX es necesario copiar la librería libomp.dylib en /usr/local/lib/
 
