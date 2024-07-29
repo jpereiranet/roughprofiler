@@ -8,6 +8,8 @@ ES: En RoughProfiler, además la automatización de lanzar comandos a la consola
 
 EN: In RoughProfiler, in addition to the automation of launching commands to the console, it allows to select the region where our chart is located, to save the settings of each profile as a test history and to create test images with the profile we just created for analysis with other tools. In addition, RoughProfiler has been made very parameterizable with a configuration file that allows you to add and modify parameters without modifying the source code.
 
+![imageQA](https://github.com/jpereiranet/roughprofiler/blob/main/img/roughProfiler_general.png)
+
 ES: RoughProfiler esta diseñado pensando en aquellos profesionales de la digitalización del patrimonio cultural, así como fotógrafos que necesiten unos flujos de trabajo muy precisos, pero también está diseñado para usar en enseñanza y formación de alumnos y profesionales ya que su interfaz incorpora los elementos básicos de la creación de perfiles y está muy pensada para poder realizar muchas pruebas.
 
 EN: RoughProfiler is designed for those professionals in the digitization of cultural heritage, as well as photographers who need very precise workflows, but it is also designed for use in teaching and training of students and professionals as its interface incorporates the basics of profiling and is designed to be able to perform many tests.
@@ -36,6 +38,8 @@ ES: A continuación, desde la pestaña de Conf, de Roughprofiler, introducir las
 
 EN: Then, from the Conf tab of Roughprofiler, enter the paths to each tool, for ArgyllCMS to the "bin" folder and for DCampProf to the corresponding one.
 
+![imageQA](https://github.com/jpereiranet/roughprofiler/blob/main/img/roughProfiler_conf.png)
+
 ES: La primera vez que se ejecuten las tareas con RoughProfiler en MacOsX es preciso autorizar la ejecución de los binarios de ArgyllCMS (scanin, colprof y profcheck) y DCamProf en las Preferencias del Sistema > Seguridad y Privacidad y en la parte inferior permitir la ejecución de la herramienta.
 
 EN: The first time you run tasks with RoughProfiler on MacOsX you need to authorize the execution of ArgyllCMS binaries (scanin, colprof and profcheck) and DCamProf in your System Preferences > Security & Privacy and at the bottom allow the execution of the tool.
@@ -57,7 +61,7 @@ Windows:
 - ICC Profiles: C:/Windows/System32/spool/drivers/color
 - DCP Profiles: C:/Users/[usuario]/AppData/Roaming/Adobe/CameraRaw/CameraProfiles
 
-## Configuración avanzada Advanced configuration
+## Configuración avanzada / Advanced configuration
 
 ES: En la carpeta Configuration hay un archivo configuration.ini con los principales parámetros de la herramienta, desde ahí se pueden introducir nuevos perfiles de cartas y algunos ajustes.
 
