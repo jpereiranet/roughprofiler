@@ -67,3 +67,12 @@ ES: En la carpeta Configuration hay un archivo configuration.ini con los princip
 
 EN: In the Configuration folder there is a configuration.ini file with the main parameters of the tool, from there you can enter new chart profiles and some settings.
 
+## Donation / Sponsors
+
+ES: Si te gusta este proyecto, considera un donativo!
+
+EN:  If you like this project, consider a donation!
+
+[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/jpereiranet)
+
+[![paypal](https://www.paypalobjects.com/en_US/ES/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TRBTAUMCTFNDA&amp;currency_code=EUR)
