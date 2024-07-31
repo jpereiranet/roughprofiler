@@ -43,6 +43,7 @@ class HomeUI(QtWidgets.QDialog):
 
         self.coodinates = []
         self.tempFolder = ""
+        self.inputImage = ""
 
         #check if Argyll or Dcamprof exists:
         if self.pathArgyllExecutables == "" or self.pathDcamprofExecutables == "":
@@ -261,23 +262,30 @@ class HomeUI(QtWidgets.QDialog):
         recog = DefinePathsClass.create_reference_paths(target[1])
         profile = DefinePathsClass.create_reference_paths(target[2])
 
-        if not os.path.isfile(cgats):
+        print(self.CEGATS_path)
+        if not os.path.isfile(cgats) and not os.path.isFile(self.CEGATS_path):
             self.printInfo("CGATS reference file ("+target[0]+") do not exits!")
             AppWarningsClass.informative_warn("CGATS reference file ("+target[0]+") do not exits!")
             self.ui.ExecuteReadImage.setEnabled(False)
         else:
             self.ui.ReferenceNameValue.setText(target[0])
-            self.default_reference = cgats
+            self.ui.ExecuteReadImage.setEnabled(True)
+
+            if os.path.isFile(self.CEGATS_path):
+                self.reference = self.CEGATS_path
+            elif os.path.isfile(cgats):
+                self.reference = cgats
 
 
         if not os.path.isfile(recog):
-            self.printInfo("Recognition file ("+target[1]+") lost!")
-            AppWarningsClass.informative_warn("Recognition file lost! Check reference folder o configuration.ini")
-            self.ui.ExecuteReadImage.setEnabled(False)
+                self.printInfo("Recognition file ("+target[1]+") lost!")
+                AppWarningsClass.informative_warn("Recognition file lost! Check reference folder o configuration.ini")
+                self.ui.ExecuteReadImage.setEnabled(False)
         else:
             self.recogfile = recog
 
-        if os.path.isfile(recog) and os.path.isfile(cgats):
+
+        if os.path.isfile(recog) and os.path.isfile(cgats) and os.path.isfile(self.inputImage):
             self.ui.ExecuteReadImage.setEnabled(True)
 
         if not os.path.isfile(profile):
@@ -476,7 +484,7 @@ class HomeUI(QtWidgets.QDialog):
 
             if os.path.isfile(paths[0]):
                 self.isRaw = False
-                self.CEGATS_path = False
+                self.CEGATS_path = None
                 self.ui.tabWidget_2.setTabEnabled(0, True)
                 self.ui.tabWidget_2.setCurrentIndex(0)
                 self.checkTargets()
@@ -552,9 +560,10 @@ class HomeUI(QtWidgets.QDialog):
         fname = QtWidgets.QFileDialog.getOpenFileName(qfd, title, path, filter)[0]
         # print( fname)
         if os.path.isfile(fname):
-            self.CEGATS_path = str(fname)
+            self.CEGATS_path = fname
             self.ui.ReferenceNameValue.setText(os.path.basename(self.CEGATS_path))
             self.printInfo("Loading CGATS file")
+            self.checkTargets()
 
     def executeProcess(self):
         '''
@@ -803,15 +812,10 @@ class HomeUI(QtWidgets.QDialog):
 
                 executable = os.path.join(self.pathArgyllExecutables, "scanin")
 
-                if not self.CEGATS_path:
-                    reference = self.default_reference
-                else:
-                    reference = self.CEGATS_path
 
-
-                if not os.path.isfile(self.recogfile) or not os.path.isfile(reference):
-                    self.printInfo("Recognition file "+self.recogfile+" or reference file"+reference+" lost!")
-                    return AppWarningsClass.critical_warn("Recognition file "+self.recogfile+" or reference file"+reference+" lost!")
+                if not os.path.isfile(self.recogfile) or not os.path.isfile(self.reference):
+                    self.printInfo("Recognition file "+self.recogfile+" or reference file"+self.reference+" lost!")
+                    return AppWarningsClass.critical_warn("Recognition file "+self.recogfile+" or reference file"+self.reference+" lost!")
                 else:
 
                     # coordinate to string
@@ -823,8 +827,8 @@ class HomeUI(QtWidgets.QDialog):
                     gamma = "-G" + self.config['SCANIN']['gamma']
                     diagnostics = self.config['SCANIN']['diagnostics']
 
-                    cmd = [executable, "-v2","-p", diagnostics, gamma, "-F", coor, "-O", self.ti3, self.inputImage,
-                           self.recogfile, reference, self.diag]
+                    cmd = [executable, "-v2","-p", diagnostics, gamma, "-F", coor, "-O", str(self.ti3), str(self.inputImage),
+                           str(self.recogfile), str(self.reference), str(self.diag)]
 
 
                     print(" ".join(cmd))

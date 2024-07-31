@@ -208,7 +208,7 @@ border-radius: 5px;
     <rect>
      <x>600</x>
      <y>10</y>
-     <width>61</width>
+     <width>111</width>
      <height>16</height>
     </rect>
    </property>
@@ -1131,7 +1131,7 @@ border-radius: 5px;
 </string>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="ProofImageTab">
     <attribute name="title">
@@ -1221,7 +1221,7 @@ border-radius: 5px;
         <rect>
          <x>10</x>
          <y>310</y>
-         <width>81</width>
+         <width>91</width>
          <height>20</height>
         </rect>
        </property>
@@ -1243,7 +1243,7 @@ border-radius: 5px;
       <widget class="QLabel" name="DeltaEValue">
        <property name="geometry">
         <rect>
-         <x>100</x>
+         <x>110</x>
          <y>310</y>
          <width>91</width>
          <height>20</height>
@@ -1266,7 +1266,7 @@ border-radius: 5px;
         <rect>
          <x>210</x>
          <y>310</y>
-         <width>71</width>
+         <width>101</width>
          <height>20</height>
         </rect>
        </property>
@@ -1288,7 +1288,7 @@ border-radius: 5px;
       <widget class="QLabel" name="DeltaEValueMax">
        <property name="geometry">
         <rect>
-         <x>290</x>
+         <x>320</x>
          <y>310</y>
          <width>91</width>
          <height>20</height>
