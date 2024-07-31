@@ -1,6 +1,9 @@
 
 import configparser
+import os.path
 from app_paths import DefinePathsClass
+import glob
+from warning_class import AppWarningsClass
 
 class ConfIni():
 
@@ -46,13 +49,25 @@ class ConfIni():
         config.read(path_conf_file)
 
         if field == "argyllpath":
-            ui.boxConfArgyll.setText(value)
-            ui.OpenArgyllPath.setText("saved!")
-            config['APPS']['ARGYLL'] = value
+            if not glob.glob(os.path.join( value, "scanin*" )) or not glob.glob(os.path.join(value, "colprof*")) or not glob.glob(os.path.join(value, "profcheck*")):
+                AppWarningsClass.critical_warn("Argyll programs are missing on this folder")
+                ui.boxConfArgyll.setText("")
+                ui.OpenArgyllPath.setText("Open!")
+                config['APPS']['ARGYLL'] = ""
+            else:
+                ui.boxConfArgyll.setText(value)
+                ui.OpenArgyllPath.setText("saved!")
+                config['APPS']['ARGYLL'] = value
         if field == "dcamppath":
-            ui.boxConfDcamprof.setText(value)
-            ui.openDcamprofPath.setText("saved!")
-            config['APPS']['DCAMPROF'] = value
+            if not glob.glob(os.path.join( value, "dcamprof*" )):
+                AppWarningsClass.critical_warn("Dcamprof program is missing on this folder")
+                ui.boxConfDcamprof.setText("")
+                ui.openDcamprofPath.setText("Open")
+                config['APPS']['DCAMPROF'] = ""
+            else:
+                ui.boxConfDcamprof.setText(value)
+                ui.openDcamprofPath.setText("saved!")
+                config['APPS']['DCAMPROF'] = value
         if field == "iccpath":
             ui.OpenICCsystemPath.setText("saved!")
             ui.boxConfICCPath.setText(value)
