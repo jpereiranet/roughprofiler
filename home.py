@@ -44,6 +44,8 @@ class HomeUI(QtWidgets.QDialog):
         self.coodinates = []
         self.tempFolder = ""
         self.inputImage = ""
+        self.CEGATS_path = r""
+
 
         #check if Argyll or Dcamprof exists:
         if self.pathArgyllExecutables == "" or self.pathDcamprofExecutables == "":
@@ -161,7 +163,7 @@ class HomeUI(QtWidgets.QDialog):
 
             self.Targets = json.loads(self.config.get('PARAMS', 'TARGETS'))
             self.ui.TargetType.addItems(self.Targets.keys())
-            self.ui.TargetType.currentTextChanged.connect(self.checkTargets)
+            self.ui.TargetType.currentTextChanged.connect(self.checkReferences)
 
             self.DcamToneOperator = json.loads(self.config.get('PARAMS', 'DCAMPROFTONEOPERATOR'))
             self.ui.DcamprofTOPeratoDCP.addItems(self.DcamToneOperator.keys())
@@ -253,51 +255,79 @@ class HomeUI(QtWidgets.QDialog):
         cadena = " ".join(s)
         return cadena, r
 
+    def checkReferences(self):
+        if self.inputImage:
+            self.CEGATS_path = r""
+            self.ui.ReferenceNameValue.setText("")
+            self.ui.ReferenceNameValue.repaint()
+            self.reference = ""
+            self.checkTargets()
+
+    def resetReferences(self):
+
+        if self.inputImage:
+            self.ui.ExecuteReadImage.setEnabled(False)
+            self.ui.ExecuteReadImage.repaint()
+            self.ui.TargetType.setCurrentIndex(0)
+            self.CEGATS_path = r""
+            self.ui.ReferenceNameValue.setText("")
+            self.ui.ReferenceNameValue.repaint()
+            self.reference = ""
+            self.checkTargets()
 
     def checkTargets(self):
+        '''
+        Check if Reference, recognition an json dcamprof profiles exists
+        :return:
+        '''
 
-        target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
+        targetComoboIndex = self.ui.TargetType.currentIndex()
+        if targetComoboIndex > 0:
+            target = list(self.Targets.values())[targetComoboIndex]
+            cgats = DefinePathsClass.create_reference_paths(target[0])
+            recog = DefinePathsClass.create_reference_paths(target[1])
+            profile = DefinePathsClass.create_reference_paths(target[2])
 
-        cgats = DefinePathsClass.create_reference_paths(target[0])
-        recog = DefinePathsClass.create_reference_paths(target[1])
-        profile = DefinePathsClass.create_reference_paths(target[2])
+            #check if CGATS exists
+            if not os.path.isfile(cgats) and not os.path.isfile(self.CEGATS_path):
+                self.printInfo("CGATS reference file do not exits! You must load it")
+                AppWarningsClass.informative_warn("CGATS reference file do not exits! you must load it")
+            else:
+                if os.path.isfile(self.CEGATS_path):
+                    self.reference = self.CEGATS_path
+                elif os.path.isfile(cgats):
+                    self.reference = cgats
 
-        print(self.CEGATS_path)
-        if not os.path.isfile(cgats) and not os.path.isFile(self.CEGATS_path):
-            self.printInfo("CGATS reference file ("+target[0]+") do not exits!")
-            AppWarningsClass.informative_warn("CGATS reference file ("+target[0]+") do not exits!")
-            self.ui.ExecuteReadImage.setEnabled(False)
-        else:
-            self.ui.ReferenceNameValue.setText(target[0])
-            self.ui.ExecuteReadImage.setEnabled(True)
+                self.ui.ReferenceNameValue.setText(os.path.basename(os.path.basename(self.reference)))
+                self.ui.ReferenceNameValue.repaint()
+                #self.ui.ExecuteReadImage.setEnabled(True)
 
-            if os.path.isFile(self.CEGATS_path):
-                self.reference = self.CEGATS_path
-            elif os.path.isfile(cgats):
-                self.reference = cgats
+            #check if recognition file exists
+            if not os.path.isfile(recog):
+                    self.printInfo("Recognition file ("+target[1]+") lost!")
+                    AppWarningsClass.informative_warn("Recognition file lost! Check reference folder o configuration.ini")
+            else:
+                self.recogfile = recog
 
-
-        if not os.path.isfile(recog):
-                self.printInfo("Recognition file ("+target[1]+") lost!")
-                AppWarningsClass.informative_warn("Recognition file lost! Check reference folder o configuration.ini")
+            #check referece and recognition
+            if os.path.isfile(self.recogfile) and os.path.isfile(self.reference) and os.path.isfile(self.inputImage):
+                self.ui.ExecuteReadImage.setEnabled(True)
+                self.ui.ReferenceNameValue.repaint()
+            else:
                 self.ui.ExecuteReadImage.setEnabled(False)
-        else:
-            self.recogfile = recog
+                self.ui.ExecuteReadImage.repaint()
 
 
-        if os.path.isfile(recog) and os.path.isfile(cgats) and os.path.isfile(self.inputImage):
-            self.ui.ExecuteReadImage.setEnabled(True)
-
-        if not os.path.isfile(profile):
-            self.printInfo("JSON Dcamproof profile do not exits!")
-            self.ui.GlareCheckBox.setChecked(False)
-            self.ui.GlareCheckBox.setEnabled(False)
-            self.jsonDcamProfile = False
-        else:
-            self.jsonDcamProfile = profile
-            self.ui.GlareCheckBox.setChecked(True)
-            self.ui.GlareCheckBox.setEnabled(True)
-
+            #check if Dcamprof json profile exists
+            if not os.path.isfile(profile):
+                #self.printInfo("JSON Dcamproof profile do not exits!")
+                self.ui.GlareCheckBox.setEnabled(False)
+                self.jsonDcamProfile = False
+            else:
+                self.jsonDcamProfile = profile
+                self.ui.GlareCheckBox.setEnabled(True)
+        elif targetComoboIndex == 0:
+            self.resetReferences()
 
     def loadhistorypreset(self):
         '''
@@ -484,19 +514,19 @@ class HomeUI(QtWidgets.QDialog):
 
             if os.path.isfile(paths[0]):
                 self.isRaw = False
-                self.CEGATS_path = None
+                #self.CEGATS_path = r""
                 self.ui.tabWidget_2.setTabEnabled(0, True)
                 self.ui.tabWidget_2.setCurrentIndex(0)
-                self.checkTargets()
                 self.ui.LoadCGATS.setEnabled(True)
                 self.inputImage = paths[0]
                 self.filename = os.path.splitext(os.path.basename(self.inputImage))[0]
                 self.tempFolder = os.path.join(os.path.dirname(paths[0]), self.filename)
                 self.ti3 = os.path.join(self.tempFolder, self.filename + ".ti3")
                 self.diag = os.path.join(self.tempFolder, self.filename + "_diag.tiff")
+                self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
+                self.resetReferences()
                 self.checkIfRawFile()
                 self.getMetadata(paths[0])
-                self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
                 self.loadImage()
                 self.checkTempFolderContents()
                 self.enableDisableICCDEP()
@@ -558,6 +588,8 @@ class HomeUI(QtWidgets.QDialog):
         filter = "Images (*.txt *.cie)"
         title = "GET CGATS"
         fname = QtWidgets.QFileDialog.getOpenFileName(qfd, title, path, filter)[0]
+
+        print(type(fname))
         # print( fname)
         if os.path.isfile(fname):
             self.CEGATS_path = fname
@@ -831,7 +863,7 @@ class HomeUI(QtWidgets.QDialog):
                            str(self.recogfile), str(self.reference), str(self.diag)]
 
 
-                    print(" ".join(cmd))
+                    #print(" ".join(cmd))
                     self.executeTool(cmd, "SCANIN", "argyll", output="")
 
                     if os.path.isfile(self.ti3):
@@ -1163,6 +1195,7 @@ class HomeUI(QtWidgets.QDialog):
             v2a.addItem(self.createROI())  # load ROI
             v2a.autoRange()
             self.ui.verticalLayout.addWidget(graphicsView)
+            self.ui.verticalLayout.update()
 
             self.printInfo("The image was uploaded")
 
@@ -1237,6 +1270,7 @@ class HomeUI(QtWidgets.QDialog):
         self.coodinates = [top_left, top_right, bottom_right, bottom_left]
 
         PresetManagement.saveCoordinates(self.tempFolder,state, self.coodinates )
+        self.checkTargets()
         # print(self.coodinates)
 
     def image_resize(self, image, width=None, height=None, inter=cv2.INTER_AREA):

@@ -52,10 +52,18 @@
    </property>
    <property name="styleSheet">
     <string notr="true">QToolButton{
-border-style: solid;
-border-color: grey;
-border-width: 1px;
+border: 1px solid rgb(200, 200, 200);
 border-radius: 5px;
+background-color: rgb(250, 250, 250) ;
+}
+
+
+QToolButton:hover {
+border: 1px solid rgb(150, 150, 150);
+}
+
+QToolButton:pressed  {
+border: 1px solid green;
 }</string>
    </property>
    <property name="text">
@@ -81,10 +89,28 @@ border-radius: 5px;
    </property>
    <property name="styleSheet">
     <string notr="true">QToolButton{
-border-style: solid;
-border-color: grey;
-border-width: 1px;
+border: 1px solid rgb(210, 210, 210);
 border-radius: 5px;
+}
+
+QToolButton:enabled { 
+background-color: rgb(250, 250, 250) ;
+border-color: rgb(200, 200, 200);
+
+}
+
+QToolButton:disabled {
+background:transparent;
+border-color: grey;
+border: 1px solid rgb(200, 200, 200);
+}
+
+QToolButton:hover {
+border: 1px solid rgb(150, 150, 150);
+}
+
+QToolButton:pressed  {
+border: 1px solid green;
 }</string>
    </property>
    <property name="text">
@@ -885,10 +911,28 @@ border-radius: 5px;
    </property>
    <property name="styleSheet">
     <string notr="true">QToolButton{
-border-style: solid;
-border-color: grey;
-border-width: 1px;
+border: 1px solid rgb(210, 210, 210);
 border-radius: 5px;
+}
+
+QToolButton:enabled { 
+background-color: rgb(250, 250, 250) ;
+border-color: rgb(200, 200, 200);
+
+}
+
+QToolButton:disabled {
+background:transparent;
+border-color: grey;
+border: 1px solid rgb(200, 200, 200);
+}
+
+QToolButton:hover {
+border: 1px solid rgb(150, 150, 150);
+}
+
+QToolButton:pressed  {
+border: 1px solid green;
 }</string>
    </property>
    <property name="text">
@@ -1840,10 +1884,27 @@ border-radius: 5px;
    </property>
    <property name="styleSheet">
     <string notr="true">QToolButton{
-border-style: solid;
-border-color: grey;
-border-width: 1px;
+border: 1px solid rgb(210, 210, 210);
 border-radius: 5px;
+}
+
+QToolButton:enabled { 
+background-color: rgb(250, 250, 250) ;
+border-color: rgb(200, 200, 200);
+
+}
+
+QToolButton:disabled {
+background:transparent;
+border-color: grey;
+border: 1px solid rgb(200, 200, 200);
+}
+
+QToolButton:hover {
+border: 1px solid rgb(150, 150, 150);
+}
+QToolButton:pressed  {
+border: 1px solid green;
 }</string>
    </property>
    <property name="text">
@@ -1869,10 +1930,28 @@ border-radius: 5px;
    </property>
    <property name="styleSheet">
     <string notr="true">QToolButton{
-border-style: solid;
-border-color: grey;
-border-width: 1px;
+border: 1px solid rgb(210, 210, 210);
 border-radius: 5px;
+}
+
+QToolButton:enabled { 
+background-color: rgb(250, 250, 250) ;
+border-color: rgb(200, 200, 200);
+
+}
+
+QToolButton:disabled {
+background:transparent;
+border-color: grey;
+border: 1px solid rgb(200, 200, 200);
+}
+
+QToolButton:hover {
+border: 1px solid rgb(150, 150, 150);
+}
+
+QToolButton:pressed  {
+border: 1px solid green;
 }</string>
    </property>
    <property name="text">
@@ -1898,10 +1977,28 @@ border-radius: 5px;
    </property>
    <property name="styleSheet">
     <string notr="true">QToolButton{
-border-style: solid;
-border-color: grey;
-border-width: 1px;
+border: 1px solid rgb(210, 210, 210);
 border-radius: 5px;
+}
+
+QToolButton:enabled { 
+background-color: rgb(250, 250, 250) ;
+border-color: rgb(200, 200, 200);
+
+}
+
+QToolButton:disabled {
+background:transparent;
+border-color: grey;
+border: 1px solid rgb(200, 200, 200);
+}
+
+QToolButton:hover {
+border: 1px solid rgb(150, 150, 150);
+}
+
+QToolButton:pressed  {
+border: 1px solid green;
 }</string>
    </property>
    <property name="text">

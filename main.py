@@ -28,10 +28,18 @@ class Ui_RoughProfiler2(object):
         font.setFamily("Arial")
         self.OpenImage.setFont(font)
         self.OpenImage.setStyleSheet("QToolButton{\n"
-"border-style: solid;\n"
-"border-color: grey;\n"
-"border-width: 1px;\n"
+"border: 1px solid rgb(200, 200, 200);\n"
 "border-radius: 5px;\n"
+"background-color: rgb(250, 250, 250) ;\n"
+"}\n"
+"\n"
+"\n"
+"QToolButton:hover {\n"
+"border: 1px solid rgb(150, 150, 150);\n"
+"}\n"
+"\n"
+"QToolButton:pressed  {\n"
+"border: 1px solid green;\n"
 "}")
         self.OpenImage.setObjectName("OpenImage")
         self.LoadCGATS = QtWidgets.QToolButton(RoughProfiler2)
@@ -40,10 +48,28 @@ class Ui_RoughProfiler2(object):
         font.setFamily("Arial")
         self.LoadCGATS.setFont(font)
         self.LoadCGATS.setStyleSheet("QToolButton{\n"
-"border-style: solid;\n"
-"border-color: grey;\n"
-"border-width: 1px;\n"
+"border: 1px solid rgb(210, 210, 210);\n"
 "border-radius: 5px;\n"
+"}\n"
+"\n"
+"QToolButton:enabled { \n"
+"background-color: rgb(250, 250, 250) ;\n"
+"border-color: rgb(200, 200, 200);\n"
+"\n"
+"}\n"
+"\n"
+"QToolButton:disabled {\n"
+"background:transparent;\n"
+"border-color: grey;\n"
+"border: 1px solid rgb(200, 200, 200);\n"
+"}\n"
+"\n"
+"QToolButton:hover {\n"
+"border: 1px solid rgb(150, 150, 150);\n"
+"}\n"
+"\n"
+"QToolButton:pressed  {\n"
+"border: 1px solid green;\n"
 "}")
         self.LoadCGATS.setObjectName("LoadCGATS")
         self.ReferenceNameValue = QtWidgets.QLabel(RoughProfiler2)
@@ -348,10 +374,28 @@ class Ui_RoughProfiler2(object):
         font.setFamily("Arial")
         self.ExecuteTask.setFont(font)
         self.ExecuteTask.setStyleSheet("QToolButton{\n"
-"border-style: solid;\n"
-"border-color: grey;\n"
-"border-width: 1px;\n"
+"border: 1px solid rgb(210, 210, 210);\n"
 "border-radius: 5px;\n"
+"}\n"
+"\n"
+"QToolButton:enabled { \n"
+"background-color: rgb(250, 250, 250) ;\n"
+"border-color: rgb(200, 200, 200);\n"
+"\n"
+"}\n"
+"\n"
+"QToolButton:disabled {\n"
+"background:transparent;\n"
+"border-color: grey;\n"
+"border: 1px solid rgb(200, 200, 200);\n"
+"}\n"
+"\n"
+"QToolButton:hover {\n"
+"border: 1px solid rgb(150, 150, 150);\n"
+"}\n"
+"\n"
+"QToolButton:pressed  {\n"
+"border: 1px solid green;\n"
 "}")
         self.ExecuteTask.setObjectName("ExecuteTask")
         self.ManufacturerText = QtWidgets.QLineEdit(RoughProfiler2)
@@ -731,10 +775,27 @@ class Ui_RoughProfiler2(object):
         font.setFamily("Arial")
         self.ExecuteReadImage.setFont(font)
         self.ExecuteReadImage.setStyleSheet("QToolButton{\n"
-"border-style: solid;\n"
-"border-color: grey;\n"
-"border-width: 1px;\n"
+"border: 1px solid rgb(210, 210, 210);\n"
 "border-radius: 5px;\n"
+"}\n"
+"\n"
+"QToolButton:enabled { \n"
+"background-color: rgb(250, 250, 250) ;\n"
+"border-color: rgb(200, 200, 200);\n"
+"\n"
+"}\n"
+"\n"
+"QToolButton:disabled {\n"
+"background:transparent;\n"
+"border-color: grey;\n"
+"border: 1px solid rgb(200, 200, 200);\n"
+"}\n"
+"\n"
+"QToolButton:hover {\n"
+"border: 1px solid rgb(150, 150, 150);\n"
+"}\n"
+"QToolButton:pressed  {\n"
+"border: 1px solid green;\n"
 "}")
         self.ExecuteReadImage.setObjectName("ExecuteReadImage")
         self.InstallProfile = QtWidgets.QToolButton(RoughProfiler2)
@@ -743,10 +804,28 @@ class Ui_RoughProfiler2(object):
         font.setFamily("Arial")
         self.InstallProfile.setFont(font)
         self.InstallProfile.setStyleSheet("QToolButton{\n"
-"border-style: solid;\n"
-"border-color: grey;\n"
-"border-width: 1px;\n"
+"border: 1px solid rgb(210, 210, 210);\n"
 "border-radius: 5px;\n"
+"}\n"
+"\n"
+"QToolButton:enabled { \n"
+"background-color: rgb(250, 250, 250) ;\n"
+"border-color: rgb(200, 200, 200);\n"
+"\n"
+"}\n"
+"\n"
+"QToolButton:disabled {\n"
+"background:transparent;\n"
+"border-color: grey;\n"
+"border: 1px solid rgb(200, 200, 200);\n"
+"}\n"
+"\n"
+"QToolButton:hover {\n"
+"border: 1px solid rgb(150, 150, 150);\n"
+"}\n"
+"\n"
+"QToolButton:pressed  {\n"
+"border: 1px solid green;\n"
 "}")
         self.InstallProfile.setObjectName("InstallProfile")
         self.createProofImage = QtWidgets.QToolButton(RoughProfiler2)
@@ -755,10 +834,28 @@ class Ui_RoughProfiler2(object):
         font.setFamily("Arial")
         self.createProofImage.setFont(font)
         self.createProofImage.setStyleSheet("QToolButton{\n"
-"border-style: solid;\n"
-"border-color: grey;\n"
-"border-width: 1px;\n"
+"border: 1px solid rgb(210, 210, 210);\n"
 "border-radius: 5px;\n"
+"}\n"
+"\n"
+"QToolButton:enabled { \n"
+"background-color: rgb(250, 250, 250) ;\n"
+"border-color: rgb(200, 200, 200);\n"
+"\n"
+"}\n"
+"\n"
+"QToolButton:disabled {\n"
+"background:transparent;\n"
+"border-color: grey;\n"
+"border: 1px solid rgb(200, 200, 200);\n"
+"}\n"
+"\n"
+"QToolButton:hover {\n"
+"border: 1px solid rgb(150, 150, 150);\n"
+"}\n"
+"\n"
+"QToolButton:pressed  {\n"
+"border: 1px solid green;\n"
 "}")
         self.createProofImage.setObjectName("createProofImage")
         self.FileNameValue = QtWidgets.QLabel(RoughProfiler2)

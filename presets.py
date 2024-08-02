@@ -70,8 +70,9 @@ class PresetManagement():
 
         pathJson = os.path.join(tempFolder,"coordinates.json")
 
-        with open(pathJson, "w") as outfile:
-            json.dump(params, outfile)
+        if os.path.isfile(pathJson):
+            with open(pathJson, "w") as outfile:
+                json.dump(params, outfile)
 
     @staticmethod
     def readCoordinates(tempFolder):
