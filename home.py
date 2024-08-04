@@ -47,16 +47,26 @@ class HomeUI(QtWidgets.QDialog):
         self.CEGATS_path = r""
 
 
-        #check if Argyll or Dcamprof exists:
+        #if folder with programs exists, populate it
+
+        #check if Argyll or Dcamprof exists
         if self.pathArgyllExecutables == "" or self.pathDcamprofExecutables == "":
-            AppWarningsClass.informative_warn("ArgyllCMS paths or DCAMPROF paths are missing in configuration file, please define before start")
-            self.ui.tabWidget_2.setCurrentIndex(3)
+            if not ConfIni.programsAutoPath(self.ui):
+                AppWarningsClass.informative_warn("ArgyllCMS paths or DCAMPROF paths are missing in configuration file, please define before start")
+                self.ui.tabWidget_2.setCurrentIndex(3)
+                self.ui.OpenImage.setEnabled(False)
         elif not os.path.isdir(self.pathArgyllExecutables):
             AppWarningsClass.informative_warn("ArgyllCMS paths was defined but currently is missing")
             self.ui.tabWidget_2.setCurrentIndex(3)
+            self.ui.OpenImage.setEnabled(False)
         elif not os.path.isdir(self.pathDcamprofExecutables):
             AppWarningsClass.informative_warn("Dcamprof paths was defined but currently is missing")
             self.ui.tabWidget_2.setCurrentIndex(3)
+            self.ui.OpenImage.setEnabled(False)
+        else:
+            self.ui.boxConfArgyll.setText(self.config['APPS']['ARGYLL'])
+            self.ui.boxConfDcamprof.setText(self.config['APPS']['DCAMPROF'])
+            self.ui.OpenImage.setEnabled(True)
 
 
         #---- main tabs
@@ -104,9 +114,6 @@ class HomeUI(QtWidgets.QDialog):
 
 
         # ---- Configuration
-
-        self.ui.boxConfArgyll.setText(self.config['APPS']['ARGYLL'])
-        self.ui.boxConfDcamprof.setText(self.config['APPS']['DCAMPROF'])
         self.ui.boxConfICCPath.setText(self.config['INSTALL']['PATHICC'])
         self.ui.boxConfDCPSystemPath.setText(self.config['INSTALL']['PATHDCP'])
 
