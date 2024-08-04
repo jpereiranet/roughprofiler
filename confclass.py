@@ -77,7 +77,7 @@ class ConfIni():
             ui.boxConfDCPSystemPath.setText(value)
             config['INSTALL']['PATHDCP'] = value
 
-        with open(path_conf_file, 'w') as configfile:  # save
+        with open(path_conf_file, 'r+') as configfile:  # save
             std = True
             config.write(configfile)
 
