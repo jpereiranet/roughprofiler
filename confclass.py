@@ -4,6 +4,7 @@ import os.path
 from app_paths import DefinePathsClass
 import glob
 from warning_class import AppWarningsClass
+import shutil
 
 class ConfIni():
 
@@ -56,6 +57,21 @@ class ConfIni():
             ui.OpenImage.setEnabled(True)
             with open(path_conf_file, 'w') as configfile:  # save
                 config.write(configfile)
+
+            if (os.name == 'posix'):
+                if not os.path.isfile("/usr/local/lib/libomp.dylib"):
+                    orig = os.path.join( program_paths,"libomp.dylib")
+                    dest = "/usr/local/lib/libomp.dylib"
+                    if os.path.isfile( orig ):
+                        if AppWarningsClass.informative_warninformative_true_false("libomp.dylib was not detected on /usr/local/lib. We will try to copy it to your system"):
+                            shutil.copyfile(orig, dest)
+                            if os.path.isfile(dest):
+                                AppWarningsClass.informative_warn("libomp.dylib was copied to /usr/local/lib")
+                            else:
+                                AppWarningsClass.critical_warn("libomp.dylib was NOT copied to /usr/local/lib")
+                    else:
+                        AppWarningsClass.informative_warn("You must copy libomp.dylib on /usr/local/lib to run Dcamprof tools")
+
             return True
         else:
             return False
