@@ -70,9 +70,8 @@ class PresetManagement():
 
         pathJson = os.path.join(tempFolder,"coordinates.json")
 
-        if os.path.isfile(pathJson):
-            with open(pathJson, "w") as outfile:
-                json.dump(params, outfile)
+        with open(pathJson, "w") as outfile:
+            json.dump(params, outfile)
 
     @staticmethod
     def readCoordinates(tempFolder):
@@ -137,8 +136,11 @@ class PresetManagement():
         ui.RemoveB2ATable.setChecked(data["RemoveB2ATable"])
 
         ui.ManufacturerText.setText(data["ManufacturerText"] )
+        ui.ManufacturerText.reload()
         ui.CopyRightText.setText(data["CopyRightText"] )
+        ui.CopyRightText.reload()
         ui.ModelText.setText(data["ModelText"] )
+        ui.ModelText.reload()
         #ui.FileNameText.setText(data["FileNameText"] )
         #ui.DestText.setText(data["DestText"] )
 
