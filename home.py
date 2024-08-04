@@ -327,7 +327,6 @@ class HomeUI(QtWidgets.QDialog):
                 self.jsonDcamProfile = profile
                 self.ui.GlareCheckBox.setEnabled(True)
 
-
     def loadhistorypreset(self):
         '''
         When a preset (history) is set, his values are load
