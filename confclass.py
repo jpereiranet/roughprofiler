@@ -42,6 +42,11 @@ class ConfIni():
 
     @staticmethod
     def programsAutoPath(ui):
+        '''
+        if folder "programs" exists with the Argyll and Dcamprof tools, paths are auto-configured
+        :param ui:
+        :return:
+        '''
         program_paths = DefinePathsClass.create_programs_paths()
 
         if os.path.isdir(program_paths):
