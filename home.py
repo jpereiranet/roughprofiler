@@ -326,8 +326,7 @@ class HomeUI(QtWidgets.QDialog):
             else:
                 self.jsonDcamProfile = profile
                 self.ui.GlareCheckBox.setEnabled(True)
-        elif targetComoboIndex == 0:
-            self.resetReferences()
+
 
     def loadhistorypreset(self):
         '''
