@@ -838,8 +838,6 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
-        self.createTempFolder()
-
 
         if self.isRaw:
             self.createLinearImage()
@@ -1274,6 +1272,7 @@ class HomeUI(QtWidgets.QDialog):
 
         self.coodinates = [top_left, top_right, bottom_right, bottom_left]
 
+        self.createTempFolder()
         PresetManagement.saveCoordinates(self.tempFolder,state, self.coodinates )
         self.checkTargets()
         # print(self.coodinates)

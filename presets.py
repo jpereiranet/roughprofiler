@@ -70,7 +70,7 @@ class PresetManagement():
 
         pathJson = os.path.join(tempFolder,"coordinates.json")
 
-        with open(pathJson, "w") as outfile:
+        with open(pathJson, "a") as outfile:
             json.dump(params, outfile)
 
     @staticmethod

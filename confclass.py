@@ -63,7 +63,7 @@ class ConfIni():
                     orig = os.path.join( program_paths,"libomp.dylib")
                     dest = "/usr/local/lib/libomp.dylib"
                     if os.path.isfile( orig ):
-                        if AppWarningsClass.informative_warninformative_true_false("libomp.dylib was not detected on /usr/local/lib. We will try to copy it to your system"):
+                        if AppWarningsClass.informative_true_false("libomp.dylib was not detected on /usr/local/lib. We will try to copy it to your system"):
                             shutil.copyfile(orig, dest)
                             if os.path.isfile(dest):
                                 AppWarningsClass.informative_warn("libomp.dylib was copied to /usr/local/lib")
