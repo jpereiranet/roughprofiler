@@ -31,3 +31,12 @@ class DefinePathsClass:
         path_icon = os.path.join(application_path, subpath, "configuration", fn)
 
         return path_icon
+
+    @staticmethod
+    def create_programs_paths():
+
+        # application_path = sys._MEIPASS
+        application_path = os.path.dirname(sys.argv[0])
+        path_programs = os.path.join(application_path, "programs")
+
+        return path_programs

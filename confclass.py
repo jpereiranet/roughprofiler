@@ -40,6 +40,27 @@ class ConfIni():
             config.write(configfile)
 
     @staticmethod
+    def programsAutoPath(ui):
+        program_paths = DefinePathsClass.create_programs_paths()
+
+        if os.path.isdir(program_paths):
+            config = configparser.ConfigParser()
+            path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
+            config.read(path_conf_file)
+            config['APPS']['ARGYLL'] = program_paths
+            ui.boxConfArgyll.setText(program_paths)
+            ui.boxConfArgyll.repaint()
+            config['APPS']['DCAMPROF'] = program_paths
+            ui.boxConfDcamprof.setText(program_paths)
+            ui.boxConfDcamprof.repaint()
+            ui.OpenImage.setEnabled(True)
+            with open(path_conf_file, 'w') as configfile:  # save
+                config.write(configfile)
+            return True
+        else:
+            return False
+
+    @staticmethod
     def openAndSavePaths( field, value, ui):
 
         std = False
