@@ -57,6 +57,8 @@ class HomeUI(QtWidgets.QDialog):
                 AppWarningsClass.informative_warn("ArgyllCMS paths or DCAMPROF paths are missing in configuration file, please define before start")
                 self.ui.tabWidget_2.setCurrentIndex(3)
                 self.ui.OpenImage.setEnabled(False)
+            else:
+                self.loadConfigurationINI()
         elif not os.path.isdir(self.pathArgyllExecutables):
             AppWarningsClass.informative_warn("ArgyllCMS paths was defined but currently is missing")
             self.ui.tabWidget_2.setCurrentIndex(3)
@@ -66,8 +68,6 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.tabWidget_2.setCurrentIndex(3)
             self.ui.OpenImage.setEnabled(False)
         else:
-            self.ui.boxConfArgyll.setText(self.config['APPS']['ARGYLL'])
-            self.ui.boxConfDcamprof.setText(self.config['APPS']['DCAMPROF'])
             self.ui.OpenImage.setEnabled(True)
 
 
@@ -163,6 +163,8 @@ class HomeUI(QtWidgets.QDialog):
             self.config.read(path_conf_file)
             self.pathArgyllExecutables = self.config['APPS']['ARGYLL']
             self.pathDcamprofExecutables = self.config['APPS']['DCAMPROF']
+            #self.ui.boxConfArgyll.setText(self.config['APPS']['ARGYLL'])
+            #self.ui.boxConfDcamprof.setText(self.config['APPS']['DCAMPROF'])
             self.pathdcp = self.config['INSTALL']['PATHDCP']
             self.pathicc = self.config['INSTALL']['PATHICC']
 

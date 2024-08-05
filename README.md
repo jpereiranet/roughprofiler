@@ -45,8 +45,10 @@ ES: La primera vez que se ejecuten las tareas con RoughProfiler en MacOsX es pre
 EN: The first time you run tasks with RoughProfiler on MacOsX you need to authorize the execution of ArgyllCMS binaries (scanin, colprof and profcheck) and DCamProf in your System Preferences > Security & Privacy and at the bottom allow the execution of the tool.
 
 ES: Desde la pestaña de configuración de RoughProfiler se pueden añadir también las rutas a la carpeta de perfiles de color ICC y perfiles de cámara del sistema, para que desde la propia herramienta se puedan instalar los perfiles.
+RoughProfiler intentará detectar estas rutas automáticamente el primer inicio y añadirlas a la configuración. Si las rutas no aparecen debes añadirlas manualmente
 
 EN: From the RoughProfiler configuration tab you can also add the paths to the ICC color profiles folder and system camera profiles, so that the profiles can be installed from the tool itself.
+RoughProfiler will attempt to detect these routes automatically on first startup and add them to the configuration. If the routes do not appear you must add them manually.
 
 ES: En MacOsX las rutas habituales serán:
 
