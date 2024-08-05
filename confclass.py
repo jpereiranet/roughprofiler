@@ -5,6 +5,7 @@ from app_paths import DefinePathsClass
 import glob
 from warning_class import AppWarningsClass
 import shutil
+import  getpass
 
 class ConfIni():
 
@@ -44,11 +45,13 @@ class ConfIni():
     @staticmethod
     def getuserpaths(ui):
 
-        user = os.getlogin()
+        user = getpass.getuser()
+        #user = os.getlogin()
+        userFolder = os.path.expanduser('~')
 
         if os.name == 'posix':
-            icc = os.path.join("/Users", user,"Library/ColorSync/Profiles/")
-            dcp = os.path.join("/Users", user,"Library/Application Support/Adobe/CameraRaw/CameraProfiles")
+            icc = os.path.join(userFolder,"Library/ColorSync/Profiles/")
+            dcp = os.path.join(userFolder,"Library/Application Support/Adobe/CameraRaw/CameraProfiles")
         else:
             icc = os.path.join("C:/Windows/System32/spool/drivers/color")
             dcp = os.path.join("C:/Users/",user,"/AppData/Roaming/Adobe/CameraRaw/CameraProfiles")

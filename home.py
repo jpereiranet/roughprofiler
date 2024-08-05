@@ -26,11 +26,13 @@ from color import ColorProof
 from confclass import ConfIni
 from presets import PresetManagement
 import webbrowser
+import  getpass
 
 
 class HomeUI(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
+
 
         super(HomeUI, self).__init__(parent)
         self.ui = Ui_RoughProfiler2()
@@ -148,6 +150,9 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.ArgyllUparam.currentTextChanged.connect(self.enableSlider)
 
         self.printInfo("Hello! This is a free app from Jose Pereira, www.jpereira.net")
+
+        self.printInfo( getpass.getuser() +" "+ os.getlogin()+" "+os.path.expanduser('~') )
+
 
 
     def loadConfigurationINI(self):
