@@ -8,7 +8,7 @@ ES: En RoughProfiler, además la automatización de lanzar comandos a la consola
 
 EN: In RoughProfiler, in addition to the automation of launching commands to the console, it allows to select the region where our chart is located, to save the settings of each profile as a test history and to create test images with the profile we just created for analysis with other tools. In addition, RoughProfiler has been made very parameterizable with a configuration file that allows you to add and modify parameters without modifying the source code.
 
-![imageQA](https://github.com/jpereiranet/roughprofiler/blob/main/img/roughProfiler_general.png)
+![RoughProfiler](https://github.com/jpereiranet/roughprofiler/blob/main/img/roughProfiler_general.png)
 
 ES: RoughProfiler esta diseñado pensando en aquellos profesionales de la digitalización del patrimonio cultural, así como fotógrafos que necesiten unos flujos de trabajo muy precisos, pero también está diseñado para usar en enseñanza y formación de alumnos y profesionales ya que su interfaz incorpora los elementos básicos de la creación de perfiles y está muy pensada para poder realizar muchas pruebas.
 
