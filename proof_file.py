@@ -5,10 +5,10 @@ from PIL import Image, ImageCms
 import configparser
 from app_paths import DefinePathsClass
 import json
+from warning_class import AppWarningsClass
 
 
 class CreateProofImage():
-
 
     def __init__(self, img, icc, ui, tempFolder):
 
@@ -21,12 +21,10 @@ class CreateProofImage():
             self.ArgyllUParam = json.loads(self.config.get('PARAMS', 'ARGYLLUPARAM'))
             self.Targets = json.loads(self.config.get('PARAMS', 'TARGETS'))
 
-
         self.icc = icc
         self.img_cv2 = cv2.imread(img)
         self.ui = ui
         self.tempFolder = tempFolder
-
 
         w, h = self.letterBox()
         arr = self.readValues()
@@ -41,7 +39,7 @@ class CreateProofImage():
 
         index = self.ui.tabWidget.currentIndex()
         if index == 1:
-
+            #not in use
             arr = {
                     "Engine":("Engine", "Dcamproof"),
                     "DcamprofAlgortimICC": ( "Profile Type", list(self.DcamICCAlgoritm)[self.ui.DcamprofAlgortimICC.currentIndex()]),
@@ -114,7 +112,7 @@ class CreateProofImage():
             img_pil = Image.fromarray(cv2.cvtColor(self.img_cv2, cv2.COLOR_BGR2RGB))
             img_pil.save(file, icc_profile=profile.tobytes())
         else:
-            print("no icc found")
+            AppWarningsClass.informative_warn("ICC Profile LOST!")
 
 
 #if __name__ == '__main__':
