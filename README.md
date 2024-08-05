@@ -52,9 +52,8 @@ ES: En MacOsX las rutas habituales serán:
 
 EN: In MacOsX the usual paths will be:
 
-- ICC Profiles: /Library/ColorSync/Profiles
-
-- DCP Profiles: /Users/[usuario] /Library/Application Support/Adobe/CameraRaw/CameraProfiles
+- ICC Profiles: /Users/[usuario]/Library/ColorSync/Profiles/
+- DCP Profiles: /Users/[usuario]/Library/Application Support/Adobe/CameraRaw/CameraProfiles
 
 Windows:
 

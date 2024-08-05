@@ -114,8 +114,12 @@ class HomeUI(QtWidgets.QDialog):
 
 
         # ---- Configuration
-        self.ui.boxConfICCPath.setText(self.config['INSTALL']['PATHICC'])
-        self.ui.boxConfDCPSystemPath.setText(self.config['INSTALL']['PATHDCP'])
+
+        if self.config['INSTALL']['PATHICC'] == "" and self.config['INSTALL']['PATHDCP'] == "":
+            ConfIni.getuserpaths(self.ui)
+        else:
+            self.ui.boxConfICCPath.setText(self.config['INSTALL']['PATHICC'])
+            self.ui.boxConfDCPSystemPath.setText(self.config['INSTALL']['PATHDCP'])
 
         self.ui.boxConfCopyright.setText(self.config['OTHERS']['copyright'])
         self.ui.CopyRightText.setText(self.config['OTHERS']['copyright'])
@@ -345,6 +349,8 @@ class HomeUI(QtWidgets.QDialog):
             self.printInfo("Loading old settings")
             preset = self.presets[index]
             jsonFile = os.path.join(self.tempFolder, preset+".json" )
+            self.oldICCprofile =  os.path.join(self.tempFolder, preset+".icc" )
+
             data = PresetManagement.setParams(self.ui,jsonFile)
             if data["proofdata"]:
                 self.loadProofChart(data["proofdata"])
@@ -407,6 +413,7 @@ class HomeUI(QtWidgets.QDialog):
         if os.path.isfile(self.outputICCfilename):
             icc = self.outputICCfilename
         else:
+            print(self.oldICCprofile)
             icc = self.oldICCprofile
 
         #print(icc)

@@ -1,3 +1,4 @@
+import math
 import os.path
 import cv2
 from PIL import Image, ImageCms
@@ -27,9 +28,9 @@ class CreateProofImage():
         self.tempFolder = tempFolder
 
 
-        self.letterBox()
+        w, h = self.letterBox()
         arr = self.readValues()
-        self.printText(arr)
+        self.printText(arr, w, h)
         self.saveImage()
 
     def readValues(self):
@@ -60,7 +61,9 @@ class CreateProofImage():
                    "ArgyllRes": ("Profile Resolution", list(self.ArgyllRes)[self.ui.ArgyllRes.currentIndex()]),
                    "ArgyllUparam": ("WP Scale", list(self.ArgyllUParam)[self.ui.ArgyllUparam.currentIndex()]),
                    "ArgyllUscale": ("WP custom Scale", self.ui.ArgyllUscale.text()),
-                   "ArgyllGridEmphasis": ("cLUT grid emphasis", self.ui.ArgyllGridEmphasis.text())
+                   "ArgyllGridEmphasis": ("cLUT grid emphasis", self.ui.ArgyllGridEmphasis.text()),
+                   "ICCFileName": ("ICC Filename", self.ui.FileNameText.text()),
+                   "Reference": ("Reference", self.ui.ReferenceNameValue.text())
                    }
         return arr
 
@@ -70,18 +73,21 @@ class CreateProofImage():
         h, w, ch = self.img_cv2.shape
         self.pos = int(h / 1.1)
         self.img_cv2 = cv2.rectangle(self.img_cv2, (0, self.pos), (w, h), (0, 255, 0), -1)
+        return w, h
 
-    def printText(self, arr):
+    def printText(self, arr, w, h):
+
+        fscale = math.ceil( min(w,h) / 2500 )
 
         i = 0
         c = 0
         rows = 2
-        colDisplacement = 900
-        margin_top = 70
-        padding_y = 20
+        colDisplacement = math.floor(450 * fscale)
+        margin_top = math.floor(35 * fscale)
+        padding_y = math.floor(10 * fscale)
         margin_left = 50
-        fontScale = 2
-        thickness = 5
+        fontScale = fscale
+        thickness = math.floor(2.5 * fscale)
 
         for value in arr.values():
             if i > rows:

@@ -40,6 +40,38 @@ class ConfIni():
         with open(path_conf_file, 'w') as configfile:  # save
             config.write(configfile)
 
+
+    @staticmethod
+    def getuserpaths(ui):
+
+        user = os.getlogin()
+
+        if os.name == 'posix':
+            icc = os.path.join("/Users", user,"Library/ColorSync/Profiles/")
+            dcp = os.path.join("/Users", user,"Library/Application Support/Adobe/CameraRaw/CameraProfiles")
+        else:
+            icc = os.path.join("C:/Windows/System32/spool/drivers/color")
+            dcp = os.path.join("C:/Users/",user,"/AppData/Roaming/Adobe/CameraRaw/CameraProfiles")
+
+        config = configparser.ConfigParser()
+        path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
+        config.read(path_conf_file)
+
+        ui.boxConfCopyright.setText(user)
+        config['OTHERS']['copyright'] = user
+
+        if os.path.isdir(icc):
+            ui.boxConfICCPath.setText(icc)
+            config['INSTALL']['PATHICC'] = icc
+            if os.path.isdir(dcp):
+                config['INSTALL']['PATHDCP'] = dcp
+                ui.boxConfDCPSystemPath.setText(dcp)
+
+        with open(path_conf_file, 'w') as configfile:
+            config.write(configfile)
+
+
+
     @staticmethod
     def programsAutoPath(ui):
         '''
