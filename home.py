@@ -163,8 +163,8 @@ class HomeUI(QtWidgets.QDialog):
             self.config.read(path_conf_file)
             self.pathArgyllExecutables = self.config['APPS']['ARGYLL']
             self.pathDcamprofExecutables = self.config['APPS']['DCAMPROF']
-            #self.ui.boxConfArgyll.setText(self.config['APPS']['ARGYLL'])
-            #self.ui.boxConfDcamprof.setText(self.config['APPS']['DCAMPROF'])
+            self.ui.boxConfArgyll.setText(self.config['APPS']['ARGYLL'])
+            self.ui.boxConfDcamprof.setText(self.config['APPS']['DCAMPROF'])
             self.pathdcp = self.config['INSTALL']['PATHDCP']
             self.pathicc = self.config['INSTALL']['PATHICC']
 
