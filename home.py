@@ -123,11 +123,6 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.boxConfICCPath.setText(self.config['INSTALL']['PATHICC'])
             self.ui.boxConfDCPSystemPath.setText(self.config['INSTALL']['PATHDCP'])
 
-        self.ui.boxConfCopyright.setText(self.config['OTHERS']['copyright'])
-        self.ui.CopyRightText.setText(self.config['OTHERS']['copyright'])
-        self.ui.boxConfFilenamePrefix.setText(self.config['OTHERS']['filenamesufix'])
-        self.ui.boxConfDefaultModel.setText(self.config['OTHERS']['devicemodel'])
-
         self.ui.OpenArgyllPath.clicked.connect(lambda state, field="argyllpath": self.openConfFolder(field))
         self.ui.openDcamprofPath.clicked.connect(lambda state, field="dcamppath": self.openConfFolder(field))
         self.ui.OpenICCsystemPath.clicked.connect(lambda state, field="iccpath": self.openConfFolder(field))
@@ -169,7 +164,6 @@ class HomeUI(QtWidgets.QDialog):
             self.pathicc = self.config['INSTALL']['PATHICC']
 
             self.pad_roi = int(self.config['LAYOUT']['PAD_ROI'])
-            #self.copyright = self.config['OTHERS']['COPYRIGHT']
 
             self.ArgyllRes = json.loads(self.config.get('PARAMS', 'ARGYLLRES'))
             self.ui.ArgyllRes.addItems(self.ArgyllRes.keys())
@@ -193,6 +187,13 @@ class HomeUI(QtWidgets.QDialog):
 
             self.DcamIlluminant = json.loads(self.config.get('PARAMS', 'EXIFILLUMINANT'))
             self.ui.DcamprofIlluminant.addItems(self.DcamIlluminant.keys())
+
+            self.ui.boxConfCopyright.setText(self.config['OTHERS']['copyright'])
+            self.ui.CopyRightText.setText(self.config['OTHERS']['copyright'])
+            self.ui.CopyRightText.repaint()
+
+            self.ui.boxConfFilenamePrefix.setText(self.config['OTHERS']['filenamesufix'])
+            self.ui.boxConfDefaultModel.setText(self.config['OTHERS']['devicemodel'])
 
         else:
             AppWarningsClass.critical_warn("Configuration cannot loaded check confinguration.ini file on configuration folder")
@@ -738,6 +739,18 @@ class HomeUI(QtWidgets.QDialog):
         if self.ui.ArgyllUparam.currentIndex() == 4:  # if is "custom"
             valor = self.ui.ARgyllUslicer.value()
             argyllUParam = "-U" + str(round(valor * 0.1, 1) * 1)
+
+        if not copyright:
+            copyright = "RoughProfiler By JPereira"
+
+        if not manufacturer:
+            manufacturer = "Unknow"
+
+        if not model:
+            model = "Unknow"
+
+        if not description:
+            description = "None"
 
         emphasis = self.ui.ArgyllEmphasisSlider.value()
         emphasis = "-V" + str(round(emphasis * 0.1, 1) + 1)

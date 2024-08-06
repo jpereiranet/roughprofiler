@@ -53,22 +53,24 @@ class ConfIni():
             icc = os.path.join(userFolder,"Library/ColorSync/Profiles/")
             dcp = os.path.join(userFolder,"Library/Application Support/Adobe/CameraRaw/CameraProfiles")
         else:
-            icc = os.path.join("C:/Windows/System32/spool/drivers/color")
-            dcp = os.path.join("C:/Users/",user,"/AppData/Roaming/Adobe/CameraRaw/CameraProfiles")
+            icc = os.path.join("C:\Windows\System32\spool\drivers\color")
+            dcp = os.path.join(userFolder, "AppData\Roaming\Adobe\CameraRaw\CameraProfiles")
+
 
         config = configparser.ConfigParser()
         path_conf_file = DefinePathsClass.create_configuration_paths("configuration.ini")
         config.read(path_conf_file)
 
         ui.boxConfCopyright.setText(user)
+        ui.CopyRightText.setText(user)
         config['OTHERS']['copyright'] = user
 
         if os.path.isdir(icc):
             ui.boxConfICCPath.setText(icc)
             config['INSTALL']['PATHICC'] = icc
-            if os.path.isdir(dcp):
-                config['INSTALL']['PATHDCP'] = dcp
-                ui.boxConfDCPSystemPath.setText(dcp)
+        if os.path.isdir(dcp):
+            config['INSTALL']['PATHDCP'] = dcp
+            ui.boxConfDCPSystemPath.setText(dcp)
 
         with open(path_conf_file, 'w') as configfile:
             config.write(configfile)
