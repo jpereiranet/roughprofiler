@@ -146,7 +146,7 @@ class HomeUI(QtWidgets.QDialog):
 
         self.printInfo("Hello! This is a free app from Jose Pereira, www.jpereira.net")
 
-        self.printInfo( getpass.getuser() +" "+ os.getlogin()+" "+os.path.expanduser('~') )
+        #self.printInfo( getpass.getuser() +" "+ os.getlogin()+" "+os.path.expanduser('~') )
 
 
 
