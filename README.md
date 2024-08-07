@@ -68,6 +68,15 @@ ES: En la carpeta Configuration hay un archivo configuration.ini con los princip
 
 EN: In the Configuration folder there is a configuration.ini file with the main parameters of the tool, from there you can enter new chart profiles and some settings.
 
+## Descargas / Download
+
+ES: Puedes descargar RoughProfiler listo para usar desde:
+
+EN: You can donwload RoughProfiler ready to use on:
+
+[Last Release V0.1 alpha](https://github.com/jpereiranet/roughprofiler/releases/tag/V0.1)
+
+
 ## Donation / Sponsors
 
 ES: Si te gusta este proyecto, considera un donativo!
