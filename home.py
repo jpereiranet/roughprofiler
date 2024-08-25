@@ -28,7 +28,6 @@ from presets import PresetManagement
 import webbrowser
 import  getpass
 
-
 class HomeUI(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
@@ -958,11 +957,13 @@ class HomeUI(QtWidgets.QDialog):
         proof = ColorProof()
         for line in iter(output, b''):
             if toolName == "PROFCHECK":
-                item = proof.formatProfCheck(line.decode('utf-8'))
+                item = proof.formatProfCheck(line.decode(encoding="utf-8", errors='ignore'))
+
                 proofcheckOutput.append(item)
                 self.ui.textEdit.insertPlainText(proof.itemTostring(item))
             else:
-                txt = line.decode('utf-8')
+                #ISO-8859-1
+                txt = line.decode(encoding="utf-8", errors='ignore')
                 self.ui.textEdit.insertPlainText(txt)
 
             self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
@@ -972,6 +973,7 @@ class HomeUI(QtWidgets.QDialog):
         p.wait()
         # print(proofcheckOutput)
         return self.ui.textEdit.toPlainText(), proofcheckOutput
+
 
     def convertLabtoHex(self, L, a, b):
         lab = LabColor(L, a, b)
@@ -986,7 +988,9 @@ class HomeUI(QtWidgets.QDialog):
         '''
 
         if os.path.isfile(self.diag):
-            image_data = cv2.imread(self.diag)
+            #image_data = cv2.imread(self.diag)
+            image_data = self.loadImageFromPath(self.diag)
+
             if image_data is not None:
                 lay_w = self.ui.verticalLayoutWidget_2.frameGeometry().width()
                 lay_h = self.ui.verticalLayoutWidget_2.frameGeometry().height()
@@ -1188,50 +1192,69 @@ class HomeUI(QtWidgets.QDialog):
             window.addItem(bargraph)
             self.ui.verticalLayout_prooftab_DEH.addWidget(window)
 
+    def loadImageFromPath(self, inputPath):
+        '''
+        This is neecesary to load images from paths with special chars like spanish language "ñ"
+        :param inputPath:
+        :return:
+        '''
+        stream = open(inputPath, "rb")
+        bytes = bytearray(stream.read())
+        numpyarray = np.asarray(bytes, dtype=np.uint8)
+        bgrImage = cv2.imdecode(numpyarray, cv2.IMREAD_UNCHANGED)
+        return bgrImage
+
     def loadImage(self):
         '''
         Load proof image on main layout, first tab
         :return:
         '''
 
-        image_data = cv2.imread(self.inputImage)
-        if image_data is not None:
+
+        try:
+            #image_data = cv2.imread(self.inputImage)
+            image_data = self.loadImageFromPath(self.inputImage)
             #get layout size for resize image
-            lay_w = self.ui.verticalLayoutWidget.frameGeometry().width()
-            lay_h = self.ui.verticalLayoutWidget.frameGeometry().height()
+            if image_data is not None:
+                lay_w = self.ui.verticalLayoutWidget.frameGeometry().width()
+                lay_h = self.ui.verticalLayoutWidget.frameGeometry().height()
 
-            self.gammaImageSize = image_data.shape
-            image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
-            #image_data = image_data.astype(np.uint16)
-            image_data, self.factor = self.image_resize(image_data, width=lay_w, height=None, inter=cv2.INTER_AREA)
-            pg.setConfigOptions(imageAxisOrder='row-major')
-            imageitem = pg.ImageItem(image_data)
-            #imageitem.setOpts(axisOrder='row-major')
+                self.gammaImageSize = image_data.shape
+                image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
+                #image_data = image_data.astype(np.uint16)
+                image_data, self.factor = self.image_resize(image_data, width=lay_w, height=None, inter=cv2.INTER_AREA)
+                pg.setConfigOptions(imageAxisOrder='row-major')
+                imageitem = pg.ImageItem(image_data)
+                #imageitem.setOpts(axisOrder='row-major')
 
-            # clean widgets before
-            for i in reversed(range(self.ui.verticalLayout.count())):
-                self.ui.verticalLayout.itemAt(i).widget().setParent(None)
+                # clean widgets before
+                for i in reversed(range(self.ui.verticalLayout.count())):
+                    self.ui.verticalLayout.itemAt(i).widget().setParent(None)
 
-            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
-            graphicsView.setObjectName("test_image")
-            graphicsView.setBackground( QColor(250,250,250) )
-            v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
-            v2a.setMouseEnabled(x=False, y=False)
-            v2a.setLimits(xMin=0, xMax=lay_w)
-            v2a.setAspectLocked()
-            v2a.invertY(True)
-            v2a.disableAutoRange('xy')
-            v2a.addItem(imageitem)
-            v2a.addItem(self.createROI())  # load ROI
-            v2a.autoRange()
-            self.ui.verticalLayout.addWidget(graphicsView)
-            self.ui.verticalLayout.update()
+                graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
+                graphicsView.setObjectName("test_image")
+                graphicsView.setBackground( QColor(250,250,250) )
+                v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
+                v2a.setMouseEnabled(x=False, y=False)
+                v2a.setLimits(xMin=0, xMax=lay_w)
+                v2a.setAspectLocked()
+                v2a.invertY(True)
+                v2a.disableAutoRange('xy')
+                v2a.addItem(imageitem)
+                v2a.addItem(self.createROI())  # load ROI
+                v2a.autoRange()
+                self.ui.verticalLayout.addWidget(graphicsView)
+                self.ui.verticalLayout.update()
 
-            self.printInfo("The image was uploaded")
+                self.printInfo("The image was uploaded")
+            else:
+                AppWarningsClass.informative_warn("Err Loading File: unknown err ")
+                self.printInfo("Err Loading File: unknown err ")
 
-        else:
-            AppWarningsClass.informative_warn("Image file is corrupt")
-            self.printInfo("The image file is corrupted")
+        except cv2.error as e:
+
+            AppWarningsClass.informative_warn("Err Loading File: "+str(e))
+            self.printInfo("Err Loading File: "+str(e))
 
     def createROI(self):
         '''
