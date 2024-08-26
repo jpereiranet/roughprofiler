@@ -420,7 +420,7 @@ class HomeUI(QtWidgets.QDialog):
         if os.path.isfile(self.outputICCfilename):
             icc = self.outputICCfilename
         else:
-            print(self.oldICCprofile)
+            #print(self.oldICCprofile)
             icc = self.oldICCprofile
 
         #print(icc)
@@ -510,6 +510,10 @@ class HomeUI(QtWidgets.QDialog):
         self.printInfo("When tuning file is loading, process can become very slow")
 
 
+    def checkIfASCII(self,cadena):
+        if not cadena.isascii():
+            AppWarningsClass.informative_warn("Image path has non ASCII characters some functions may not run. Please remove this characters from path and open again ")
+
 
     def openTestImage(self):
         '''
@@ -526,6 +530,7 @@ class HomeUI(QtWidgets.QDialog):
                                                    )[0])]
         # print(paths)
         if len(paths) > 0:
+            self.checkIfASCII(paths[0])
             self.inputImage = paths[0]
             self.ui.FileNameValue.setText(os.path.basename(paths[0]))
             self.ui.FileNameValue.repaint()
@@ -564,15 +569,21 @@ class HomeUI(QtWidgets.QDialog):
         #self.config['OTHERS']['rawfileext']
         _, rawExt  = self.defineExtensions( self.config['OTHERS']['rawfileext'] )
         if os.path.splitext(os.path.basename(self.inputImage))[1].replace(".","") in rawExt:
+
             self.printInfo("File is in raw format, running develop process, wait...")
             self.rawinputfile = self.inputImage
             path = os.path.join(self.tempFolder, "thumb_" + self.filename + ".tiff")
 
             if not os.path.isfile(path):
+
                 self.createTempFolder()
                 # rgbImage = DevelopImages.raw_get_thumbnail(self.inputImage)
                 rgbImage = DevelopImages.raw_gamma_develop(self.inputImage)
-                cv2.imwrite(path, rgbImage)
+                #cv2.imwrite(path, rgbImage)  #fail with special "latin" chars on path
+                #to save in a path with special chars
+                is_success, im_buf_arr = cv2.imencode(".tiff", rgbImage)
+                im_buf_arr.tofile(path)
+
             if os.path.isfile(path):
                 self.inputImage = path
                 self.isRaw = True
@@ -608,8 +619,8 @@ class HomeUI(QtWidgets.QDialog):
         title = "GET CGATS"
         fname = QtWidgets.QFileDialog.getOpenFileName(qfd, title, path, filter)[0]
 
-        print(type(fname))
-        # print( fname)
+        #print(type(fname))
+
         if os.path.isfile(fname):
             self.CEGATS_path = fname
             self.ui.ReferenceNameValue.setText(os.path.basename(self.CEGATS_path))
@@ -645,6 +656,12 @@ class HomeUI(QtWidgets.QDialog):
         illuminant = self.DcamIlluminant[list(self.DcamIlluminant)[self.ui.DcamprofIlluminant.currentIndex()]]
         yLimit = self.ui.YLimitBox.text()
         filename = self.ui.FileNameText.text()
+
+        self.ti3 = self.ti3.encode('utf-8','ignore').decode("utf-8")
+        jsonOutProfile = jsonOutProfile.encode('utf-8','ignore').decode("utf-8")
+        filename = filename.encode('utf-8','ignore').decode("utf-8")
+
+        # this is a non-ascii character. Do something.
 
         cmd = [executables, "make-profile", "-i", illuminant, "-y", str(yLimit), self.ti3, jsonOutProfile]
 
@@ -845,11 +862,15 @@ class HomeUI(QtWidgets.QDialog):
             self.printInfo("Raw processing wait a moment")
             QApplication.processEvents()
             linealImage = DevelopImages.raw_lineal_develop(self.rawinputfile)
-            cv2.imwrite(path, linealImage)
+            #cv2.imwrite(path, linealImage)
+            #to save in special characters path
+            is_success, im_buf_arr = cv2.imencode(".tiff", linealImage)
+            im_buf_arr.tofile(path)
 
         if os.path.isfile(path):
             self.inputImage = path
-            self.linealImageSize = cv2.imread(path).shape
+            image_data = self.loadImageFromPath(self.inputImage)
+            self.linealImageSize = image_data.shape
             self.gamma = "-G1.0"
             return True
         else:
@@ -1198,11 +1219,16 @@ class HomeUI(QtWidgets.QDialog):
         :param inputPath:
         :return:
         '''
-        stream = open(inputPath, "rb")
-        bytes = bytearray(stream.read())
-        numpyarray = np.asarray(bytes, dtype=np.uint8)
-        bgrImage = cv2.imdecode(numpyarray, cv2.IMREAD_UNCHANGED)
-        return bgrImage
+        try:
+            stream = open(inputPath, "rb")
+            bytes = bytearray(stream.read())
+            numpyarray = np.asarray(bytes, dtype=np.uint8)
+            bgrImage = cv2.imdecode(numpyarray, cv2.IMREAD_UNCHANGED)
+            return bgrImage
+        except Exception as exception:
+            self.printInfo("Err Loading File: "+exception)
+            AppWarningsClass.critical_warn("Err Loading File: "+exception)
+
 
     def loadImage(self):
         '''
@@ -1314,6 +1340,13 @@ class HomeUI(QtWidgets.QDialog):
         h = state['size'][1] * self.factor
         # corrige la rotación sino la hace al contrario ¿?
         angle = state['angle'] * -1
+
+        if w < 600:
+            self.printInfo("ROI is too narrow, accuracy may be low")
+        elif h > w:
+            self.printInfo("Is target in vertical position? This is not going to work! Please check the target position")
+        else:
+            self.printInfo("")
 
         top_left = self.rotate_via_numpy((x, y), angle)
         top_right = self.rotate_via_numpy((w + x, y), angle)
