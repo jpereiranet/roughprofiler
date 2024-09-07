@@ -50,6 +50,11 @@ RoughProfiler intentará detectar estas rutas automáticamente el primer inicio 
 EN: From the RoughProfiler configuration tab you can also add the paths to the ICC color profiles folder and system camera profiles, so that the profiles can be installed from the tool itself.
 RoughProfiler will attempt to detect these routes automatically on first startup and add them to the configuration. If the routes do not appear you must add them manually.
 
+ES: En Mac OsX se debe activar la opción `Preferencias del Sistema > Seguridad y Privacidad` y activar la opción `Permitir apps descargadas de` y a continuación, indicar `cualquier sitio`. Pero en versiones > 10.15 esta opción puede estar oculta. Para ello se debe ejecutar en la Terminal `sudo spctl --master-disable` introduce la contraseña y se activará dicha opción, [aquí las instrucciones](https://imageqa.jpereira.net/descargas/Instalacion_OsX_ES.pdf).
+
+EN: On Mac OS X you must activate the option `System Preferences > Security & Privacy` and activate the option `Allow apps downloaded from` and then indicate `anywhere`. But in versions > 10.15 this option may be hidden. To do this you must run `sudo spctl --master-disable` in the Terminal, enter the password and this option will be activated, [instructions](https://imageqa.jpereira.net/descargas/Install_OsX_EN.pdf).
+
+
 ES: En MacOsX las rutas habituales serán:
 
 EN: In MacOsX the usual paths will be:
