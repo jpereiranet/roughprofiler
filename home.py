@@ -773,12 +773,17 @@ class HomeUI(QtWidgets.QDialog):
 
         executable = os.path.join(self.pathArgyllExecutables, "colprof")
 
-        cmd = [executable, "-v", "-a", argyllAlgoritm, "-q", argyllRes, emphasis, argyllUParam, "-O",
+        cmd = [executable, "-v", "-a", argyllAlgoritm, "-O",
                self.outputICCfilename, "-A", manufacturer, "-M", model, "-D", description, "-C", copyright,
                os.path.splitext(self.ti3)[0]]
 
         if self.ui.RemoveB2ATable.isChecked():
             cmd.insert( 4, "-bn")
+
+        if argyllAlgoritm == "l" or argyllAlgoritm == "x":
+            cmd.insert(5, argyllUParam)
+            cmd.insert(6, emphasis)
+            cmd.insert(7, "-q"+argyllRes)
 
         print(cmd)
 
