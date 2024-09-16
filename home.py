@@ -1098,7 +1098,7 @@ class HomeUI(QtWidgets.QDialog):
             for item in data:
                 # ('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
                 xlab.append(float(item[1]))
-                colors.append(item[2])
+                colors.append(item[2][:7])
                 ticks.append((i, item[0]))
                 i = i + 1
 
@@ -1138,7 +1138,7 @@ class HomeUI(QtWidgets.QDialog):
             for item in data:
                 # ('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
                 xlab.append(float(item[3][0]))
-                colors.append(item[2])
+                colors.append(item[2][:7])
                 ticks.append((i, item[0]))
                 i = i + 1
 
@@ -1174,7 +1174,7 @@ class HomeUI(QtWidgets.QDialog):
                 # ('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
                 ticks.append((i, item[0]))
                 xlab.append(float(item[3][1]))
-                colors.append(item[2])
+                colors.append(item[2][:7])
                 i = i + 1
 
             window.getAxis('bottom').setTicks([ticks])
@@ -1209,7 +1209,7 @@ class HomeUI(QtWidgets.QDialog):
                 # ('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
                 ticks.append((i, item[0]))
                 xlab.append(float(item[3][2]))
-                colors.append(item[2])
+                colors.append(item[2][:7])
                 i = i + 1
 
             window.getAxis('bottom').setTicks([ticks])
