@@ -26,7 +26,6 @@ from color import ColorProof
 from confclass import ConfIni
 from presets import PresetManagement
 import webbrowser
-import  getpass
 
 class HomeUI(QtWidgets.QDialog):
 
@@ -46,6 +45,9 @@ class HomeUI(QtWidgets.QDialog):
         self.tempFolder = ""
         self.inputImage = ""
         self.CEGATS_path = r""
+        self.reference = ""
+        self.recogfile = ""
+        self.oldICCprofile = ""
 
 
         #if folder with programs exists, populate it
@@ -54,17 +56,17 @@ class HomeUI(QtWidgets.QDialog):
         if self.pathArgyllExecutables == "" or self.pathDcamprofExecutables == "":
             if not ConfIni.programsAutoPath(self.ui):
                 AppWarningsClass.informative_warn("ArgyllCMS paths or DCAMPROF paths are missing in configuration file, please define before start")
-                self.ui.tabWidget_2.setCurrentIndex(3)
+                self.ui.tabWidget_2.setCurrentIndex(4)
                 self.ui.OpenImage.setEnabled(False)
             else:
                 self.loadConfigurationINI()
         elif not os.path.isdir(self.pathArgyllExecutables):
             AppWarningsClass.informative_warn("ArgyllCMS paths was defined but currently is missing")
-            self.ui.tabWidget_2.setCurrentIndex(3)
+            self.ui.tabWidget_2.setCurrentIndex(4)
             self.ui.OpenImage.setEnabled(False)
         elif not os.path.isdir(self.pathDcamprofExecutables):
             AppWarningsClass.informative_warn("Dcamprof paths was defined but currently is missing")
-            self.ui.tabWidget_2.setCurrentIndex(3)
+            self.ui.tabWidget_2.setCurrentIndex(4)
             self.ui.OpenImage.setEnabled(False)
         else:
             self.ui.OpenImage.setEnabled(True)
@@ -75,7 +77,7 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.tabWidget_2.setTabEnabled(2, False)
         self.ui.tabWidget_2.setTabEnabled(1, False)
         self.ui.tabWidget_2.setTabEnabled(0, False)
-        #self.ui.tabWidget_2.setCurrentIndex(0)
+        self.ui.tabWidget_2.setCurrentIndex(4)
         # --- open imagen
         self.ui.ExecuteReadImage.clicked.connect(self.readImage)
         self.ui.textEdit.setReadOnly(True)
@@ -130,6 +132,7 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.SaveCopyright.clicked.connect(lambda state, field="copyright": self.saveConfParams(field))
         self.ui.SaveFilenamePrefix.clicked.connect(lambda state, field="prefix": self.saveConfParams(field))
         self.ui.SaveDefaultModel.clicked.connect(lambda state, field="model": self.saveConfParams(field))
+        self.ui.FileNameText.textChanged.connect(self.syncOutputProfilePath)
 
         # --------- History Combo
         self.ui.HistoryCombo.setEnabled(False)
@@ -144,6 +147,8 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.ArgyllUparam.currentTextChanged.connect(self.enableSlider)
 
         self.printInfo("Hello! This is a free app from Jose Pereira, www.jpereira.net")
+        self.setMinimumSize(853, 658)
+        self.applyResponsiveGeometry()
 
         #self.printInfo( getpass.getuser() +" "+ os.getlogin()+" "+os.path.expanduser('~') )
 
@@ -163,6 +168,23 @@ class HomeUI(QtWidgets.QDialog):
             self.pathicc = self.config['INSTALL']['PATHICC']
 
             self.pad_roi = int(self.config['LAYOUT']['PAD_ROI'])
+
+            try:
+                self.ui.TargetType.currentTextChanged.disconnect(self.checkReferences)
+            except TypeError:
+                pass
+            try:
+                self.ui.DcamprofToneDCP.currentTextChanged.disconnect(self.enableToneOperatorDCP)
+            except TypeError:
+                pass
+
+            self.ui.ArgyllRes.clear()
+            self.ui.ArgyllAlgoritm.clear()
+            self.ui.ArgyllUparam.clear()
+            self.ui.TargetType.clear()
+            self.ui.DcamprofTOPeratoDCP.clear()
+            self.ui.DcamprofToneDCP.clear()
+            self.ui.DcamprofIlluminant.clear()
 
             self.ArgyllRes = json.loads(self.config.get('PARAMS', 'ARGYLLRES'))
             self.ui.ArgyllRes.addItems(self.ArgyllRes.keys())
@@ -234,11 +256,71 @@ class HomeUI(QtWidgets.QDialog):
         else:
             self.ui.ARgyllUslicer.setEnabled(False)
             self.ui.ArgyllUscale.setText("1.0")
-            self.ui.ARgyllUslicer.setValue(1)
+            self.ui.ARgyllUslicer.setValue(10)
 
     def printInfo(self, msg):
         self.ui.infoBox.setText(msg)
         self.ui.infoBox.repaint()
+
+    def syncOutputProfilePath(self):
+        filename = self.ui.FileNameText.text().strip()
+        if self.tempFolder and filename:
+            self.outputICCfilename = os.path.join(self.tempFolder, filename)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.applyResponsiveGeometry()
+
+    def applyResponsiveGeometry(self):
+        w = self.width()
+        h = self.height()
+
+        margin = 10
+        right_panel_w = 231
+        right_panel_x = max(600, w - right_panel_w - margin)
+        left_panel_x = margin
+        left_panel_w = max(581, right_panel_x - left_panel_x - 9)
+
+        main_top = 140
+        bottom_controls_y = max(570, h - 88)
+        main_h = max(360, bottom_controls_y - main_top - 19)
+
+        self.ui.tabWidget_2.setGeometry(QtCore.QRect(left_panel_x, main_top, left_panel_w, main_h))
+        self.ui.tabWidget.setGeometry(QtCore.QRect(right_panel_x, main_top, right_panel_w, main_h))
+        self.ui.label_4.setGeometry(QtCore.QRect(right_panel_x, 10, 111, 16))
+        self.ui.TargetType.setGeometry(QtCore.QRect(right_panel_x, 30, right_panel_w, 26))
+        self.ui.label_5.setGeometry(QtCore.QRect(right_panel_x, 70, 61, 16))
+        self.ui.HistoryCombo.setGeometry(QtCore.QRect(right_panel_x, 90, right_panel_w, 26))
+
+        self.ui.ExecuteReadImage.setGeometry(QtCore.QRect(right_panel_x - 80, bottom_controls_y, 71, 61))
+        self.ui.ExecuteTask.setGeometry(QtCore.QRect(right_panel_x, bottom_controls_y, 71, 61))
+        self.ui.InstallProfile.setGeometry(QtCore.QRect(right_panel_x + 80, bottom_controls_y, 71, 61))
+        self.ui.createProofImage.setGeometry(QtCore.QRect(right_panel_x + 160, bottom_controls_y, 71, 61))
+
+        file_row_y = bottom_controls_y
+        ref_row_y = bottom_controls_y + 20
+        info_row_y = h - 38
+        self.ui.FileLabel.setGeometry(QtCore.QRect(20, file_row_y, 71, 16))
+        self.ui.FileNameValue.setGeometry(QtCore.QRect(100, file_row_y, max(200, left_panel_w - 120), 16))
+        self.ui.ReferenceLabel.setGeometry(QtCore.QRect(20, ref_row_y, 71, 16))
+        self.ui.ReferenceNameValue.setGeometry(QtCore.QRect(100, ref_row_y, max(200, left_panel_w - 120), 16))
+        self.ui.infoBox.setGeometry(QtCore.QRect(30, info_row_y, max(220, left_panel_w - 40), 20))
+
+        inner_h = max(300, self.ui.tabWidget_2.height() - 50)
+        self.ui.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, self.ui.tabWidget_2.width() - 20, inner_h))
+        self.ui.verticalLayoutWidget_2.setGeometry(QtCore.QRect(0, 10, self.ui.tabWidget_2.width() - 10, inner_h))
+        self.ui.textEdit.setGeometry(QtCore.QRect(10, 10, self.ui.tabWidget_2.width() - 20, inner_h))
+        self.ui.tabsDeltas.setGeometry(QtCore.QRect(10, 10, self.ui.tabWidget_2.width() - 20, inner_h))
+
+        proof_chart_h = max(220, self.ui.tabsDeltas.height() - 50)
+        self.ui.verticalLayoutWidget_3.setGeometry(QtCore.QRect(0, 0, self.ui.tabsDeltas.width(), proof_chart_h))
+        self.ui.verticalLayoutWidget_4.setGeometry(QtCore.QRect(0, 0, self.ui.tabsDeltas.width(), proof_chart_h))
+        self.ui.verticalLayoutWidget_5.setGeometry(QtCore.QRect(0, 0, self.ui.tabsDeltas.width(), proof_chart_h))
+        self.ui.verticalLayoutWidget_6.setGeometry(QtCore.QRect(0, 0, self.ui.tabsDeltas.width(), proof_chart_h))
+        self.ui.FileLabel_2.setGeometry(QtCore.QRect(10, proof_chart_h, 91, 20))
+        self.ui.DeltaEValue.setGeometry(QtCore.QRect(110, proof_chart_h, 91, 20))
+        self.ui.FileLabel_3.setGeometry(QtCore.QRect(210, proof_chart_h, 101, 20))
+        self.ui.DeltaEValueMax.setGeometry(QtCore.QRect(320, proof_chart_h, 91, 20))
 
     def enableToneOperatorDCP(self):
 
@@ -299,51 +381,59 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
+        self.ui.ExecuteReadImage.setEnabled(False)
+        self.recogfile = ""
+        self.reference = ""
+        self.jsonDcamProfile = False
+        self.ui.GlareCheckBox.setEnabled(False)
+
         targetComoboIndex = self.ui.TargetType.currentIndex()
-        if targetComoboIndex > 0:
-            target = list(self.Targets.values())[targetComoboIndex]
-            cgats = DefinePathsClass.create_reference_paths(target[0])
-            recog = DefinePathsClass.create_reference_paths(target[1])
-            profile = DefinePathsClass.create_reference_paths(target[2])
+        if targetComoboIndex <= 0:
+            self.ui.ReferenceNameValue.setText("")
+            self.ui.ReferenceNameValue.repaint()
+            return
 
-            #check if CGATS exists
-            if not os.path.isfile(cgats) and not os.path.isfile(self.CEGATS_path):
-                self.printInfo("CGATS reference file do not exits! You must load it")
-                AppWarningsClass.informative_warn("CGATS reference file do not exits! you must load it")
-            else:
-                if os.path.isfile(self.CEGATS_path):
-                    self.reference = self.CEGATS_path
-                elif os.path.isfile(cgats):
-                    self.reference = cgats
+        target = list(self.Targets.values())[targetComoboIndex]
+        cgats = DefinePathsClass.create_reference_paths(target[0])
+        recog = DefinePathsClass.create_reference_paths(target[1])
+        profile = DefinePathsClass.create_reference_paths(target[2])
 
-                self.ui.ReferenceNameValue.setText(os.path.basename(os.path.basename(self.reference)))
-                self.ui.ReferenceNameValue.repaint()
-                #self.ui.ExecuteReadImage.setEnabled(True)
+        #check if CGATS exists
+        if not os.path.isfile(cgats) and not os.path.isfile(self.CEGATS_path):
+            self.printInfo("CGATS reference file do not exits! You must load it")
+            AppWarningsClass.informative_warn("CGATS reference file do not exits! you must load it")
+        else:
+            if os.path.isfile(self.CEGATS_path):
+                self.reference = self.CEGATS_path
+            elif os.path.isfile(cgats):
+                self.reference = cgats
 
-            #check if recognition file exists
-            if not os.path.isfile(recog):
-                    self.printInfo("Recognition file ("+target[1]+") lost!")
-                    AppWarningsClass.informative_warn("Recognition file lost! Check reference folder o configuration.ini")
-            else:
-                self.recogfile = recog
+            self.ui.ReferenceNameValue.setText(os.path.basename(os.path.basename(self.reference)))
+            self.ui.ReferenceNameValue.repaint()
 
-            #check referece and recognition
-            if os.path.isfile(self.recogfile) and os.path.isfile(self.reference) and os.path.isfile(self.inputImage):
-                self.ui.ExecuteReadImage.setEnabled(True)
-                self.ui.ReferenceNameValue.repaint()
-            else:
-                self.ui.ExecuteReadImage.setEnabled(False)
-                self.ui.ExecuteReadImage.repaint()
+        #check if recognition file exists
+        if not os.path.isfile(recog):
+            self.printInfo("Recognition file ("+target[1]+") lost!")
+            AppWarningsClass.informative_warn("Recognition file lost! Check reference folder o configuration.ini")
+        else:
+            self.recogfile = recog
+
+        #check referece and recognition
+        if os.path.isfile(self.recogfile) and os.path.isfile(self.reference) and os.path.isfile(self.inputImage):
+            self.ui.ExecuteReadImage.setEnabled(True)
+            self.ui.ReferenceNameValue.repaint()
+        else:
+            self.ui.ExecuteReadImage.setEnabled(False)
+            self.ui.ExecuteReadImage.repaint()
 
 
-            #check if Dcamprof json profile exists
-            if not os.path.isfile(profile):
-                #self.printInfo("JSON Dcamproof profile do not exits!")
-                self.ui.GlareCheckBox.setEnabled(False)
-                self.jsonDcamProfile = False
-            else:
-                self.jsonDcamProfile = profile
-                self.ui.GlareCheckBox.setEnabled(True)
+        #check if Dcamprof json profile exists
+        if not os.path.isfile(profile):
+            self.ui.GlareCheckBox.setEnabled(False)
+            self.jsonDcamProfile = False
+        else:
+            self.jsonDcamProfile = profile
+            self.ui.GlareCheckBox.setEnabled(True)
 
     def loadhistorypreset(self):
         '''
@@ -417,11 +507,14 @@ class HomeUI(QtWidgets.QDialog):
         Copy profile to system path
         :return:
         '''
+        self.syncOutputProfilePath()
         if os.path.isfile(self.outputICCfilename):
             icc = self.outputICCfilename
-        else:
-            #print(self.oldICCprofile)
+        elif self.oldICCprofile and os.path.isfile(self.oldICCprofile):
             icc = self.oldICCprofile
+        else:
+            self.printInfo("Profile file not found")
+            return AppWarningsClass.critical_warn("Profile file not found")
 
         #print(icc)
         filename = os.path.basename(icc)
@@ -442,8 +535,8 @@ class HomeUI(QtWidgets.QDialog):
                 if os.path.isfile(os.path.join(self.pathicc, filename)):
                     AppWarningsClass.informative_warn("Profile ICC was installed")
                     self.printInfo("Profile " + filename + " was installed")
-                else:
-                    self.printInfo("ICC folder not found")
+            else:
+                self.printInfo("ICC folder not found")
 
     def getMetadata(self, img):
         '''
@@ -452,8 +545,8 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
-        im = open(img, 'rb')
-        metadata = exifread.process_file(im)
+        with open(img, 'rb') as im:
+            metadata = exifread.process_file(im)
 
         if 'Image Make' in metadata and str(metadata['Image Make']) != "":
             manufacturer = str(metadata['Image Make'])
@@ -547,10 +640,11 @@ class HomeUI(QtWidgets.QDialog):
                 self.tempFolder = os.path.join(os.path.dirname(paths[0]), self.filename)
                 self.ti3 = os.path.join(self.tempFolder, self.filename + ".ti3")
                 self.diag = os.path.join(self.tempFolder, self.filename + "_diag.tiff")
-                self.outputICCfilename = os.path.join(self.tempFolder, self.ui.FileNameText.text())
+                self.syncOutputProfilePath()
                 self.resetReferences()
                 self.checkIfRawFile()
                 self.getMetadata(paths[0])
+                self.syncOutputProfilePath()
                 self.loadImage()
                 self.checkTempFolderContents()
                 self.enableDisableICCDEP()
@@ -646,6 +740,7 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
         output = ""
+        self.syncOutputProfilePath()
         #target = list(self.Targets.values())[self.ui.TargetType.currentIndex()]
         executables = os.path.join(self.pathDcamprofExecutables, "dcamprof")
         jsonOutProfile = os.path.join(self.tempFolder, self.filename + ".json")
@@ -654,12 +749,20 @@ class HomeUI(QtWidgets.QDialog):
         ToneCurveIndex = list(self.DcamToneCurveDcp)[self.ui.DcamprofToneDCP.currentIndex()]
         exposureOffset = self.ui.exposureOffsetValue.text()
         illuminant = self.DcamIlluminant[list(self.DcamIlluminant)[self.ui.DcamprofIlluminant.currentIndex()]]
-        yLimit = self.ui.YLimitBox.text()
+        yLimit = self.ui.YLimitBox.text().replace("\u2212", "-").strip()
+        try:
+            yLimit = str(float(yLimit))
+        except ValueError:
+            yLimit = "-0.2"
+            self.ui.YLimitBox.setText(yLimit)
+            AppWarningsClass.informative_warn("Y Limit no es valido. Se aplicara -0.2")
         filename = self.ui.FileNameText.text()
 
         self.ti3 = self.ti3.encode('utf-8','ignore').decode("utf-8")
         jsonOutProfile = jsonOutProfile.encode('utf-8','ignore').decode("utf-8")
         filename = filename.encode('utf-8','ignore').decode("utf-8")
+        outputProfilePath = os.path.join(self.tempFolder, filename)
+        self.outputICCfilename = outputProfilePath
 
         # this is a non-ascii character. Do something.
 
@@ -683,7 +786,7 @@ class HomeUI(QtWidgets.QDialog):
         output, _ = self.executeTool(cmd, "Dcamprof make-profile", "dcamprof", output)
 
         cmd = [executables, "make-dcp", "-n", model, "-d", description, "-b", exposureOffset, jsonOutProfile,
-               os.path.join(self.tempFolder, filename)]
+               outputProfilePath]
 
         if ToneCurveIndex != "None":
             toneCurve = self.DcamToneCurveDcp[ToneCurveIndex]
@@ -704,12 +807,12 @@ class HomeUI(QtWidgets.QDialog):
         if os.path.isfile(jsonOutProfile):
             self.executeTool(cmd, "Dcamprof make-dcp", "dcamprof", output)
 
-        if os.path.isfile(self.outputICCfilename):
+        if os.path.isfile(outputProfilePath):
             self.printInfo("Decamprof Finish. DCP was create")
-            self.oldICCprofile = self.outputICCfilename
+            self.oldICCprofile = outputProfilePath
             self.createICCFileName(rootname="")
             self.ui.InstallProfile.setEnabled(True)
-            PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder, self.outputICCfilename, None)
+            PresetManagement.saveAllParams(self.ui, self.CEGATS_path, self.ti3, self.tempFolder, outputProfilePath, None)
             self.updateHistoryCombo()
         else:
             self.printInfo("ERROR: DCP was NOT create, check terminal display")
@@ -743,6 +846,7 @@ class HomeUI(QtWidgets.QDialog):
         run ArgyllCMS Colprof
         :return:
         '''
+        self.syncOutputProfilePath()
 
         manufacturer = self.ui.ManufacturerText.text()
         model = self.ui.ModelText.text()
@@ -773,8 +877,9 @@ class HomeUI(QtWidgets.QDialog):
 
         executable = os.path.join(self.pathArgyllExecutables, "colprof")
 
+        outputProfilePath = self.outputICCfilename
         cmd = [executable, "-v", "-a", argyllAlgoritm, "-O",
-               self.outputICCfilename, "-A", manufacturer, "-M", model, "-D", description, "-C", copyright,
+               outputProfilePath, "-A", manufacturer, "-M", model, "-D", description, "-C", copyright,
                os.path.splitext(self.ti3)[0]]
 
         if self.ui.RemoveB2ATable.isChecked():
@@ -789,10 +894,10 @@ class HomeUI(QtWidgets.QDialog):
 
         output, _ = self.executeTool(cmd, "COLPROF", "argyll", output="")
 
-        if os.path.isfile(self.outputICCfilename):
+        if os.path.isfile(outputProfilePath):
             self.printInfo("Colprof finish. ICC was create")
             self.runProfCheck(output)
-            self.oldICCprofile = self.outputICCfilename
+            self.oldICCprofile = outputProfilePath
             self.ui.createProofImage.setEnabled(True)
             self.ui.InstallProfile.setEnabled(True)
             self.createICCFileName(rootname="")
@@ -806,10 +911,14 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
+        self.syncOutputProfilePath()
         if os.path.isfile(self.outputICCfilename):
             icc = self.outputICCfilename
-        else:
+        elif self.oldICCprofile and os.path.isfile(self.oldICCprofile):
             icc = self.oldICCprofile
+        else:
+            self.printInfo("No profile found to generate proof image")
+            return AppWarningsClass.critical_warn("No profile found to generate proof image")
 
         CreateProofImage(self.inputImage, icc, self.ui, self.tempFolder)
 
@@ -879,9 +988,8 @@ class HomeUI(QtWidgets.QDialog):
             self.gamma = "-G1.0"
             return True
         else:
-            return AppWarningsClass.critical_warn(
-                "Error on raw processing, not linear image")
             self.printInfo("Error on raw processing, not linear image")
+            return AppWarningsClass.critical_warn("Error on raw processing, not linear image")
 
 
     def readImage(self):
@@ -892,7 +1000,8 @@ class HomeUI(QtWidgets.QDialog):
 
 
         if self.isRaw:
-            self.createLinearImage()
+            if not self.createLinearImage():
+                return
 
         if len(self.coodinates) > 0:
             if self.checkCoordinatesInside():
@@ -969,27 +1078,27 @@ class HomeUI(QtWidgets.QDialog):
         cmd = list(filter(None, cmd))
         p = subprocess.Popen(cmd, shell=False,
                              stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
+                             stderr=subprocess.STDOUT,
                              **kwargs)  #creationflags=0x00000008
 
         #https://stackoverflow.com/questions/1016384/cross-platform-subprocess-with-hidden-window
         #https://stackoverflow.com/questions/74048217/hide-popen-in-exe-mode
 
-        if workflow == "dcamprof":
-            output = p.stderr.readline
-        elif workflow == "argyll":
-            output = p.stdout.readline
-
         proof = ColorProof()
-        for line in iter(output, b''):
+        output_reader = p.stdout.readline
+        for line in iter(output_reader, b''):
+            txt = line.decode(encoding="utf-8", errors='ignore')
             if toolName == "PROFCHECK":
-                item = proof.formatProfCheck(line.decode(encoding="utf-8", errors='ignore'))
-
-                proofcheckOutput.append(item)
-                self.ui.textEdit.insertPlainText(proof.itemTostring(item))
+                item = proof.formatProfCheck(txt)
+                if isinstance(item, (list, tuple)) and len(item) >= 2:
+                    proofcheckOutput.append(item)
+                    item_txt = proof.itemTostring(item)
+                    if item_txt:
+                        self.ui.textEdit.insertPlainText(item_txt)
+                elif txt.strip():
+                    self.ui.textEdit.insertPlainText(txt)
             else:
                 #ISO-8859-1
-                txt = line.decode(encoding="utf-8", errors='ignore')
                 self.ui.textEdit.insertPlainText(txt)
 
             self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
@@ -1006,6 +1115,20 @@ class HomeUI(QtWidgets.QDialog):
         RGB = convert_color(lab, sRGBColor)
         hex = RGB.get_rgb_hex()
         return hex
+
+    def splitProofData(self, data):
+        patches = []
+        summary = None
+        for item in data or []:
+            if isinstance(item, (list, tuple)):
+                if len(item) >= 5:
+                    patches.append(item)
+                elif len(item) >= 2:
+                    try:
+                        summary = (round(float(item[0]), 1), round(float(item[1]), 1))
+                    except (TypeError, ValueError):
+                        continue
+        return patches, summary
 
     def loadDiag(self):
         '''
@@ -1030,7 +1153,7 @@ class HomeUI(QtWidgets.QDialog):
                 # clean widgets before
                 for i in reversed(range(self.ui.verticalLayout_2.count())):
                     self.ui.verticalLayout_2.itemAt(i).widget().setParent(None)
-                graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
+                graphicsView = pg.GraphicsLayoutWidget(show=False, size=(lay_w, lay_h), border=True)
                 graphicsView.setBackground(QColor(250, 250, 250))
                 graphicsView.setObjectName("Diagnostics_file")
                 v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
@@ -1074,9 +1197,14 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
-        if len(data) > 0:
-            delta = round(float(data[-1][0]), 1)
-            deltaM = round(float(data[-1][1]), 1)
+        patches, summary = self.splitProofData(data)
+        if len(patches) > 0:
+            if summary:
+                delta, deltaM = summary
+            else:
+                de_values = [float(item[1]) for item in patches]
+                delta = round(sum(de_values) / len(de_values), 1)
+                deltaM = round(max(de_values), 1)
             self.ui.DeltaEValue.setText(str(delta))
             self.ui.DeltaEValueMax.setText(str(deltaM))
 
@@ -1085,17 +1213,13 @@ class HomeUI(QtWidgets.QDialog):
 
             lay_w = self.ui.verticalLayoutWidget_3.frameGeometry().width()
             lay_h = self.ui.verticalLayoutWidget_3.frameGeometry().height()
-            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
-            graphicsView.setObjectName("graphicsView")
             window = pg.PlotWidget(name='Plot1')
 
             xlab = []
             ticks = []
             colors = []
             i = 0
-            data.pop(0)
-            data.pop()
-            for item in data:
+            for item in patches:
                 # ('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
                 xlab.append(float(item[1]))
                 colors.append(item[2][:7])
@@ -1111,6 +1235,8 @@ class HomeUI(QtWidgets.QDialog):
             self.ui.tabWidget_2.setTabEnabled(3, True)
             self.ui.tabWidget_2.setCurrentIndex(3)
         else:
+            self.ui.DeltaEValue.setText("")
+            self.ui.DeltaEValueMax.setText("")
             self.ui.tabWidget_2.setTabEnabled(3, False)
 
     def loadProofDELChart(self, data):
@@ -1120,14 +1246,13 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
-        if len(data) > 1:
+        patches, _ = self.splitProofData(data)
+        if len(patches) > 0:
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEL.count())):
                 self.ui.verticalLayout_prooftab_DEL.itemAt(i).widget().setParent(None)
 
             lay_w = self.ui.verticalLayoutWidget_4.frameGeometry().width()
             lay_h = self.ui.verticalLayoutWidget_4.frameGeometry().height()
-            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
-            graphicsView.setObjectName("graphicsView")
 
             window = pg.PlotWidget(name='Plot_DE')
 
@@ -1135,7 +1260,7 @@ class HomeUI(QtWidgets.QDialog):
             ticks = []
             colors = []
             i = 0
-            for item in data:
+            for item in patches:
                 # ('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
                 xlab.append(float(item[3][0]))
                 colors.append(item[2][:7])
@@ -1155,14 +1280,13 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
-        if len(data) > 1:
+        patches, _ = self.splitProofData(data)
+        if len(patches) > 0:
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEC.count())):
                 self.ui.verticalLayout_prooftab_DEC.itemAt(i).widget().setParent(None)
 
             lay_w = self.ui.verticalLayoutWidget_5.frameGeometry().width()
             lay_h = self.ui.verticalLayoutWidget_5.frameGeometry().height()
-            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
-            graphicsView.setObjectName("graphicsView")
 
             window = pg.PlotWidget(name='Plot_DC')
 
@@ -1170,7 +1294,7 @@ class HomeUI(QtWidgets.QDialog):
             ticks = []
             colors = []
             i = 0
-            for item in data:
+            for item in patches:
                 # ('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
                 ticks.append((i, item[0]))
                 xlab.append(float(item[3][1]))
@@ -1190,14 +1314,13 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
 
-        if len(data) > 1:
+        patches, _ = self.splitProofData(data)
+        if len(patches) > 0:
             for i in reversed(range(self.ui.verticalLayout_prooftab_DEH.count())):
                 self.ui.verticalLayout_prooftab_DEH.itemAt(i).widget().setParent(None)
 
             lay_w = self.ui.verticalLayoutWidget_6.frameGeometry().width()
             lay_h = self.ui.verticalLayoutWidget_6.frameGeometry().height()
-            graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
-            graphicsView.setObjectName("graphicsView")
 
             window = pg.PlotWidget(name='PlotDH')
 
@@ -1205,7 +1328,7 @@ class HomeUI(QtWidgets.QDialog):
             ticks = []
             colors = []
             i = 0
-            for item in data:
+            for item in patches:
                 # ('A01', 1.0, '#775243', (-0.69, 0.76, -0.25), (-0.4, -0.8, -0.9)),
                 ticks.append((i, item[0]))
                 xlab.append(float(item[3][2]))
@@ -1225,14 +1348,15 @@ class HomeUI(QtWidgets.QDialog):
         :return:
         '''
         try:
-            stream = open(inputPath, "rb")
-            bytes = bytearray(stream.read())
-            numpyarray = np.asarray(bytes, dtype=np.uint8)
+            with open(inputPath, "rb") as stream:
+                data = bytearray(stream.read())
+            numpyarray = np.asarray(data, dtype=np.uint8)
             bgrImage = cv2.imdecode(numpyarray, cv2.IMREAD_UNCHANGED)
             return bgrImage
         except Exception as exception:
-            self.printInfo("Err Loading File: "+exception)
-            AppWarningsClass.critical_warn("Err Loading File: "+exception)
+            msg = "Err Loading File: " + str(exception)
+            self.printInfo(msg)
+            AppWarningsClass.critical_warn(msg)
 
 
     def loadImage(self):
@@ -1262,7 +1386,7 @@ class HomeUI(QtWidgets.QDialog):
                 for i in reversed(range(self.ui.verticalLayout.count())):
                     self.ui.verticalLayout.itemAt(i).widget().setParent(None)
 
-                graphicsView = pg.GraphicsLayoutWidget(show=True, size=(lay_w, lay_h), border=True)
+                graphicsView = pg.GraphicsLayoutWidget(show=False, size=(lay_w, lay_h), border=True)
                 graphicsView.setObjectName("test_image")
                 graphicsView.setBackground( QColor(250,250,250) )
                 v2a = graphicsView.addViewBox(row=0, col=0, lockAspect=True, enableMouse=False)
@@ -1419,8 +1543,9 @@ class HomeUI(QtWidgets.QDialog):
                 last = os.path.basename(last)
                 name_orig, ext_orig = os.path.splitext(last)
                 serie = name_orig[-3:]
-                num = int(serie) + 1
-                rootname = name_orig[:-3]
+                if serie.isdigit():
+                    num = int(serie) + 1
+                    rootname = name_orig[:-3]
 
         counter = f"{num:0>3}"
         filename = "{0}{1}{2}.{3}".format(rootname,prefix, counter, ext)
@@ -1438,4 +1563,5 @@ if __name__ == '__main__':
     main = HomeUI()
     main.show()
     sys.exit(app.exec_())
+
 

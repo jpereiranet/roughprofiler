@@ -25,7 +25,7 @@ class ConfIni():
             config['OTHERS']['filenamesufix'] = ui.boxConfFilenamePrefix.text()
 
         if field == "model":
-            ui.SaveCopyright.setText("saved!")
+            ui.SaveDefaultModel.setText("saved!")
             config['OTHERS']['devicemodel'] = ui.boxConfDefaultModel.text()
 
         with open(path_conf_file, 'w') as configfile:  # save
@@ -53,8 +53,8 @@ class ConfIni():
             icc = os.path.join(userFolder,"Library/ColorSync/Profiles/")
             dcp = os.path.join(userFolder,"Library/Application Support/Adobe/CameraRaw/CameraProfiles")
         else:
-            icc = os.path.join("C:\Windows\System32\spool\drivers\color")
-            dcp = os.path.join(userFolder, "AppData\Roaming\Adobe\CameraRaw\CameraProfiles")
+            icc = os.path.join("C:\\Windows\\System32\\spool\\drivers\\color")
+            dcp = os.path.join(userFolder, "AppData\\Roaming\\Adobe\\CameraRaw\\CameraProfiles")
 
 
         config = configparser.ConfigParser()
@@ -156,7 +156,7 @@ class ConfIni():
             ui.boxConfDCPSystemPath.setText(value)
             config['INSTALL']['PATHDCP'] = value
 
-        with open(path_conf_file, 'r+') as configfile:  # save
+        with open(path_conf_file, 'w') as configfile:  # save
             std = True
             config.write(configfile)
 

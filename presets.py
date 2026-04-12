@@ -78,8 +78,8 @@ class PresetManagement():
 
         file = os.path.join(tempFolder, "coordinates.json")
         if os.path.isfile(file):
-            f = open(file)
-            data = json.load(f)
+            with open(file) as f:
+                data = json.load(f)
             return [ data["x"], data["y"] ], [data["w"], data["h"] ], data["coordinates"]
 
 
@@ -117,8 +117,8 @@ class PresetManagement():
     @staticmethod
     def setParams(ui,file):
 
-        f = open(file)
-        data = json.load(f)
+        with open(file) as f:
+            data = json.load(f)
 
         PresetManagement.checkHashFiles(data["ti3"], data["hash_ti3"], "Ti3")
         if data["CEGATS_path"]:
@@ -131,7 +131,8 @@ class PresetManagement():
         ui.ArgyllUparam.setCurrentIndex(data["ArgyllUparam"] )
         ui.ARgyllUslicer.setValue( int( round(float(data["ArgyllUscale"]) / 0.1, 0) ) )
         ui.ArgyllUscale.setText(data["ArgyllUscale"])
-        ui.ArgyllEmphasisSlider.setValue(  int(round(float(data["ArgyllGridEmphasis"]) / 0.1, 0 )) )
+        emphasis_value = (float(data["ArgyllGridEmphasis"]) - 1.0) / 0.1
+        ui.ArgyllEmphasisSlider.setValue(int(round(max(0, emphasis_value), 0)))
         ui.ArgyllGridEmphasis.setText(data["ArgyllGridEmphasis"])
         ui.RemoveB2ATable.setChecked(data["RemoveB2ATable"])
 
