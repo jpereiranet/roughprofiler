@@ -47,7 +47,9 @@ class HomeUI(QtWidgets.QDialog):
         self.CEGATS_path = r""
         self.reference = ""
         self.recogfile = ""
+        self.rawinputfile = ""
         self.oldICCprofile = ""
+        self.jsonDcamProfile = False
 
 
         #if folder with programs exists, populate it
@@ -146,6 +148,7 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.DcamExposureSlider.valueChanged[int].connect(self.updateSliderExposure)
         self.ui.ArgyllUparam.currentTextChanged.connect(self.enableSlider)
 
+        self.applyVisualStyle()
         self.printInfo("Hello! This is a free app from Jose Pereira, www.jpereira.net")
         self.setMinimumSize(853, 658)
         self.applyResponsiveGeometry()
@@ -262,6 +265,273 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.infoBox.setText(msg)
         self.ui.infoBox.repaint()
 
+    def applyVisualStyle(self):
+        '''
+        Apply the runtime visual layer after loading the generated UI.
+        Many widgets in main.py carry inline low-contrast colors, so the
+        important controls are restyled directly here.
+        '''
+        self.setStyleSheet("""
+            #RoughProfiler2 {
+                background: #f4f7fb;
+            }
+            QWidget {
+                font-family: Arial;
+            }
+            QToolTip {
+                color: #f8fafc;
+                background: #1f2937;
+                border: 1px solid #475569;
+                padding: 4px;
+            }
+        """)
+
+        label_style = "color: #3f4b5a;"
+        value_label_style = "color: #1f2937; font-weight: 600;"
+        status_label_style = "color: #b42318; font-weight: 600;"
+
+        value_labels = {
+            "FileNameValue",
+            "ReferenceNameValue",
+            "DeltaEValue",
+            "DeltaEValueMax",
+            "ArgyllUscale",
+            "ArgyllGridEmphasis",
+            "exposureOffsetValue",
+        }
+        for label in self.findChildren(QtWidgets.QLabel):
+            name = label.objectName()
+            if name == "infoBox":
+                label.setStyleSheet(status_label_style)
+            elif name in value_labels:
+                label.setStyleSheet(value_label_style)
+            else:
+                label.setStyleSheet(label_style)
+
+        compact_input_font = QtGui.QFont("Arial", 10)
+        compact_combo_font = QtGui.QFont("Arial", 10)
+
+        input_style = """
+            QLineEdit {
+                color: #172033;
+                background: #ffffff;
+                border: 1px solid #aeb9c6;
+                border-radius: 5px;
+                padding: 1px 5px;
+                selection-background-color: #2563eb;
+                selection-color: #ffffff;
+            }
+            QLineEdit:focus {
+                border: 1px solid #2563eb;
+                background: #fbfdff;
+            }
+            QLineEdit:read-only {
+                color: #334155;
+                background: #eef2f7;
+            }
+            QLineEdit:disabled {
+                color: #7c8795;
+                background: #edf1f5;
+                border-color: #c9d2dc;
+            }
+        """
+        for line_edit in self.findChildren(QtWidgets.QLineEdit):
+            line_edit.setFont(compact_input_font)
+            line_edit.setStyleSheet(input_style)
+
+        combo_style = """
+            QComboBox {
+                color: #172033;
+                background: #ffffff;
+                border: 1px solid #aeb9c6;
+                border-radius: 5px;
+                padding: 1px 24px 1px 6px;
+            }
+            QComboBox:hover {
+                border-color: #64748b;
+            }
+            QComboBox:focus {
+                border-color: #2563eb;
+            }
+            QComboBox:disabled {
+                color: #7c8795;
+                background: #edf1f5;
+                border-color: #c9d2dc;
+            }
+            QComboBox::drop-down {
+                width: 22px;
+                border-left: 1px solid #d5dce5;
+                background: #eef2f7;
+                border-top-right-radius: 5px;
+                border-bottom-right-radius: 5px;
+            }
+            QComboBox QAbstractItemView {
+                color: #172033;
+                background: #ffffff;
+                selection-background-color: #dbeafe;
+                selection-color: #172033;
+                border: 1px solid #94a3b8;
+            }
+        """
+        for combo in self.findChildren(QtWidgets.QComboBox):
+            combo.setFont(compact_combo_font)
+            combo.setStyleSheet(combo_style)
+
+        checkbox_style = """
+            QCheckBox {
+                color: #334155;
+                spacing: 6px;
+            }
+            QCheckBox::indicator {
+                width: 14px;
+                height: 14px;
+                border: 1px solid #94a3b8;
+                border-radius: 3px;
+                background: #ffffff;
+            }
+            QCheckBox::indicator:checked {
+                background: #2563eb;
+                border-color: #1d4ed8;
+            }
+            QCheckBox:disabled {
+                color: #94a3b8;
+            }
+        """
+        for checkbox in self.findChildren(QtWidgets.QCheckBox):
+            checkbox.setStyleSheet(checkbox_style)
+
+        tab_style = """
+            QTabWidget::pane {
+                background: #ffffff;
+                border: 1px solid #d0d7e2;
+                border-radius: 7px;
+                top: -1px;
+            }
+            QTabBar::tab {
+                color: #475569;
+                background: #e8edf3;
+                border: 1px solid #c7d0dc;
+                border-bottom-color: #d0d7e2;
+                padding: 5px 11px;
+                margin-right: 2px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+            }
+            QTabBar::tab:selected {
+                color: #111827;
+                background: #ffffff;
+                border-color: #94a3b8;
+                border-bottom-color: #ffffff;
+                font-weight: 600;
+            }
+            QTabBar::tab:disabled {
+                color: #9aa6b2;
+                background: #edf1f5;
+            }
+        """
+        for tab_widget in self.findChildren(QtWidgets.QTabWidget):
+            tab_widget.setStyleSheet(tab_style)
+
+        self.ui.textEdit.setStyleSheet("""
+            QTextEdit {
+                color: #e2e8f0;
+                background: #111827;
+                border: 1px solid #334155;
+                border-radius: 6px;
+                padding: 8px;
+                selection-background-color: #2563eb;
+            }
+        """)
+
+        small_button_style = """
+            QToolButton {
+                color: #1f2937;
+                background: #ffffff;
+                border: 1px solid #9aa6b2;
+                border-radius: 5px;
+                padding: 1px 6px;
+                font-weight: 600;
+            }
+            QToolButton:hover:enabled {
+                background: #f8fafc;
+                border-color: #64748b;
+            }
+            QToolButton:pressed:enabled {
+                background: #e7eef9;
+                border-color: #2563eb;
+            }
+            QToolButton:disabled {
+                color: #94a3b8;
+                background: #edf1f5;
+                border-color: #ccd5df;
+            }
+        """
+        action_button_style = """
+            QToolButton {
+                color: #111827;
+                background: #ffffff;
+                border: 1px solid #7f8da0;
+                border-radius: 8px;
+                padding: 3px;
+            }
+            QToolButton:hover:enabled {
+                background: #f7fbff;
+                border: 1px solid #2563eb;
+            }
+            QToolButton:pressed:enabled {
+                background: #e7eef9;
+                border: 1px solid #1d4ed8;
+            }
+            QToolButton:disabled {
+                background: #edf1f5;
+                border: 1px solid #c9d2dc;
+            }
+        """
+
+        action_buttons = {
+            self.ui.OpenImage,
+            self.ui.LoadCGATS,
+            self.ui.ExecuteReadImage,
+            self.ui.ExecuteTask,
+            self.ui.InstallProfile,
+            self.ui.createProofImage,
+        }
+        for button in self.findChildren(QtWidgets.QToolButton):
+            button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+            if button in action_buttons:
+                button.setStyleSheet(action_button_style)
+            else:
+                button.setStyleSheet(small_button_style)
+
+        slider_style = """
+            QSlider::groove:horizontal {
+                height: 6px;
+                background: #d5dde7;
+                border-radius: 3px;
+            }
+            QSlider::handle:horizontal {
+                width: 15px;
+                margin: -5px 0;
+                border-radius: 7px;
+                background: #2563eb;
+                border: 1px solid #1d4ed8;
+            }
+            QSlider::handle:horizontal:hover {
+                background: #1d4ed8;
+            }
+            QSlider::groove:horizontal:disabled {
+                background: #e5e9ef;
+            }
+            QSlider::handle:horizontal:disabled {
+                background: #aeb9c6;
+                border-color: #9aa6b2;
+            }
+        """
+        for slider in self.findChildren(QtWidgets.QSlider):
+            slider.setStyleSheet(slider_style)
+
+        self.ui.tabWidget_2.setTabText(self.ui.tabWidget_2.indexOf(self.ui.ProofImageTab), "Image")
+
     def syncOutputProfilePath(self):
         filename = self.ui.FileNameText.text().strip()
         if self.tempFolder and filename:
@@ -291,6 +561,26 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.TargetType.setGeometry(QtCore.QRect(right_panel_x, 30, right_panel_w, 26))
         self.ui.label_5.setGeometry(QtCore.QRect(right_panel_x, 70, 61, 16))
         self.ui.HistoryCombo.setGeometry(QtCore.QRect(right_panel_x, 90, right_panel_w, 26))
+
+        metadata_x = 170
+        metadata_gap = 20
+        metadata_right = right_panel_x - 20
+        metadata_left_w = 170
+        metadata_right_x = metadata_x + metadata_left_w + metadata_gap
+        metadata_right_w = max(150, metadata_right - metadata_right_x)
+        metadata_full_w = max(291, metadata_right - metadata_x)
+        metadata_h = 22
+
+        self.ui.ManufacturerLabel.setGeometry(QtCore.QRect(metadata_x, 10, metadata_left_w, 16))
+        self.ui.ManufacturerText.setGeometry(QtCore.QRect(metadata_x, 30, metadata_left_w, metadata_h))
+        self.ui.CopyText.setGeometry(QtCore.QRect(metadata_right_x, 10, metadata_right_w, 16))
+        self.ui.CopyRightText.setGeometry(QtCore.QRect(metadata_right_x, 30, metadata_right_w, metadata_h))
+        self.ui.DeviceLabel.setGeometry(QtCore.QRect(metadata_x, 50, metadata_left_w, 16))
+        self.ui.ModelText.setGeometry(QtCore.QRect(metadata_x, 70, metadata_left_w, metadata_h))
+        self.ui.FileNameLabel.setGeometry(QtCore.QRect(metadata_right_x, 50, metadata_right_w, 16))
+        self.ui.FileNameText.setGeometry(QtCore.QRect(metadata_right_x, 70, metadata_right_w, metadata_h))
+        self.ui.DescLabel.setGeometry(QtCore.QRect(metadata_x, 90, metadata_full_w, 16))
+        self.ui.DestText.setGeometry(QtCore.QRect(metadata_x, 110, metadata_full_w, metadata_h))
 
         self.ui.ExecuteReadImage.setGeometry(QtCore.QRect(right_panel_x - 80, bottom_controls_y, 71, 61))
         self.ui.ExecuteTask.setGeometry(QtCore.QRect(right_panel_x, bottom_controls_y, 71, 61))
@@ -388,52 +678,55 @@ class HomeUI(QtWidgets.QDialog):
         self.ui.GlareCheckBox.setEnabled(False)
 
         targetComoboIndex = self.ui.TargetType.currentIndex()
-        if targetComoboIndex <= 0:
+        targets = list(self.Targets.values())
+        if targetComoboIndex < 0 or targetComoboIndex >= len(targets):
             self.ui.ReferenceNameValue.setText("")
             self.ui.ReferenceNameValue.repaint()
-            return
+            return False
 
-        target = list(self.Targets.values())[targetComoboIndex]
-        cgats = DefinePathsClass.create_reference_paths(target[0])
-        recog = DefinePathsClass.create_reference_paths(target[1])
-        profile = DefinePathsClass.create_reference_paths(target[2])
+        target = targets[targetComoboIndex]
+        cgats = DefinePathsClass.create_reference_paths(target[0]) if target[0] else ""
+        recog = DefinePathsClass.create_reference_paths(target[1]) if target[1] else ""
+        profile = DefinePathsClass.create_reference_paths(target[2]) if target[2] else ""
 
         #check if CGATS exists
-        if not os.path.isfile(cgats) and not os.path.isfile(self.CEGATS_path):
-            self.printInfo("CGATS reference file do not exits! You must load it")
-            AppWarningsClass.informative_warn("CGATS reference file do not exits! you must load it")
-        else:
-            if os.path.isfile(self.CEGATS_path):
-                self.reference = self.CEGATS_path
-            elif os.path.isfile(cgats):
-                self.reference = cgats
+        if os.path.isfile(self.CEGATS_path):
+            self.reference = self.CEGATS_path
+        elif cgats and os.path.isfile(cgats):
+            self.reference = cgats
 
+        if self.reference:
             self.ui.ReferenceNameValue.setText(os.path.basename(os.path.basename(self.reference)))
             self.ui.ReferenceNameValue.repaint()
+        else:
+            self.ui.ReferenceNameValue.setText("")
+            self.ui.ReferenceNameValue.repaint()
+            if target[0]:
+                self.printInfo("CGATS reference file (" + target[0] + ") not found. Load a CGATS file")
+            else:
+                self.printInfo("This target needs an external CGATS reference file")
 
         #check if recognition file exists
-        if not os.path.isfile(recog):
+        if not recog or not os.path.isfile(recog):
             self.printInfo("Recognition file ("+target[1]+") lost!")
-            AppWarningsClass.informative_warn("Recognition file lost! Check reference folder o configuration.ini")
         else:
             self.recogfile = recog
 
         #check referece and recognition
-        if os.path.isfile(self.recogfile) and os.path.isfile(self.reference) and os.path.isfile(self.inputImage):
-            self.ui.ExecuteReadImage.setEnabled(True)
-            self.ui.ReferenceNameValue.repaint()
-        else:
-            self.ui.ExecuteReadImage.setEnabled(False)
-            self.ui.ExecuteReadImage.repaint()
+        readImageEnabled = os.path.isfile(self.recogfile) and os.path.isfile(self.reference) and os.path.isfile(self.inputImage)
+        self.ui.ExecuteReadImage.setEnabled(readImageEnabled)
+        self.ui.ExecuteReadImage.repaint()
 
 
         #check if Dcamprof json profile exists
-        if not os.path.isfile(profile):
+        if not profile or not os.path.isfile(profile):
             self.ui.GlareCheckBox.setEnabled(False)
             self.jsonDcamProfile = False
         else:
             self.jsonDcamProfile = profile
             self.ui.GlareCheckBox.setEnabled(True)
+
+        return readImageEnabled
 
     def loadhistorypreset(self):
         '''
@@ -631,6 +924,11 @@ class HomeUI(QtWidgets.QDialog):
 
             if os.path.isfile(paths[0]):
                 self.isRaw = False
+                self.coodinates = []
+                self.oldICCprofile = ""
+                self.ui.ExecuteTask.setEnabled(False)
+                self.ui.InstallProfile.setEnabled(False)
+                self.ui.createProofImage.setEnabled(False)
                 #self.CEGATS_path = r""
                 self.ui.tabWidget_2.setTabEnabled(0, True)
                 self.ui.tabWidget_2.setCurrentIndex(0)
@@ -641,11 +939,11 @@ class HomeUI(QtWidgets.QDialog):
                 self.ti3 = os.path.join(self.tempFolder, self.filename + ".ti3")
                 self.diag = os.path.join(self.tempFolder, self.filename + "_diag.tiff")
                 self.syncOutputProfilePath()
-                self.resetReferences()
                 self.checkIfRawFile()
                 self.getMetadata(paths[0])
                 self.syncOutputProfilePath()
                 self.loadImage()
+                self.resetReferences()
                 self.checkTempFolderContents()
                 self.enableDisableICCDEP()
                 self.clearDeltas()
@@ -662,7 +960,9 @@ class HomeUI(QtWidgets.QDialog):
         '''
         #self.config['OTHERS']['rawfileext']
         _, rawExt  = self.defineExtensions( self.config['OTHERS']['rawfileext'] )
-        if os.path.splitext(os.path.basename(self.inputImage))[1].replace(".","") in rawExt:
+        rawExt = {ext.lower() for ext in rawExt}
+        imageExt = os.path.splitext(os.path.basename(self.inputImage))[1].replace(".","").lower()
+        if imageExt in rawExt:
 
             self.printInfo("File is in raw format, running develop process, wait...")
             self.rawinputfile = self.inputImage
@@ -709,7 +1009,7 @@ class HomeUI(QtWidgets.QDialog):
         qfd = QtWidgets.QFileDialog()
         path = self.config['PATHS']['lastfolder']
 
-        filter = "Images (*.txt *.cie)"
+        filter = "CGATS Files (*.txt *.cie *.cgats);;All Files (*)"
         title = "GET CGATS"
         fname = QtWidgets.QFileDialog.getOpenFileName(qfd, title, path, filter)[0]
 
@@ -1020,7 +1320,10 @@ class HomeUI(QtWidgets.QDialog):
                         for j in i:
                             res.append(str(round(j, 2)))
                     coor = ",".join(res)
-                    gamma = "-G" + self.config['SCANIN']['gamma']
+                    if self.isRaw:
+                        gamma = "-G1.0"
+                    else:
+                        gamma = "-G" + self.config['SCANIN']['gamma']
                     diagnostics = self.config['SCANIN']['diagnostics']
 
                     cmd = [executable, "-v2","-p", diagnostics, gamma, "-F", coor, "-O", str(self.ti3), str(self.inputImage),
