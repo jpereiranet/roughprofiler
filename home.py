@@ -56,22 +56,10 @@ class HomeUI(QtWidgets.QDialog):
 
         #check if Argyll or Dcamprof exists
         if self.pathArgyllExecutables == "" or self.pathDcamprofExecutables == "":
-            if not ConfIni.programsAutoPath(self.ui):
-                AppWarningsClass.informative_warn("ArgyllCMS paths or DCAMPROF paths are missing in configuration file, please define before start")
-                self.ui.tabWidget_2.setCurrentIndex(4)
-                self.ui.OpenImage.setEnabled(False)
-            else:
+            if ConfIni.programsAutoPath(self.ui):
                 self.loadConfigurationINI()
-        elif not os.path.isdir(self.pathArgyllExecutables):
-            AppWarningsClass.informative_warn("ArgyllCMS paths was defined but currently is missing")
-            self.ui.tabWidget_2.setCurrentIndex(4)
-            self.ui.OpenImage.setEnabled(False)
-        elif not os.path.isdir(self.pathDcamprofExecutables):
-            AppWarningsClass.informative_warn("Dcamprof paths was defined but currently is missing")
-            self.ui.tabWidget_2.setCurrentIndex(4)
-            self.ui.OpenImage.setEnabled(False)
-        else:
-            self.ui.OpenImage.setEnabled(True)
+
+        self.refreshApplicationAvailability(show_warnings=True)
 
 
         #---- main tabs
@@ -155,6 +143,37 @@ class HomeUI(QtWidgets.QDialog):
 
         #self.printInfo( getpass.getuser() +" "+ os.getlogin()+" "+os.path.expanduser('~') )
 
+
+    def refreshApplicationAvailability(self, show_warnings=False):
+        '''
+        Enable the application entry points when the configured executable paths are usable.
+        :param show_warnings:
+        :return:
+        '''
+        paths_ok = True
+
+        if self.pathArgyllExecutables == "" or self.pathDcamprofExecutables == "":
+            paths_ok = False
+            if show_warnings:
+                AppWarningsClass.informative_warn("ArgyllCMS paths or DCAMPROF paths are missing in configuration file, please define before start")
+        elif not os.path.isdir(self.pathArgyllExecutables):
+            paths_ok = False
+            if show_warnings:
+                AppWarningsClass.informative_warn("ArgyllCMS paths was defined but currently is missing")
+        elif not os.path.isdir(self.pathDcamprofExecutables):
+            paths_ok = False
+            if show_warnings:
+                AppWarningsClass.informative_warn("Dcamprof paths was defined but currently is missing")
+
+        self.ui.OpenImage.setEnabled(paths_ok)
+        self.ui.OpenImage.repaint()
+
+        if paths_ok:
+            self.printInfo("Configuration paths loaded. You can now open images.")
+        else:
+            self.ui.tabWidget_2.setCurrentIndex(4)
+
+        return paths_ok
 
 
     def loadConfigurationINI(self):
@@ -875,6 +894,7 @@ class HomeUI(QtWidgets.QDialog):
 
         if std:
             self.loadConfigurationINI()
+            self.refreshApplicationAvailability()
 
     def openTuningFile(self):
         '''
