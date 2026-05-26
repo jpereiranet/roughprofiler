@@ -78,7 +78,7 @@ ES: Puedes descargar RoughProfiler listo para usar desde:
 
 EN: You can donwload RoughProfiler ready to use on:
 
-[Last Release V0.1 alpha](https://github.com/jpereiranet/roughprofiler/releases/tag/V0.1)
+[Last Release V0.1 alpha](https://github.com/jpereiranet/roughprofiler/releases/tag/V0.2)
 
 
 ## Donation / Sponsors
