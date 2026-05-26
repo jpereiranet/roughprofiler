@@ -27,6 +27,7 @@ from confclass import ConfIni
 from presets import PresetManagement
 import webbrowser
 
+
 class HomeUI(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
